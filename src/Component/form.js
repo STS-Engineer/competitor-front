@@ -63,7 +63,7 @@ function Form() {
 
     const fetchCompanies = async () => {
         try {
-            const response = await axios.get('https://avo-adb-001.postgres.database.azure.com:5432/companies');
+            const response = await axios.get('https://avo-competitor-map-backend.azurewebsites.net/companies');
             setCompanies(response.data);
         } catch (error) {
             console.error('Error fetching companies: ', error);
@@ -121,10 +121,10 @@ function Form() {
             let response;
             if (mode === 'add') {
                 // Add new company
-                response = await axios.post('https://avo-adb-001.postgres.database.azure.com:5432/companies', formData);
+                response = await axios.post('https://avo-competitor-map-backend.azurewebsites.net/companies', formData);
             } else if (mode === 'edit') {
                 // Update existing company
-                response = await axios.put(`https://avo-adb-001.postgres.database.azure.com:5432/companies/${selectedCompanyId}`, formData);
+                response = await axios.put(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompanyId}`, formData);
             }
             
             const newCompanyData = response.data;
@@ -173,7 +173,7 @@ function Form() {
 
         // Fetch the company details from the backend using the company ID
         try {
-            const response = await axios.get(`https://avo-adb-001.postgres.database.azure.com:5432/companies/${selectedCompany.id}`);
+            const response = await axios.get(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompany.id}`);
             const selectedCompanyData = response.data;
             if (selectedCompanyData) {
                 // Set the form data with the details of the selected company
@@ -216,7 +216,7 @@ function Form() {
         e.preventDefault();
         // Implement your update logic here, using formData and selectedCompanyId
         try {
-            const response = await axios.put(`https://avo-adb-001.postgres.database.azure.com:5432/companies/${selectedCompanyId}`, formData);
+            const response = await axios.put(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompanyId}`, formData);
             setSuccessMessage('Company updated successfully');
             // Inside handleUpdate function, after successful update
             setSelectedRdLocation(formData.r_and_d_location);
