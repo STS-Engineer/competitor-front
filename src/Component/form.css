@@ -1,0 +1,94 @@
+/* Reset default margin and padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+ 
+/* Global styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+}
+.container{
+  margin: 0;
+  padding: 0;
+  background-image: url('../assets/group-people-holding-placard-concept.jpg');
+  background-size: cover; /* Cover the entire viewport */
+  background-position: center; /* Center the background image */
+  height: 100vh; /* Set body height to fill the viewport */
+  display: flex; /* Use flexbox to center the form vertically */
+  justify-content: center; /* Center content horizontally */
+  align-items: center;
+ 
+}
+ 
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+ 
+.button-container button {
+  margin-bottom: 20px;
+}
+ 
+ 
+ 
+.form {
+  max-width: 400px;
+  margin: 0 auto;
+  background-color: #ffffff88;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+ 
+.input-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.input-group {
+  flex: 0 0 calc(50% - 10px);
+}
+
+.input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+.label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 9px;
+}
+ 
+
+ 
+.button-container {
+  display: flex;
+  justify-content: space-between;
+}
+ 
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+ 
+.button:hover {
+  background-color: #0056b3;
+}
+.map-container {
+  width: 1000px; /* Adjust width as needed */
+  height: 1200px; /* Adjust height as needed */
+}
