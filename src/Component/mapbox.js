@@ -49,7 +49,7 @@ function Mapbox() {
 
     const fetchCompanies = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/companies');
+            const response = await axios.get('https://avo-competitor-map-backend.azurewebsites.net/companies');
             setCompanies(response.data);
         } catch (error) {
             console.error('Error fetching companies: ', error);
