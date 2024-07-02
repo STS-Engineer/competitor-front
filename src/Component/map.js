@@ -86,7 +86,7 @@ function Map() {
  
     const fetchCompanies = async () => {
         try {
-            const response = await axios.get('https://avo-adb-001.postgres.database.azure.com:5432/companies');
+            const response = await axios.get('https://avo-competitor-map-backend.azurewebsites.net/companies');
             setCompanies(response.data);
  
             // Extract company names from the fetched data
