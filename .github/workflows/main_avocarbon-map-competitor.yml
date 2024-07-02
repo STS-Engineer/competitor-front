@@ -28,9 +28,10 @@ jobs:
         run: echo "CI=false" >> $GITHUB_ENV
         
       - name: npm install, build, and test
-        run: |
+        run: 
           npm install
-          npm run build 
+      - name: Build project
+        run: npm run build 
           
         
       - name: Zip artifact for deployment
@@ -64,5 +65,5 @@ jobs:
         with:
           app-name: 'avocarbon-map-competitor'
           slot-name: 'Production'
-          package: .
+          package: '${{ github.workspace }}/build'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6D8AD08F9229490ABBC912222DD35ED9 }}
