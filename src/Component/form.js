@@ -909,7 +909,7 @@ function Form() {
         
         <div className="input-row">
         <div className="input-group">
-                <label htmlFor="revenues" className="label">Revenue</label>
+                <label htmlFor="revenues" className="label">Currency USD(Million)</label>
                 <input type="text" name="revenues" placeholder="Enter company Revenues" value={formData.revenues} required onChange={(e) => setFormData({ ...formData, revenues: e.target.value })} className="input" />
             </div>
             <div className="input-group">
