@@ -33,7 +33,6 @@ const Navbar = () => {
                 <Item>Pricing</Item>
                 <Item>Contact</Item>
             </ResMenu>
-            <Button>Join Today</Button>
         </Container>
     );
 }
