@@ -596,11 +596,11 @@ const addAvoPlantPopup = () => {
    
     return (
         <div>
-            <div style={{ width: '100%', position: 'fixed', top: 0, left: 0, zIndex: 1000 }}>
+            <div style={{ width: '100%', position: 'fixed', top: 0, zIndex: 1000 }}>
                 <Navbar />
             </div>
-            <nav style={{ background: '#333', padding: '1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+            <nav style={{ background: '#333', padding: '1rem', display: 'flex',flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
                     <h2 style={{ color: '#fff', margin: '0', marginRight: '1rem' }}>Filters:</h2>
                     <select name="companyName" value={filters.companyName} onChange={handleFilterChange}
                     style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '4px', border: 'none' }}>
@@ -635,7 +635,7 @@ const addAvoPlantPopup = () => {
                     <select
                         value={filters.RDLocation}
                         onChange={handlefilterrdlocationchange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
+                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none'}}
                     >
                         <option value="">Select R&D Location</option>
                         {Rdlocation.map((name, index) => (
@@ -646,7 +646,7 @@ const addAvoPlantPopup = () => {
                     <select
                         value={filters.HeadquartersLocation}
                         onChange={handleheadquarterfilterchange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
+                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none'}}
                     >
                         <option value="">Select Headquarters_Location</option>
                         {headquarterlocation.map((name, index) => (
