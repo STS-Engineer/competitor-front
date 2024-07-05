@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
 import {useNavigate} from 'react-router-dom';
+import Navbar from '../Components/Navbar';
  
  
 mapboxgl.accessToken = 'pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw';
@@ -595,11 +596,14 @@ const addAvoPlantPopup = () => {
    
     return (
         <div>
+            <div style={{ width: '100%', position: 'fixed', top: 0, left: 0, zIndex: 1000 }}>
+                <Navbar />
+            </div>
             <nav style={{ background: '#333', padding: '1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <h2 style={{ color: '#fff', margin: '0', marginRight: '1rem' }}>Filters:</h2>
                     <select name="companyName" value={filters.companyName} onChange={handleFilterChange}
-                    style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '4px', border: 'none' }}>
+                    style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '4px', border: 'none', width:'120px' }}>
                         <option value="">All</option>
                         {companyNames.map((name, index) => (
                             <option key={index} value={name}>{name}</option>
@@ -609,7 +613,7 @@ const addAvoPlantPopup = () => {
                     <select
                         value={filters.Product}
                         onChange={handleproductChange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
+                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
                     >
                         <option value="">Select product</option>
                         {product.map((name, index) => (
@@ -620,7 +624,7 @@ const addAvoPlantPopup = () => {
                     <select
                         value={filters.country}
                         onChange={handlecountrychange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
+                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
                     >
                         <option value="">Select country</option>
                         {country.map((name, index) => (
@@ -631,7 +635,7 @@ const addAvoPlantPopup = () => {
                     <select
                         value={filters.RDLocation}
                         onChange={handlefilterrdlocationchange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
+                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
                     >
                         <option value="">Select R&D Location</option>
                         {Rdlocation.map((name, index) => (
@@ -642,7 +646,7 @@ const addAvoPlantPopup = () => {
                     <select
                         value={filters.HeadquartersLocation}
                         onChange={handleheadquarterfilterchange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
+                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
                     >
                         <option value="">Select Headquarters_Location</option>
                         {headquarterlocation.map((name, index) => (
@@ -653,7 +657,7 @@ const addAvoPlantPopup = () => {
                     <select
                     value={filters.region}
                     onChange={handleRegionChange}
-                    style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
+                    style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
                     >
                     <option value="">Select Region</option>
                     {region.map((name,index)=>(
@@ -666,7 +670,7 @@ const addAvoPlantPopup = () => {
                name="avoPlant"
                value={filters.avoPlant}
               onChange={handleInputChange}
-              style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
+              style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
                >
              <option value="">All</option>
             {avoPlants.map(plant => (
