@@ -599,8 +599,8 @@ const addAvoPlantPopup = () => {
             <div style={{ width: '100%', position: 'fixed', top: 0, zIndex: 1000 }}>
                 <Navbar />
             </div>
-            <nav style={{ background: '#333', padding: '1rem', display: 'flex',flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
+            <nav style={{ background:'#333', padding: '1rem', marginTop: '60px',  display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                     <h2 style={{ color: '#fff', margin: '0', marginRight: '1rem' }}>Filters:</h2>
                     <select name="companyName" value={filters.companyName} onChange={handleFilterChange}
                     style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '4px', border: 'none' }}>
