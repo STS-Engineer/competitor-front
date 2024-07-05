@@ -635,7 +635,7 @@ const addAvoPlantPopup = () => {
                     <select
                         value={filters.RDLocation}
                         onChange={handlefilterrdlocationchange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none'}}
+                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px'}}
                     >
                         <option value="">Select R&D Location</option>
                         {Rdlocation.map((name, index) => (
@@ -646,7 +646,7 @@ const addAvoPlantPopup = () => {
                     <select
                         value={filters.HeadquartersLocation}
                         onChange={handleheadquarterfilterchange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none'}}
+                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px'}}
                     >
                         <option value="">Select Headquarters_Location</option>
                         {headquarterlocation.map((name, index) => (
