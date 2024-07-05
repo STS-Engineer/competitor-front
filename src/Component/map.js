@@ -603,7 +603,7 @@ const addAvoPlantPopup = () => {
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <h2 style={{ color: '#fff', margin: '0', marginRight: '1rem' }}>Filters:</h2>
                     <select name="companyName" value={filters.companyName} onChange={handleFilterChange}
-                    style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '4px', border: 'none', width:'120px' }}>
+                    style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '4px', border: 'none' }}>
                         <option value="">All</option>
                         {companyNames.map((name, index) => (
                             <option key={index} value={name}>{name}</option>
@@ -613,7 +613,7 @@ const addAvoPlantPopup = () => {
                     <select
                         value={filters.Product}
                         onChange={handleproductChange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
+                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none'}}
                     >
                         <option value="">Select product</option>
                         {product.map((name, index) => (
@@ -624,7 +624,7 @@ const addAvoPlantPopup = () => {
                     <select
                         value={filters.country}
                         onChange={handlecountrychange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
+                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
                     >
                         <option value="">Select country</option>
                         {country.map((name, index) => (
@@ -657,7 +657,7 @@ const addAvoPlantPopup = () => {
                     <select
                     value={filters.region}
                     onChange={handleRegionChange}
-                    style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
+                    style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
                     >
                     <option value="">Select Region</option>
                     {region.map((name,index)=>(
@@ -670,7 +670,7 @@ const addAvoPlantPopup = () => {
                name="avoPlant"
                value={filters.avoPlant}
               onChange={handleInputChange}
-              style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px' }}
+              style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
                >
              <option value="">All</option>
             {avoPlants.map(plant => (
