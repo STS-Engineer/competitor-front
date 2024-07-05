@@ -833,13 +833,13 @@ function Form() {
                 <label htmlFor="region" className="label">Region</label>
                 <select name="region" value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="input" required>
                     <option value="">Select Region</option>
-                    <option value="nafta ">nafta </option>
-                    <option value="mercosur">mercosur</option>
-                    <option value="europe">europe</option>
-                    <option value="easternEurope">easternEurope</option>
-                    <option value="africa">africa</option>
-                    <option value="southAsia">southAsia</option>
-                    <option value="eastAsia">eastAsia</option>
+                    <option value="nafta ">Nafta </option>
+                    <option value="mercosur">Mercosur</option>
+                    <option value="europe">Europe</option>
+                    <option value="easternEurope">Eastern Europe</option>
+                    <option value="africa">Africa</option>
+                    <option value="southAsia">South Asia</option>
+                    <option value="eastAsia">East Asia</option>
                 </select>
             </div>
             <div className="input-group">
