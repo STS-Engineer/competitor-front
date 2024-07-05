@@ -230,19 +230,19 @@ function Map() {
                             if (product) {
                                 // Set marker color based on product type
                                 switch (product.toLowerCase()) {
-                                    case 'chokes':
+                                    case '{"chokes"}':
                                         markerColor = '#00FF00'; // Green
                                         break;
-                                    case 'seals':
+                                    case '{"seals"}':
                                         markerColor = '#FFA500'; // Orange
                                         break;
-                                    case 'assembly':
+                                    case '{"assembly"}':
                                         markerColor = '#0000FF'; // Blue
                                         break;
-                                    case 'injection':
+                                    case '{"injection"}':
                                         markerColor = '#FF00FF'; // Magenta
                                         break;
-                                    case 'brush':
+                                    case '{"brush"}':
                                         markerColor = '#FFFF00'; // Yellow
                                         break;
                                     default:
