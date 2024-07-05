@@ -7,7 +7,6 @@ import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
 import {useNavigate} from 'react-router-dom';
-import Navbar from '../Components/Navbar';
  
  
 mapboxgl.accessToken = 'pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw';
@@ -90,14 +89,14 @@ function Map() {
             setCompanies(response.data);
  
             // Extract company names from the fetched data
-            const names = response.data.map(company => company.name);
-            setCompanyNames(names);
+            const uniqueNames = Array.from(new Set(response.data.map(company => company.name)));
+            setCompanyNames(uniqueNames);
             // Extract product from the fetched data
             const products = response.data.map(company => company.product);
             setProduct(products);
  
             // Extract country from the fetched data
-            const country = response.data.map(company => company.country);
+            const country = Array.from(new Set(response.data.map(company => company.country)));
             setCountry(country);
  
             // Extract rdlocation from the fetched data
@@ -109,7 +108,7 @@ function Map() {
             setHeadquarterlocation(Headquarterlocation);
  
             // Inside fetchCompanies function, extract regions from the fetched data
-           const regions = response.data.map(company => company.region);
+           const regions = Array.from(new Set(response.data.map(company => company.region)));
            setRegions(regions);
         } catch (error) {
             console.error('Error fetching companies: ', error);
@@ -194,12 +193,93 @@ function Map() {
     };
    
    
-  const addMarkersForFilteredCompanies = () => {
-    let regionFound = false; // Flag to check if region filter is applied
+    const addMarkersForFilteredCompanies = () => {
+        let regionFound = false; // Flag to check if region filter is applied
+   
+        companies.forEach(company => {
+            const { r_and_d_location, product, name, country, headquarters_location, region } = company;
+   
+            const companyName = name.toLowerCase();
+            const filterName = filters.companyName.toLowerCase();
+            const filterProduct = filters.Product.toLowerCase();
+            const filterCountry = filters.country.toLowerCase();
+            const filterRdLocation = filters.RDLocation.toLowerCase();
+            const filterHeadquartersLocation = filters.HeadquartersLocation.toLowerCase();
+            const filterRegion = filters.region.toLowerCase();
+   
+            if (
+                r_and_d_location &&
+                companyName.includes(filterName) &&
+                product.toLowerCase().includes(filterProduct) &&
+                country.toLowerCase().includes(filterCountry) &&
+                r_and_d_location.toLowerCase().includes(filterRdLocation) &&
+                headquarters_location.toLowerCase().includes(filterHeadquartersLocation) &&
+                region.toLowerCase().includes(filterRegion)
+            ) {
+                axios
+                    .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
+                    .then(response => {
+                        if (response.data.features && response.data.features.length > 0) {
+                            const coordinates = response.data.features[0].geometry.coordinates;
+                            const longitude = coordinates[0];
+                            const latitude = coordinates[1];
+   
+                            // Add marker for company location
+                            let markerColor = '#000'; // Default color
+                            if (product) {
+                                // Set marker color based on product type
+                                switch (product.toLowerCase()) {
+                                    case 'chokes':
+                                        markerColor = '#00FF00'; // Green
+                                        break;
+                                    case 'seals':
+                                        markerColor = '#FFA500'; // Orange
+                                        break;
+                                    case 'assembly':
+                                        markerColor = '#0000FF'; // Blue
+                                        break;
+                                    case 'injection':
+                                        markerColor = '#FF00FF'; // Magenta
+                                        break;
+                                    case 'brush':
+                                        markerColor = '#FFFF00'; // Yellow
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+   
+                            new mapboxgl.Marker({ color: markerColor })
+                                .setLngLat([longitude, latitude])
+                                .setPopup(
+                                    new mapboxgl.Popup().setHTML(`
+                                        <img src="https://th.bing.com/th?id=OIP.HSliSi5UjcDwSy-4P7LijAAAAA&w=150&h=150&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2"
+                                        alt="Company Image" style="max-width:50%;height:auto;">
+                                        <h1>${name}</h1>
+                                        <p>R&D Location: ${r_and_d_location}</p>
+                                        <p>Headquarters Location: ${headquarters_location}</p>
+                                        <p>Product: ${product}</p>
+                                        <p>Country: ${country}</p>
+                                    `)
+                                )
+                                .addTo(map.current);
+   
+                            if (filters.region && !regionFound) {
+                                flyToRegion(filters.region);
+                                regionFound = true;
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching company location: ', error);
+                    });
+            }
+        });
+    };
+   
+const addMarkersheadquarterForFilteredCompanies = () => {
     companies.forEach(company => {
         const { r_and_d_location, product, name, country, headquarters_location, region } = company;
-        console.log('Company:', company); // Log the company object to inspect its properties
-        console.log('Region:', region); // Log the region value
         const companyName = name.toLowerCase();
         const filterName = filters.companyName.toLowerCase();
         const filterProduct = filters.Product.toLowerCase();
@@ -208,40 +288,41 @@ function Map() {
         const filterheadquarters_location = filters.HeadquartersLocation.toLowerCase();
         const filterRegion = filters.region.toLowerCase();
  
-        if ((r_and_d_location && companyName.includes(filterName) && product.toLowerCase().includes(filterProduct) && country.toLowerCase().includes(filterCountry) && r_and_d_location.toLowerCase().includes(filterr_and_d_location) && headquarters_location.toLowerCase().includes(filterheadquarters_location) && filterRegion && region.toLowerCase().includes(filterRegion))) {
-            axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
+ 
+ 
+        if ((r_and_d_location && companyName.includes(filterName) && product.toLowerCase().includes(filterProduct) && country.toLowerCase().includes(filterCountry) && r_and_d_location.toLowerCase().includes(filterr_and_d_location) && headquarters_location.toLowerCase().includes(filterheadquarters_location)&& region.toLowerCase().includes(filterRegion))) {
+            axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(headquarters_location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
                 .then(response => {
                     if (response.data.features && response.data.features.length > 0) {
                         const coordinates = response.data.features[0].geometry.coordinates;
                         const longitude = coordinates[0];
                         const latitude = coordinates[1];
-                        // Check if the marker is in the specified region using the function defined outside
-                        if (isMarkerInRegion(latitude, longitude, filterRegion)) { // Pass filterRegion instead of region
-                            regionFound = true; // Set flag to true if at least one company is in the region
+                        // Check if the marker is in the specified region
+                        if (isMarkerInRegion(latitude, longitude, filterRegion)) {
                             let markerColor = '#000'; // Default color
                             if (product) {
                                 // Set marker color based on product type
                                 switch (product.toLowerCase()) {
-                                    case 'Chokes':
+                                    case 'chokes':
                                         markerColor = '#00FF00'; // Green
                                         break;
-                                    case 'Seals':
+                                    case 'seals':
                                         markerColor = '#FFA500'; // Orange
                                         break;
-                                    case 'Assembly':
+                                    case 'assembly':
                                         markerColor = '#0000FF'; // Blue
                                         break;
-                                    case 'Injection':
+                                    case 'injection':
                                         markerColor = '#FF00FF'; // Magenta
                                         break;
-                                    case 'Brush':
+                                    case 'brush':
                                         markerColor = '#FFFF00'; // Yellow
                                         break;
                                     default:
                                         break;
                                 }
                             }
-       
+ 
                             // Add marker for company location
                             new mapboxgl.Marker({ color: markerColor })
                                 .setLngLat([longitude, latitude])
@@ -255,11 +336,6 @@ function Map() {
                 });
         }
     });
- 
-    // Fly to the region if the region filter is applied and at least one company is in that region
-    if (filters.region && regionFound) {
-        flyToRegion(filters.region);
-    }
 };
  
  
@@ -304,77 +380,11 @@ function Map() {
         return R * c; // Distance in kilometers
     };
    
-   
-       
-    const addMarkersheadquarterForFilteredCompanies = () => {
-        companies.forEach(company => {
-            const { r_and_d_location, product, name, country, headquarters_location, region } = company;
-            const companyName = name.toLowerCase();
-            const filterName = filters.companyName.toLowerCase();
-            const filterProduct = filters.Product.toLowerCase();
-            const filterCountry = filters.country.toLowerCase();
-            const filterr_and_d_location = filters.RDLocation.toLowerCase();
-            const filterheadquarters_location = filters.HeadquartersLocation.toLowerCase();
-            const filterRegion = filters.region.toLowerCase();
-   
-   
-   
-            if ((r_and_d_location && companyName.includes(filterName) && product.toLowerCase().includes(filterProduct) && country.toLowerCase().includes(filterCountry) && r_and_d_location.toLowerCase().includes(filterr_and_d_location) && headquarters_location.toLowerCase().includes(filterheadquarters_location)&& region.toLowerCase().includes(filterRegion))) {
-                axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(headquarters_location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
-                    .then(response => {
-                        if (response.data.features && response.data.features.length > 0) {
-                            const coordinates = response.data.features[0].geometry.coordinates;
-                            const longitude = coordinates[0];
-                            const latitude = coordinates[1];
-                            // Check if the marker is in the specified region
-                            if (isMarkerInRegion(latitude, longitude, filterRegion)) {
-                                let markerColor = '#000'; // Default color
-                                if (product) {
-                                    // Set marker color based on product type
-                                    switch (product.toLowerCase()) {
-                                        case 'chokes':
-                                            markerColor = '#00FF00'; // Green
-                                            break;
-                                        case 'seals':
-                                            markerColor = '#FFA500'; // Orange
-                                            break;
-                                        case 'assembly':
-                                            markerColor = '#0000FF'; // Blue
-                                            break;
-                                        case 'injection':
-                                            markerColor = '#FF00FF'; // Magenta
-                                            break;
-                                        case 'brush':
-                                            markerColor = '#FFFF00'; // Yellow
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-   
-                                // Add marker for company location
-                                new mapboxgl.Marker({ color: markerColor })
-                                    .setLngLat([longitude, latitude])
-                                    .setPopup(new mapboxgl.Popup().setHTML(`<img src="https://th.bing.com/th?id=OIP.HSliSi5UjcDwSy-4P7LijAAAAA&w=150&h=150&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2" alt="Company Image" style="max-width:50%;height:auto;"><h1>name:${name}</h1><p>r_and_d_location:${r_and_d_location}</p><p>headquarters_location:${headquarters_location}</p><p>product: ${product}</p><p>Country: ${country}</p>`))
-                                    .addTo(map.current);
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching company location: ', error);
-                    });
-            }
-        });
-    };
  
-    const handleCompanyNameChange = (event) => {
-        const selectedCompanyName = event.target.value;
-        setFilters({ ...filters, companyName: selectedCompanyName });
-    };
  
     const handleproductChange = (event) => {
         const selectedproduct = event.target.value;
-        setFilters({ ...filters, product: selectedproduct });
+        setFilters({ ...filters, Product: selectedproduct });
     };
     const handlecountrychange = (event) => {
         const selectedcountry = event.target.value;
@@ -388,11 +398,11 @@ function Map() {
    
     const handlefilterrdlocationchange = (event) => {
         const selectedRdLocation = event.target.value;
-        setFilters({ ...filters, rdlocation: selectedRdLocation })
+        setFilters({ ...filters, RDLocation: selectedRdLocation })
     }
     const handleheadquarterfilterchange = (event) => {
         const selectedheadquarter = event.target.value;
-        setFilters({ ...filters, headquarterlocation: selectedheadquarter })
+        setFilters({ ...filters, HeadquartersLocation: selectedheadquarter })
     }
     const handleDownloadPDF = () => {
         map.current.setZoom(1); // Set zoom level to 4
@@ -529,6 +539,10 @@ function Map() {
         }
     };
  
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters({ ...filters, [name]: value });
+    };
  
 const addAvoPlantPopup = () => {
     if (!filters.avoPlant) return;
@@ -580,27 +594,20 @@ const addAvoPlantPopup = () => {
  
    
     return (
-        
         <div>
-        <div style={{ width: '100%', position: 'fixed', top: 0, left: 0, zIndex: 1000 }}>
-                <Navbar />
-         </div>
-         <nav style={{ background:'#333', padding: '1rem', marginTop: '60px',  display: 'flex', justifyContent: 'space-between' }}>
+            <nav style={{ background: '#333', padding: '1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <h2 style={{ color: '#fff', margin: '0', marginRight: '1rem' }}>Filters:</h2>
-                    <select
-                        value={filters.companyName}
-                        onChange={handleCompanyNameChange}
-                        style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
-                    >
-                        <option value="">Select Company</option>
+                    <select name="companyName" value={filters.companyName} onChange={handleFilterChange}
+                    style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '4px', border: 'none' }}>
+                        <option value="">All</option>
                         {companyNames.map((name, index) => (
                             <option key={index} value={name}>{name}</option>
                         ))}
                     </select>
  
                     <select
-                        value={filters.product}
+                        value={filters.Product}
                         onChange={handleproductChange}
                         style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
                     >
