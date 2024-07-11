@@ -93,7 +93,7 @@ function Map() {
             const uniqueNames = Array.from(new Set(response.data.map(company => company.name)));
             setCompanyNames(uniqueNames);
             // Extract product from the fetched data
-            const products = response.data.map(company => company.product);
+            const products = Array.from(new Set(response.data.map(company => company.product)));
             setProduct(products);
  
             // Extract country from the fetched data
@@ -405,21 +405,96 @@ const addMarkersheadquarterForFilteredCompanies = () => {
         const selectedheadquarter = event.target.value;
         setFilters({ ...filters, HeadquartersLocation: selectedheadquarter })
     }
-    const handleDownloadPDF = () => {
-        map.current.setZoom(1); // Set zoom level to 4
-        map.current.once('idle', () => {
-            html2canvas(mapContainerRef.current).then((canvas) => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('landscape');
-                pdf.addImage(imgData, 'PNG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
-                pdf.save('map.pdf');
+      const handleDownloadPDF = () => {
+        // Initialize map bounds
+        const bounds = new mapboxgl.LngLatBounds();
+   
+        // Array to store promises for fetching marker data
+        const markerPromises = [];
+   
+        // Loop through companies to add markers with popups
+        companies.forEach(company => {
+            const { r_and_d_location, headquarters_location, name, product, country } = company;
+   
+            // Fetch coordinates for R&D location
+            const markerPromise = axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
+                .then(response => {
+                    if (response.data.features && response.data.features.length > 0) {
+                        const coordinates = response.data.features[0].geometry.coordinates;
+                        const longitude = coordinates[0];
+                        const latitude = coordinates[1];
+   
+                        // Determine marker color based on product type
+                        let markerColor = '#000'; // Default color
+                        switch (product.toLowerCase()) {
+                            case 'chokes':
+                                markerColor = '#00FF00'; // Green
+                                break;
+                            case 'seals':
+                                markerColor = '#FFA500'; // Orange
+                                break;
+                            case 'assembly':
+                                markerColor = '#0000FF'; // Blue
+                                break;
+                            case 'injection':
+                                markerColor = '#FF00FF'; // Magenta
+                                break;
+                            case 'brush':
+                                markerColor = '#FFFF00'; // Yellow
+                                break;
+                            default:
+                                break;
+                        }
+   
+                        // Create marker with popup containing company information
+                        const popup = new mapboxgl.Popup().setHTML(`
+                            <div>
+                                <h2 style="font-size: 1rem; font-weight: bold;">${name}</h2>
+                                <h3 style="font-size: 1rem; font-weight: normal;">${product}</h3>
+                            </div>
+                        `);
+                       
+   
+                        // Add marker to map with popup
+                        const marker = new mapboxgl.Marker({ color: markerColor })
+                            .setLngLat([longitude, latitude])
+                            .setPopup(popup)
+                            .addTo(map.current);
+   
+                        // Open popup on marker
+                        popup.addTo(map.current);
+   
+                        // Extend bounds to include this marker
+                        bounds.extend([longitude, latitude]);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching company location: ', error);
+                });
+   
+            markerPromises.push(markerPromise);
+        });
+   
+        // After all markers are added, wait for them to be loaded
+        Promise.all(markerPromises).then(() => {
+            // Fit map to markers' bounds
+            if (!bounds.isEmpty()) {
+                map.current.fitBounds(bounds, { padding: 90 });
+            }
+   
+            // Once all markers are added and map is adjusted, capture the map as a canvas
+            map.current.once('idle', () => {
+                html2canvas(mapContainerRef.current).then((canvas) => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('landscape');
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
+                    pdf.save('map.pdf');
+                });
             });
         });
- 
-   
     };
+     
  
-   
     const handleDownloadExcel = () => {
         const filteredCompanies = companies.filter(company => {
             const companyName = company.name.toLowerCase();
@@ -427,7 +502,7 @@ const addMarkersheadquarterForFilteredCompanies = () => {
             const country = company.country.toLowerCase();
             const r_and_d_location = company.r_and_d_location.toLowerCase();
             const headquarters_location = company.headquarters_location.toLowerCase();
- 
+   
             return (
                 companyName.includes(filters.companyName.toLowerCase()) &&
                 product.includes(filters.Product.toLowerCase()) &&
@@ -436,19 +511,27 @@ const addMarkersheadquarterForFilteredCompanies = () => {
                 headquarters_location.includes(filters.HeadquartersLocation.toLowerCase())
             );
         });
- 
+   
         const worksheetData = filteredCompanies.map(company => ({
             Name: company.name,
             Product: company.product,
             Country: company.country,
+            Region: company.region,
             'R&D Location': company.r_and_d_location,
-            'Headquarters Location': company.headquarters_location
+            'Headquarters Location': company.headquarters_location,
+            Email: company.email, // Add email field
+            Revenues: company.revenues, // Add revenues field
+            Website: company.website, // Add website field
+            Telephone: company.telephone, // Add telephone field
+            'Key Customers': company.keycustomers,// Add key customers field
+            'ProductionVolumes': company.productionvolumes, // Add key customers field
+            'Employees Strength ': company.employeestrength // Add key customers field
         }));
- 
+   
         const worksheet = XLSX.utils.json_to_sheet(worksheetData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Companies');
- 
+   
         XLSX.writeFile(workbook, 'companies.xlsx');
     };
     const findClosestCompany = async (selectedPlantname,selectedPlantCoordinates, companies, mapboxToken) => {
