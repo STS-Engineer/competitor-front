@@ -8,6 +8,7 @@ import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
 import {useNavigate} from 'react-router-dom';
 import Navbar from '../Components/Navbar';
+import './map.css'
  
  
 mapboxgl.accessToken = 'pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw';
@@ -194,8 +195,16 @@ function Map() {
     };
    
    
-    const addMarkersForFilteredCompanies = () => {
+   const addMarkersForFilteredCompanies = () => {
         let regionFound = false; // Flag to check if region filter is applied
+   
+        const productImages = {
+            chokes: 'https://www.split-corecurrenttransformer.com/photo/pl26101407-ferrite_rod_core_high_frequency_choke_coil_inductor_air_coils_with_flat_wire.jpg',
+            seals: 'https://5.imimg.com/data5/AG/XO/RZ/SELLER-552766/bonded-seals.jpg',
+            assembly: 'https://images.paintball.camp/wp-content/uploads/2022/12/06152724/Protoyz-Speedster-Motor-Assembly.png',
+            injection: 'https://secodi.fr/wp-content/uploads/2022/12/piece-injection-perkins-T417873_3.jpg',
+            brush: 'https://2.imimg.com/data2/VE/EI/MY-978046/products6-250x250.jpg'
+        };
    
         companies.forEach(company => {
             const { r_and_d_location, product, name, country, headquarters_location, region } = company;
@@ -230,19 +239,19 @@ function Map() {
                             if (product) {
                                 // Set marker color based on product type
                                 switch (product.toLowerCase()) {
-                                    case '{"chokes"}':
+                                    case 'chokes':
                                         markerColor = '#00FF00'; // Green
                                         break;
-                                    case '{"seals"}':
+                                    case 'seals':
                                         markerColor = '#FFA500'; // Orange
                                         break;
-                                    case '{"assembly"}':
+                                    case 'assembly':
                                         markerColor = '#0000FF'; // Blue
                                         break;
-                                    case '{"injection"}':
+                                    case 'injection':
                                         markerColor = '#FF00FF'; // Magenta
                                         break;
-                                    case '{"brush"}':
+                                    case 'brush':
                                         markerColor = '#FFFF00'; // Yellow
                                         break;
                                     default:
@@ -250,20 +259,26 @@ function Map() {
                                 }
                             }
    
-                            new mapboxgl.Marker({ color: markerColor })
+                            const productImage = productImages[product.toLowerCase()] || 'default_image_url';
+   
+                            const marker = new mapboxgl.Marker({ color: markerColor })
                                 .setLngLat([longitude, latitude])
                                 .setPopup(
-                                    new mapboxgl.Popup().setHTML(`
-                                        <img src="https://th.bing.com/th?id=OIP.HSliSi5UjcDwSy-4P7LijAAAAA&w=150&h=150&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2"
-                                        alt="Company Image" style="max-width:50%;height:auto;">
-                                        <h1>${name}</h1>
-                                        <p>R&D Location: ${r_and_d_location}</p>
-                                        <p>Headquarters Location: ${headquarters_location}</p>
-                                        <p>Product: ${product}</p>
-                                        <p>Country: ${country}</p>
+                                    new mapboxgl.Popup({ offset: 25, className: 'custom-popup' }).setHTML(`
+                                        <div class="popup-content">
+                                            <div class="popup-header">
+                                                <h1 class="popup-title">${name}</h1>
+                                                <h2 class="popup-subtitle">${product}</h2>
+                                                <img src="${productImage}" alt="${product}" class="popup-image" />
+                                            </div>
+                                       
+                                        </div>
                                     `)
                                 )
                                 .addTo(map.current);
+   
+                            // Open popup by default
+                            marker.getPopup().addTo(map.current);
    
                             if (filters.region && !regionFound) {
                                 flyToRegion(filters.region);
