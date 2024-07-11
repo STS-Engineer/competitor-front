@@ -1,1 +1,72 @@
-
+[16:42] Mootaz FARWA
+.custom-popup .mapboxgl-popup-content {
+    background: linear-gradient(135deg, #f5f7fa 0%);
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    padding: 5px;
+    font-family: 'Montserrat', sans-serif;
+    max-width: 200px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+ 
+.custom-popup .mapboxgl-popup-content:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+ 
+.popup-content {
+    text-align: center;
+}
+ 
+.popup-header {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+ 
+.popup-title {
+    margin: 0;
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #2c3e50;
+    transition: color 0.3s ease;
+}
+ 
+.popup-subtitle {
+    margin: 5px 0;
+    font-size: 1.2em;
+    font-weight: 400;
+    color: #34495e;
+    transition: color 0.3s ease;
+}
+ 
+.popup-body {
+    text-align: left;
+}
+ 
+.popup-text {
+    margin: 10px 0;
+    font-size: 1em;
+    color: #555;
+}
+ 
+.popup-text i {
+    margin-right: 5px;
+    color: #3498db;
+}
+ 
+.popup-text:first-of-type {
+    margin-top: 0;
+}
+ 
+.popup-text:last-of-type {
+    margin-bottom: 0;
+}
+.popup-image {
+    width: 60px; /* Adjust the width as needed */
+    height: auto;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+ 
+ 
