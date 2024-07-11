@@ -269,7 +269,7 @@ function Map() {
                                             <div class="popup-header">
                                                 <h1 class="popup-title">${name}</h1>
                                                 <h2 class="popup-subtitle">${product}</h2>
-                                                <img src="${productImage}" alt="${product}" class="popup-image" />
+                                              
                                             </div>
                                        
                                         </div>
