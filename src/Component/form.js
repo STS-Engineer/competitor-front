@@ -16,7 +16,7 @@ function Form() {
         headquarters_location: '',
         r_and_d_location: '',
         country: '',
-        product: [],
+        product: '',
         email: '',
         employeestrength: '',
         revenues: '',
