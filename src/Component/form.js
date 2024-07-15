@@ -118,9 +118,9 @@ function Form() {
         try {
             let response;
             if (mode === 'add') {
-                response = await axios.post('http://localhost:4000/companies', formData);
+                response = await axios.post('https://avo-competitor-map-backend.azurewebsites.net/companies', formData);
             } else if (mode === 'edit') {
-                response = await axios.put(`http://localhost:4000/companies/${selectedCompanyId}`, formData);
+                response = await axios.put(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompanyId}`, formData);
             }
 
             const newCompanyData = response.data;
