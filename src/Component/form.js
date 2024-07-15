@@ -42,12 +42,12 @@ function Form() {
     
 
 
-        const options = [
-        { label: "Chokes", value: "Chokes" },
-        { label: "Seals", value: "Seals" },
-        { label: "Assembly", value: "Assembly" },
-        { label: "Injection", value: "Injection" },
-        { label: "Brush", value: "Brush" },
+       const options = [
+        { label: 'Chokes', value: 'Chokes' },
+        { label: 'Seals', value: 'Seals' },
+        { label: 'Assembly', value: 'Assembly' },
+        { label: 'Injection', value: 'Injection' },
+        { label: 'Brush', value: 'Brush' }
     ];
 
     useEffect(() => {
@@ -69,11 +69,9 @@ function Form() {
             console.error('Error fetching companies: ', error);
         }
     };
-    const handleProductChange = (selectedProducts) => {
-        // Extract the values of selected products from the array of objects
-        const selectedProductValues = selectedProducts.map(product => product.value);
-        // Update the formData state with the selected product values
-        setFormData({ ...formData, product: selectedProductValues });
+   const handleProductChange = (selectedProducts) => {
+        const formattedProduct = selectedProducts.map(product => product.value).join(', ');
+        setFormData({ ...formData, product: formattedProduct });
     };
     
     
@@ -114,35 +112,30 @@ function Form() {
     }
 
 
-    const handleSubmit = async (event) => {
+      const handleSubmit = async (event) => {
         event.preventDefault();
-        
+
         try {
             let response;
             if (mode === 'add') {
-                // Add new company
-                response = await axios.post('https://avo-competitor-map-backend.azurewebsites.net/companies', formData);
+                response = await axios.post('http://localhost:4000/companies', formData);
             } else if (mode === 'edit') {
-                // Update existing company
-                response = await axios.put(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompanyId}`, formData);
+                response = await axios.put(`http://localhost:4000/companies/${selectedCompanyId}`, formData);
             }
-            
+
             const newCompanyData = response.data;
-            // Handle coordinates extraction and setting
             const { latitude, longitude } = newCompanyData.r_and_d_location;
             const { latitude1, longitude1 } = newCompanyData.headquarters_location;
             setNewCompanyCoordinates({ latitude, longitude });
             setNewCompanyCoordinatesheadquarter({ latitude1, longitude1 });
             setShowMap(true);
-            
-            // Display success message
+
             setSuccessMessage(mode === 'add' ? 'Company added successfully' : 'Company updated successfully');
-            event.target.reset(); // Reset form after successful submission
+            event.target.reset();
         } catch (error) {
             console.error(`Error ${mode === 'add' ? 'adding' : 'updating'} company: `, error);
         }
     };
-    
 
 
     const handleCancelEdit = () => {
@@ -539,14 +532,12 @@ function Form() {
             </div>
             <div className="input-group">
            <label htmlFor="product" className="label">Product</label>
-           <MultiSelect
-             options={options}
-             value={options.filter(option => formData.product.includes(option.value))} // Map product values to options
-             onChange={handleProductChange}
-             labelledBy={"Select Products"}
-             className="input"
-             hasSelectAll={false}
-                />
+             <MultiSelect
+                options={options}
+                value={formData.product ? formData.product.split(', ').map(product => ({ label: product, value: product })) : []}
+                onChange={handleProductChange}
+                labelledBy="Select Products"
+            />
 </div>
 
         </div>
