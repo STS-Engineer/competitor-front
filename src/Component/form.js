@@ -473,13 +473,13 @@ function Form() {
                 <label htmlFor="region" className="label">Region</label>
                 <select name="region" value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="input" required>
                     <option value="">Select Region</option>
-                    <option value="nafta ">Nafta </option>
-                    <option value="mercosur">Mercosur</option>
-                    <option value="europe">Europe</option>
-                    <option value="easternEurope">Eastern Europe</option>
-                    <option value="africa">Africa</option>
-                    <option value="southAsia">South Asia</option>
-                    <option value="eastAsia">East Asia</option>
+                    <option value="Nafta ">Nafta </option>
+                    <option value="Mercosur">Mercosur</option>
+                    <option value="Europe">Europe</option>
+                    <option value="Eastern_Europe">Eastern Europe</option>
+                    <option value="Africa">Africa</option>
+                    <option value="South_Asia">South Asia</option>
+                    <option value="East_Asia">East Asia</option>
                 </select>
             </div>
             <div className="input-group">
@@ -824,13 +824,13 @@ function Form() {
                 <label htmlFor="region" className="label">Region</label>
                 <select name="region" value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="input" required>
                     <option value="">Select Region</option>
-                    <option value="nafta ">Nafta </option>
-                    <option value="mercosur">Mercosur</option>
-                    <option value="europe">Europe</option>
-                    <option value="easternEurope">Eastern Europe</option>
-                    <option value="africa">Africa</option>
-                    <option value="southAsia">South Asia</option>
-                    <option value="eastAsia">East Asia</option>
+                    <option value="Nafta ">Nafta </option>
+                    <option value="Mercosur">Mercosur</option>
+                    <option value="Europe">Europe</option>
+                    <option value="Eastern_Europe">Eastern Europe</option>
+                    <option value="Africa">Africa</option>
+                    <option value="South_Asia">South Asia</option>
+                    <option value="East_Asia">East Asia</option>
                 </select>
             </div>
             <div className="input-group">
