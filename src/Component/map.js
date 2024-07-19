@@ -134,43 +134,43 @@ function Map() {
    
  
     const regionBoundaries = {
-        africa: {
+        Africa: {
             minLat: -37,
             maxLat: 38,
             minLng: -25,
             maxLng: 52,
         },
-        europe: {
+        Europe: {
             minLat: 36,
             maxLat: 71,
             minLng: -33,
             maxLng: 41,
         },
-        eastAsia : {
+        East_Asia : {
             minLat: 18,
             maxLat: 54,
             minLng: 73,
             maxLng: 150,
         },
-        easternEurope: {
+        Eastern_Europe: {
             minLat: 40,
             maxLat: 81,
             minLng: 19,
             maxLng: 180,
         },
-        southAsia: {
+        South_Asia: {
             minLat: -10,
             maxLat: 35,
             minLng: 65,
             maxLng: 106,
         },
-        nafta: {
+        Nafta: {
             minLat: -56,
             maxLat: 72,
             minLng: -168,
             maxLng: -34,
         },
-        mercosur: {
+        Mercosur: {
             minLat: -55,
             maxLat: 5,
             minLng: -73,
