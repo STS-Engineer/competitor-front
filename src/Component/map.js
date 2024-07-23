@@ -702,7 +702,7 @@ const addAvoPlantPopup = () => {
                     <h2 style={{ color: '#fff', margin: '0', marginRight: '1rem' }}>Filters:</h2>
                     <select name="companyName" value={filters.companyName} onChange={handleFilterChange}
                     style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '4px', border: 'none' }}>
-                        <option value="">All</option>
+                        <option value="">Company Name</option>
                         {companyNames.map((name, index) => (
                             <option key={index} value={name}>{name}</option>
                         ))}
@@ -713,7 +713,7 @@ const addAvoPlantPopup = () => {
                         onChange={handleproductChange}
                         style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none'}}
                     >
-                        <option value="">Select product</option>
+                        <option value="">Product</option>
                         {product.map((name, index) => (
                             <option key={index} value={name}>{name}</option>
                         ))}
@@ -724,7 +724,7 @@ const addAvoPlantPopup = () => {
                         onChange={handlecountrychange}
                         style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
                     >
-                        <option value="">Select country</option>
+                        <option value="">Country</option>
                         {country.map((name, index) => (
                             <option key={index} value={name}>{name}</option>
                         ))}
@@ -735,7 +735,7 @@ const addAvoPlantPopup = () => {
                         onChange={handlefilterrdlocationchange}
                         style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px'}}
                     >
-                        <option value="">Select R&D Location</option>
+                        <option value="">R&D Location</option>
                         {Rdlocation.map((name, index) => (
                             <option key={index} value={name}>{name}</option>
                         ))}
@@ -746,7 +746,7 @@ const addAvoPlantPopup = () => {
                         onChange={handleheadquarterfilterchange}
                         style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', width:'120px'}}
                     >
-                        <option value="">Select Headquarters_Location</option>
+                        <option value="">HQ Location</option>
                         {headquarterlocation.map((name, index) => (
                             <option key={index} value={name}>{name}</option>
                         ))}
@@ -757,7 +757,7 @@ const addAvoPlantPopup = () => {
                     onChange={handleRegionChange}
                     style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
                     >
-                    <option value="">Select Region</option>
+                    <option value="">Region</option>
                     {region.map((name,index)=>(
                     <option key={index} value={name}>{name}</option>
                     ))}
@@ -770,7 +770,7 @@ const addAvoPlantPopup = () => {
               onChange={handleInputChange}
               style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
                >
-             <option value="">All</option>
+             <option value="">AVOCarbon Plant</option>
             {avoPlants.map(plant => (
            <option key={plant.name} value={plant.name}>{plant.name}</option>
             ))}
