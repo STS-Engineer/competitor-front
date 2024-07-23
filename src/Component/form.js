@@ -545,7 +545,7 @@ function Form() {
         
         <div className="input-row">
         <div className="input-group">
-                <label htmlFor="revenues" className="label">Currency(USD Million)</label>
+                <label htmlFor="revenues" className="label">Revenue Comparison - USD Million</label>
                 <input type="text" name="revenues" placeholder="Enter company Revenues" value={formData.revenues} required onChange={(e) => setFormData({ ...formData, revenues: e.target.value })} className="input" />
             </div>
             <div className="input-group">
@@ -556,7 +556,7 @@ function Form() {
 
         <div className="input-row">
         <div className="input-group">
-                <label htmlFor="productionvolumes" className="label">Production volumes:</label>
+                <label htmlFor="productionvolumes" className="label">Production volumes(Mio. Pcs)</label>
                 <input type="text" name="productionvolumes" placeholder="Enter company Productionvolumes" value={formData.productionvolumes} required onChange={(e) => setFormData({ ...formData, productionvolumes: e.target.value })} className="input" />
             </div>
             <div className="input-group">
