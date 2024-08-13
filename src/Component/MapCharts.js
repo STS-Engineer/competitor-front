@@ -3,6 +3,7 @@ import axios from 'axios';
 import Chart from 'chart.js/auto';
 import './MapCharts.css';
 import Navbar from '../Components/Navbar';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
  
 function MapCharts() {
     const [companies, setCompanies] = useState([]);
@@ -59,13 +60,11 @@ function MapCharts() {
     const renderChart = (canvasId, title, labels, data) => {
         const ctx = document.getElementById(canvasId).getContext('2d');
         const existingChart = Chart.getChart(ctx);
- 
+
         if (existingChart) {
             existingChart.destroy();
         }
- 
-        const backgroundColors = labels.map(label => label === 'AVOCarbon' ? 'rgba(255, 165, 0, 0.6)' : 'rgba(75, 192, 192, 0.2)');
-        const borderColors = labels.map(label => label === 'AVOCarbon' ? 'rgba(255, 165, 0, 1)' : 'rgba(75, 192, 192, 1)');
+
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -73,18 +72,36 @@ function MapCharts() {
                 datasets: [{
                     label: title,
                     data: data,
-                    backgroundColor: backgroundColors,
-                    borderColor: borderColors,
+                    backgroundColor: labels.map(label => label === 'AVOCarbon' ? 'rgba(255, 165, 0, 0.6)' : 'rgba(75, 192, 192, 0.2)'),
+                    borderColor: labels.map(label => label === 'AVOCarbon' ? 'rgba(255, 165, 0, 1)' : 'rgba(75, 192, 192, 1)'),
                     borderWidth: 1
                 }]
             },
             options: {
+                plugins: {
+                    datalabels: {
+                        color: '#000',
+                        anchor: 'end',
+                        align: 'bottom',
+                        formatter: (value) => value.toFixed(2),
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        padding: 4,
+                        display: true
+                    }
+                },
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => value.toFixed(2) // Format y-axis labels
+                        }
                     }
                 }
-            }
+            },
+            plugins: [ChartDataLabels] // Ensure the plugin is included here
         });
     };
  
