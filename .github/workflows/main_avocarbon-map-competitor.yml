@@ -63,7 +63,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'HR-AVOCarbon'
+          app-name: 'avocarbon-map-competitor'
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6D8AD08F9229490ABBC912222DD35ED9 }}
