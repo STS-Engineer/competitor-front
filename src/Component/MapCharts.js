@@ -57,7 +57,7 @@ function MapCharts() {
         renderChart('employeestrength-chart', 'Number of Employees Comparison', labels, numberOfEmployeesData);
     };
  
-    const renderChart = (canvasId, title, labels, data) => {
+   const renderChart = (canvasId, title, labels, data) => {
         const ctx = document.getElementById(canvasId).getContext('2d');
         const existingChart = Chart.getChart(ctx);
 
@@ -104,7 +104,7 @@ function MapCharts() {
             plugins: [ChartDataLabels] // Ensure the plugin is included here
         });
     };
- 
+
     useEffect(() => {
         renderChartForRevenues();
         renderChartForProductionvolumes();
