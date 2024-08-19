@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 import './MapCharts.css';
 import Navbar from '../Components/Navbar';
  
@@ -57,14 +56,25 @@ function MapCharts() {
         renderChart('employeestrength-chart', 'Number of Employees Comparison', labels, numberOfEmployeesData);
     };
  
-    const renderChart = (canvasId, title, labels, data) => {
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        const existingChart = Chart.getChart(ctx);
- 
+   const renderChart = (canvasId, title, labels, data) => {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            console.error(`Canvas element with id ${canvasId} not found`);
+            return;
+        }
+    
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            console.error('Failed to get canvas context');
+            return;
+        }
+    
+        // Destroy existing chart instance if it exists
+        const existingChart = Chart.getChart(canvasId);
         if (existingChart) {
             existingChart.destroy();
         }
- 
+    
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -78,18 +88,39 @@ function MapCharts() {
                 }]
             },
             options: {
+                animation: {
+                    onComplete: function() {
+                        const chartInstance = this;
+                        const ctx = chartInstance.ctx;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.font = 'bold 12px Arial'; // Adjust font size if needed
+                        ctx.fillStyle = '#000'; // Text color
+    
+                        chartInstance.data.datasets.forEach((dataset, i) => {
+                            const meta = chartInstance.getDatasetMeta(i);
+                            meta.data.forEach((bar, index) => {
+                                const value = dataset.data[index];
+                                const barWidth = bar.width;
+                                const barHeight = bar.height;
+                                const barX = bar.x;
+                                const barY = bar.y;
+    
+                                // Calculate the position to place the text inside the bar
+                                const x = barX; // Center horizontally
+                                const y = barY + barHeight * 0.3; // Move text down a little
+    
+                                // Draw text inside the bar
+                                ctx.fillText(value.toFixed(2), x, y);
+                            });
+                        });
+                    }
+                },
                 plugins: {
-                    datalabels: {
-                        color: '#000',
-                        anchor: 'end',
-                        align: 'bottom',
-                        formatter: (value) => value.toFixed(2),
-                        font: {
-                            weight: 'bold',
-                            size: 14
-                        },
-                        padding: 4,
-                        display: true
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.dataset.label}: ${context.raw.toFixed(2)}`
+                        }
                     }
                 },
                 scales: {
@@ -100,8 +131,7 @@ function MapCharts() {
                         }
                     }
                 }
-            },
-            plugins: [ChartDataLabels] // Ensure the plugin is included here
+            }
         });
     };
  
