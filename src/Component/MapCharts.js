@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import './MapCharts.css';
 import Navbar from '../Components/Navbar';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
  
 function MapCharts() {
     const [companies, setCompanies] = useState([]);
@@ -57,14 +57,14 @@ function MapCharts() {
         renderChart('employeestrength-chart', 'Number of Employees Comparison', labels, numberOfEmployeesData);
     };
  
-   const renderChart = (canvasId, title, labels, data) => {
+    const renderChart = (canvasId, title, labels, data) => {
         const ctx = document.getElementById(canvasId).getContext('2d');
         const existingChart = Chart.getChart(ctx);
-
+ 
         if (existingChart) {
             existingChart.destroy();
         }
-
+ 
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -104,7 +104,7 @@ function MapCharts() {
             plugins: [ChartDataLabels] // Ensure the plugin is included here
         });
     };
-
+ 
     useEffect(() => {
         renderChartForRevenues();
         renderChartForProductionvolumes();
@@ -118,11 +118,10 @@ function MapCharts() {
  
     return (
         <div className="chart-container">
-        <Navbar/>
+            <Navbar/>
             <div className="chart">
                 <canvas id="revenues-chart" width="400" height="200"></canvas>
             </div>
-           
             <div className="chart">
                 <canvas id="productionvolume-chart" width="400" height="200"></canvas>
             </div>
@@ -150,4 +149,3 @@ function MapCharts() {
 }
  
 export default MapCharts;
- 
