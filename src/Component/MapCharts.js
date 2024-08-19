@@ -56,7 +56,7 @@ function MapCharts() {
         renderChart('employeestrength-chart', 'Number of Employees Comparison', labels, numberOfEmployeesData);
     };
  
-   const renderChart = (canvasId, title, labels, data) => {
+    const renderChart = (canvasId, title, labels, data) => {
         const canvas = document.getElementById(canvasId);
         if (!canvas) {
             console.error(`Canvas element with id ${canvasId} not found`);
