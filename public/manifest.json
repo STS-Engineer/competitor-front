@@ -8,12 +8,12 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logoavocarbon.png",
+      "src": "logoavocarbon.png?v=1", // Adding version query string to bypass cache
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logoavocarbon.png",
+      "src": "logoavocarbon.png?v=1", // Adding version query string to bypass cache
       "type": "image/png",
       "sizes": "512x512"
     }
