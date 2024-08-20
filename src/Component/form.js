@@ -940,7 +940,11 @@ function Form() {
                 </div>
             )}
             <Notification message={successMessage} />
-
+            <div style={{ marginTop: '690px', textAlign: 'center' }}>
+            <div style={{ paddingLeft: '80px', color: 'white' }}>
+             Copyright 2024 Powered by STS
+           </div>
+           </div>
         </div>
     );
 }
