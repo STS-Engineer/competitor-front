@@ -56,84 +56,79 @@ function MapCharts() {
         renderChart('employeestrength-chart', 'Number of Employees Comparison', labels, numberOfEmployeesData);
     };
  
-    const renderChart = (canvasId, title, labels, data) => {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) {
-            console.error(`Canvas element with id ${canvasId} not found`);
-            return;
-        }
-    
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-            console.error('Failed to get canvas context');
-            return;
-        }
-    
-        // Destroy existing chart instance if it exists
-        const existingChart = Chart.getChart(canvasId);
-        if (existingChart) {
-            existingChart.destroy();
-        }
-    
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: title,
-                    data: data,
-                    backgroundColor: labels.map(label => label === 'AVOCarbon' ? 'rgba(255, 165, 0, 0.6)' : 'rgba(75, 192, 192, 0.2)'),
-                    borderColor: labels.map(label => label === 'AVOCarbon' ? 'rgba(255, 165, 0, 1)' : 'rgba(75, 192, 192, 1)'),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                animation: {
-                    onComplete: function() {
-                        const chartInstance = this;
-                        const ctx = chartInstance.ctx;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.font = 'bold 12px Arial'; // Adjust font size if needed
-                        ctx.fillStyle = '#000'; // Text color
-    
-                        chartInstance.data.datasets.forEach((dataset, i) => {
-                            const meta = chartInstance.getDatasetMeta(i);
-                            meta.data.forEach((bar, index) => {
-                                const value = dataset.data[index];
-                                const barWidth = bar.width;
-                                const barHeight = bar.height;
-                                const barX = bar.x;
-                                const barY = bar.y;
-    
-                                // Calculate the position to place the text inside the bar
-                                const x = barX; // Center horizontally
-                                const y = barY + barHeight * 0.3; // Move text down a little
-    
-                                // Draw text inside the bar
-                                ctx.fillText(value.toFixed(2), x, y);
-                            });
+const renderChart = (canvasId, title, labels, data) => {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        console.error(`Canvas element with id ${canvasId} not found`);
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Failed to get canvas context');
+        return;
+    }
+
+    // Destroy existing chart instance if it exists
+    const existingChart = Chart.getChart(canvasId);
+    if (existingChart) {
+        existingChart.destroy();
+    }
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: title,
+                data: data,
+                backgroundColor: labels.map(label => label === 'AVOCarbon' ? 'rgba(255, 165, 0, 0.6)' : 'rgba(75, 192, 192, 0.2)'),
+                borderColor: labels.map(label => label === 'AVOCarbon' ? 'rgba(255, 165, 0, 1)' : 'rgba(75, 192, 192, 1)'),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            animation: {
+                onComplete: function() {
+                    const chartInstance = this;
+                    const ctx = chartInstance.ctx;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.fillStyle = '#000';
+
+                    chartInstance.data.datasets.forEach((dataset, i) => {
+                        const meta = chartInstance.getDatasetMeta(i);
+                        meta.data.forEach((bar, index) => {
+                            const value = dataset.data[index];
+                            const barX = bar.x;
+                            const barY = bar.y;
+
+                            // Draw text above the bar
+                            ctx.fillText(value.toFixed(2), barX, barY - 10); // Adjust vertical positioning
                         });
+                    });
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `${context.dataset.label}: ${context.raw.toFixed(2)}`
                     }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => `${context.dataset.label}: ${context.raw.toFixed(2)}`
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => value.toFixed(2) // Format y-axis labels
-                        }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (value) => value.toFixed(2)
                     }
                 }
             }
-        });
-    };
+        }
+    });
+};
+
  
     useEffect(() => {
         renderChartForRevenues();
