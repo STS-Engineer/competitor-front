@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './form.css';
 import Notification from './Notification/Notification';
 import phonehand from "../assets/logo-avocarbon.png";
+import { useNavigate } from 'react-router-dom';
 import MapComponent from '../Component/mapbox';
 import Navbar from '../Components/Navbar';
 import { MultiSelect } from 'react-multi-select-component';
+import { motion } from 'framer-motion';
+import { Button, Input, Modal, Progress, Slider } from 'antd';
+
+
+
+
 
 
 function Form() {
     const [companies, setCompanies] = useState([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState('');
+    const [progressvalue, setProgressValue] = useState(0);
     const [formData, setFormData] = useState({
         name: '',
         headquarters_location: '',
@@ -24,7 +32,27 @@ function Form() {
         website: '',
         productionvolumes: '',
         keycustomers: '',
-        region: ''
+        region: '',
+        foundingYear: '', // Add founding year field
+        rate: progressvalue,
+        offeringProducts:'',
+        pricingstrategy: '',
+        customerneeds:'',
+        technologyuse: '',
+        competitiveadvantage:'',
+        challenges: '',
+        Recentnews:'',
+        Productlaunch: '',
+        strategicpartenrship:'',
+        comments: '',
+        employeesperregion: '',
+        Businessstrategies:'',
+        revenue: '',
+        ebit: '',
+        cashFlowSituation: '',
+        roceandequityRatio: '',
+        
+
     });
     const [successMessage, setSuccessMessage] = useState('');
     const [selectedRdLocation, setSelectedRdLocation] = useState(null); // Selected R&D location
@@ -38,11 +66,15 @@ function Form() {
     const [headquarterSuggestions, setheadquarterSuggestions] = useState([]);
     const [loadingRdSuggestions, setLoadingRdSuggestions] = useState(false);
     const [loadingheadquarterSuggestions, setLoadingheadquarterSuggestions] = useState(false);
-    const [selectedProducts, setSelectedProducts] = useState([]);
+    const[currentStep,setCurrentStep]= useState(1);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [currentstepupdate,setCurrentStepUpdate]= useState(1)
     
 
 
-       const options = [
+  
+
+    const options = [
         { label: 'Chokes', value: 'Chokes' },
         { label: 'Seals', value: 'Seals' },
         { label: 'Assembly', value: 'Assembly' },
@@ -63,18 +95,60 @@ function Form() {
 
     const fetchCompanies = async () => {
         try {
-            const response = await axios.get('https://avo-competitor-map-backend.azurewebsites.net/companies');
+            const response = await axios.get('http://localhost:4000/companies');
             setCompanies(response.data);
         } catch (error) {
             console.error('Error fetching companies: ', error);
         }
     };
-   const handleProductChange = (selectedProducts) => {
+    const handleProductChange = (selectedProducts) => {
         const formattedProduct = selectedProducts.map(product => product.value).join(', ');
         setFormData({ ...formData, product: formattedProduct });
     };
+
+
+    const handleModalClose = () => {
+        setIsModalVisible(false); // Hide the modal
+    };
+
+    const handleSave = () => {
+        // Update the main form data with the modal inputs
+        setFormData((prevData) => ({
+            ...prevData,
+            revenue: formData.revenue,
+            ebit: formData.ebit,
+            cashFlowSituation: formData.cashFlowSituation,
+        }));
+        setIsModalVisible(false) // Close the modal after saving
+    };
+
+    // Function to handle changes to the slider
+    const handleSliderChange = (value) => {
+        setProgressValue(value); // Update progress value based on the slider
+        setFormData((prevFormData) => ({ ...prevFormData, rate: value }));
+    };
+
+ 
+
+
+
+    const handleNext = () => {
+        setCurrentStep(2); // Move to the next step
+    };
+    const handlenextupdate =()=>{
+        setCurrentStepUpdate(2);
+    }
+   
+
+    // Animation variants for steps
+   const stepVariants = {
+    hidden: { opacity: 0, x: -50 },
+    visible: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 50 }
+    };
     
-    
+
+
 
     const fetchRdLocationSuggestions = async (inputValue) => {
         try {
@@ -111,16 +185,15 @@ function Form() {
         setheadquarterSuggestions([]);
     }
 
-
-      const handleSubmit = async (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         try {
             let response;
             if (mode === 'add') {
-                response = await axios.post('https://avo-competitor-map-backend.azurewebsites.net/companies', formData);
+                response = await axios.post('http://localhost:4000/companies', formData);
             } else if (mode === 'edit') {
-                response = await axios.put(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompanyId}`, formData);
+                response = await axios.put(`http://localhost:4000/companies/${selectedCompanyId}`, formData);
             }
 
             const newCompanyData = response.data;
@@ -136,7 +209,13 @@ function Form() {
             console.error(`Error ${mode === 'add' ? 'adding' : 'updating'} company: `, error);
         }
     };
-
+    
+ const handleback =()=>{
+    setCurrentStep(1);
+ }
+ const handlebackupdate =()=>{
+    setCurrentStepUpdate(1);
+ }
 
     const handleCancelEdit = () => {
         setFormData({
@@ -166,7 +245,7 @@ function Form() {
 
         // Fetch the company details from the backend using the company ID
         try {
-            const response = await axios.get(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompany.id}`);
+            const response = await axios.get(`http://localhost:4000/companies/${selectedCompany.id}`);
             const selectedCompanyData = response.data;
             if (selectedCompanyData) {
                 // Set the form data with the details of the selected company
@@ -183,7 +262,26 @@ function Form() {
                     website: selectedCompanyData.website,
                     productionvolumes: selectedCompanyData.productionvolumes,
                     keycustomers: selectedCompanyData.keycustomers,
-                    region: selectedCompanyData.region
+                    region: selectedCompanyData.region,
+                    foundingYear: selectedCompanyData.foundingYear,
+                    keymanagement: selectedCompanyData.keymanagement,
+                    rate: selectedCompanyData.rate,
+                    offeringProducts: selectedCompanyData.offeringProducts,
+                    pricingstrategy: selectedCompanyData.pricingstrategy,
+                    customereeds: selectedCompanyData.customereeds,
+                    technologyuse: selectedCompanyData.technologyuse,
+                    competitiveadvantage: selectedCompanyData.competitiveadvantage,
+                    challenges: selectedCompanyData.challenges,
+                    Recentnews: selectedCompanyData.Recentnews,
+                    Productlaunch: selectedCompanyData.Productlaunch,
+                    strategicpartenrship: selectedCompanyData.strategicpartenrship,
+                    comments: selectedCompanyData.comments,
+                    employeesperregion: selectedCompanyData.employeesperregion,
+                    Businessstrategies: selectedCompanyData.Businessstrategies,
+                    revenue: selectedCompanyData.revenue,
+                    ebit: selectedCompanyData.ebit,
+                    cashFlowSituation: selectedCompanyData.cashFlowSituation,
+                    roceandequityRatio: selectedCompanyData.roceandequityRatio
                 });
                 setSelectedRdLocation(selectedCompanyData.r_and_d_location); // Set the selected R&D location
             }
@@ -209,7 +307,7 @@ function Form() {
         e.preventDefault();
         // Implement your update logic here, using formData and selectedCompanyId
         try {
-            const response = await axios.put(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompanyId}`, formData);
+            const response = await axios.put(`http://localhost:4000/companies/${selectedCompanyId}`, formData);
             setSuccessMessage('Company updated successfully');
             // Inside handleUpdate function, after successful update
             setSelectedRdLocation(formData.r_and_d_location);
@@ -218,6 +316,10 @@ function Form() {
             console.error('Error updating company: ', error);
         }
     };
+
+
+    // Function to open and close modal
+    const handleShowFinancialDetails = () => setIsModalVisible(true);
 
 
     return (
@@ -239,14 +341,33 @@ function Form() {
                 </form>
             )}
                    
-
-         {showAddForm && (
-        <form onSubmit={handleSubmit} className="form">
+ 
+       {showAddForm && currentStep === 1 && (
+          <motion.div
+          key="step1"
+          className="form"
+          variants={stepVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          transition={{ duration: 0.7 }}
+          style={{ marginTop: '70px' }} 
+        >
+        <form onSubmit={handleSubmit} >
         <img src={phonehand} width={180} height={50} style={{ marginBottom: '20px' }} />
         <div className="input-group">
-             <label htmlFor="name" className="label">Company Name:</label>
-             <input type="text" name="name" placeholder="Enter company name" value={formData.name} required onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="input" />
-                    </div>
+       <label htmlFor="name" className="label">Company Name</label>
+       <input
+         type="text"
+         name="name"
+        placeholder="Enter company name"
+        value={formData.name}
+        required
+        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        className="input"
+  />
+</div>
+
 
         <div className="input-row">
             <div className="input-group">
@@ -473,13 +594,13 @@ function Form() {
                 <label htmlFor="region" className="label">Region</label>
                 <select name="region" value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="input" required>
                     <option value="">Select Region</option>
-                    <option value="Nafta ">Nafta </option>
-                    <option value="Mercosur">Mercosur</option>
-                    <option value="Europe">Europe</option>
-                    <option value="Eastern_Europe">Eastern Europe</option>
-                    <option value="Africa">Africa</option>
-                    <option value="South_Asia">South Asia</option>
-                    <option value="East_Asia">East Asia</option>
+                    <option value="nafta ">nafta </option>
+                    <option value="mercosur">mercosur</option>
+                    <option value="europe">europe</option>
+                    <option value="easternEurope">easternEurope</option>
+                    <option value="africa">africa</option>
+                    <option value="southAsia">southAsia</option>
+                    <option value="eastAsia">eastAsia</option>
                 </select>
             </div>
             <div className="input-group">
@@ -532,7 +653,7 @@ function Form() {
             </div>
             <div className="input-group">
            <label htmlFor="product" className="label">Product</label>
-             <MultiSelect
+           <MultiSelect
                 options={options}
                 value={formData.product ? formData.product.split(', ').map(product => ({ label: product, value: product })) : []}
                 onChange={handleProductChange}
@@ -545,7 +666,7 @@ function Form() {
         
         <div className="input-row">
         <div className="input-group">
-                <label htmlFor="revenues" className="label">Revenue Comparison - USD Million</label>
+                <label htmlFor="revenues" className="label">Currency(USD)</label>
                 <input type="text" name="revenues" placeholder="Enter company Revenues" value={formData.revenues} required onChange={(e) => setFormData({ ...formData, revenues: e.target.value })} className="input" />
             </div>
             <div className="input-group">
@@ -556,7 +677,7 @@ function Form() {
 
         <div className="input-row">
         <div className="input-group">
-                <label htmlFor="productionvolumes" className="label">Production volumes(Mio. Pcs)</label>
+                <label htmlFor="productionvolumes" className="label">Production volumes</label>
                 <input type="text" name="productionvolumes" placeholder="Enter company Productionvolumes" value={formData.productionvolumes} required onChange={(e) => setFormData({ ...formData, productionvolumes: e.target.value })} className="input" />
             </div>
             <div className="input-group">
@@ -567,21 +688,301 @@ function Form() {
        
 
         <div className="button-container">
-            {mode === 'add' ? (
-                <button type="submit" className="button">Add</button>
-            ) : (
-                <>
-                    <button type="submit" className="button">Update</button>
-                    <button type="button" onClick={handleCancelEdit} className="button">Cancel</button>
-                </>
-            )}
+         <button type="button" onClick={handleNext} className="button">Next</button>
         </div>
-    </form>
+        </form>
+        </motion.div>
+)}
+
+{showAddForm && currentStep === 2 && (
+    <motion.div
+        key="step2"
+        variants={stepVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        transition={{ duration: 0.5 }}
+        className="form-container"
+        style={{ marginTop: '60px' }} 
+    >
+        <form className="form" onSubmit={handleSubmit}>
+        <img src={phonehand} width={180} height={50} style={{ display:'block', margin:'20px auto' }} />
+            <div className='input-row'>
+                <div className="input-group">
+                    <label htmlFor="foundingYear" className="label">Founding Year</label>
+                    <input 
+                        type="date" 
+                        name="foundingYear" 
+                        value={formData.foundingYear} 
+                        onChange={(e) => setFormData({ ...formData, foundingYear: e.target.value })}
+                        placeholder="Enter the founding year"
+                        required 
+                   
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="Businessstrategies" className="label">Strategic Buisness</label>
+
+                      <select 
+                        name="Businessstrategies" 
+                        value={formData.Businessstrategies} 
+                        onChange={(e) => setFormData({ ...formData, Businessstrategies: e.target.value })} 
+                        required 
+                        className="input modern-input"
+                        placeholder="Enter the strategic buisness"
+                    >
+                        <option value="">Select a Buisness</option>
+                        <option value="Productivity">Productivity</option>
+                        <option value="Payment">Payment Investment</option>
+                        <option value="Business">Business Link</option>
+                        <option value="Advance"> Advance bribe to key management</option>
+                        <option value="Growth">Growth partners</option>
+                        <option value="Mutual">Mutual agreement to support each  agreement to support each </option>
+                    </select>
+                </div>
+                <div className="input-group">
+                    <label htmlFor="keyManagement" className="label">Key Management Position</label>
+                    <select 
+                        name="keyManagement" 
+                        value={formData.keymanagement} 
+                        onChange={(e) => setFormData({ ...formData, keymanagement: e.target.value })} 
+                          placeholder="Enter the key management"
+                        required 
+                        className="input modern-input"
+                    >
+                        <option value="">Select a position</option>
+                        <option value="CEO">CEO</option>
+                        <option value="CFO">CFO</option>
+                        <option value="CTO">CTO</option>
+                        <option value="R&D Head">R&D Head</option>
+                        <option value="Sales Head">Sales Head</option>
+                        <option value="Production Head">Production Head</option>
+                        <option value="Key Decision Makers">Key Decision Makers</option>
+                    </select>
+                </div>
+
+              
+            </div>
+          
+            <div className='input-row'>
+                <div className="input-group">
+                    <h3 className='text-bold'>Growth rate</h3>
+                    <Slider
+                        min={0}
+                        max={100}
+                        value={progressvalue}
+                        onChange={handleSliderChange}
+                        style={{ marginBottom: '0px' }}
+                    />
+                    <Progress
+                        percent={progressvalue}
+                        status="active"
+                        showInfo
+                        strokeColor={{
+                            '0%': '#108ee9',
+                            '100%': '#87d068',
+                        }}
+                        style={{ marginTop: '5px' }}
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="Pricingstrategy" className="label">Pricing Strategy (£)</label>
+                    <input
+                        type="number"
+                        value={formData.pricingstrategy}
+                        onChange={(e) => setFormData({ ...formData, pricingstrategy: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="customerneeds" className="label">Customer Needs</label>
+                    <input
+                        type="text"
+                        value={formData.customerneeds}
+                        onChange={(e) => setFormData({ ...formData, customerneeds: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+               
+            </div>
+         
+
+            <div className="input-row">
+                <div className="input-group">
+                    <label htmlFor="technologyuse" className="label">Technology Use</label>
+                    <input
+                        type="text"
+                        value={formData.technologyuse}
+                        onChange={(e) => setFormData({ ...formData, technologyuse: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="challenges" className="label">Challenges</label>
+                    <input
+                        type="text"
+                        value={formData.challenges}
+                        onChange={(e) => setFormData({ ...formData, challenges: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="competitiveadvantage" className="label">Competitive Advantages</label>
+                    <input
+                        type="text"
+                        value={formData.competitiveadvantage}
+                        onChange={(e) => setFormData({ ...formData, competitiveadvantage: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+            </div>
+
+            <div className="input-row">
+             
+                <div className="input-group">
+                    <label htmlFor="Recentnews" className="label">Recent News</label>
+                    <input
+                        type="text"
+                        value={formData.Recentnews}
+                        onChange={(e) => setFormData({ ...formData, Recentnews: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="Productlaunch" className="label">Product Launch or Updates:</label>
+                    <input
+                        type="text"
+                        value={formData.Productlaunch}
+                        onChange={(e) => setFormData({ ...formData, Productlaunch: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="strategicpartenrship" className="label">Strategic Partnership:</label>
+                    <input
+                        type="text"
+                        value={formData.strategicpartenrship}
+                        onChange={(e) => setFormData({ ...formData, strategicpartenrship: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+            </div>
+
+          
+
+            <div className="input-row">
+                <div className="input-group">
+                    <label htmlFor="comments" className="label">Comments Box</label>
+                    <input
+                        type="text"
+                        value={formData.comments}
+                        onChange={(e) => setFormData({ ...formData, comments: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="financialdetails" className="label">Financial Details</label>
+                    <input
+                        onClick={handleShowFinancialDetails}
+                        placeholder="Click to add financial details"
+                        className="input modern-input"
+                        readOnly
+                    />
+                </div>
+
+                <div className="input-group">
+                    <label htmlFor="employeesperregion" className="label">Employees per Region</label>
+                    <input
+                        type="text"
+                        value={formData.employeesperregion}
+                        onChange={(e) => setFormData({ ...formData, employeesperregion: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+            </div>
+
+            <Modal
+                title="Additional Financial Details"
+                visible={isModalVisible}
+                onCancel={handleModalClose}
+                footer={[
+                    <Button key="save" onClick={handleSave}>Save</Button>,
+                    <Button key="close" onClick={handleModalClose}>Close</Button>,
+                ]}
+            >
+                <div className="modal-input-group">
+                    <label>Revenue</label>
+                    <Input
+                        type="text"
+                        value={formData.revenue}
+                        onChange={(e) => setFormData({ ...formData, revenue: e.target.value })}
+                        className="modern-input"
+                    />
+                </div>
+                <div className="modal-input-group">
+                    <label>EBIT</label>
+                    <Input
+                        type="text"
+                        value={formData.ebit}
+                        onChange={(e) => setFormData({ ...formData, ebit: e.target.value })}
+                        className="modern-input"
+                    />
+                </div>
+                <div className="modal-input-group">
+                    <label>Cash Flow Situation</label>
+                    <Input
+                        type="text"
+                        value={formData.cashFlowSituation}
+                        onChange={(e) => setFormData({ ...formData, cashFlowSituation: e.target.value })}
+                        className="modern-input"
+                    />
+                </div>
+                <div className="modal-input-group">
+                    <label>Roce and Equity Ratio</label>
+                    <Input
+                        type="text"
+                        value={formData.roceandequityRatio}
+                        onChange={(e)=>setFormData({...formData, roceandequityRatio: e.target.value})}
+                        className="modern-input"
+                    />
+                </div>
+            </Modal>
+
+            <div className="input-row">
+                <div className="input-group">
+                    <h3>Offering Products</h3>
+                    <Input.TextArea
+                        value={formData.offeringProducts}
+                        onChange={(e)=>setFormData({...formData, offeringProducts: e.target.value})}
+                        rows={2}
+                        style={{ marginBottom: '20px' }}
+                        placeholder="Enter offering products..."
+                        className="modern-input"
+                    />
+                </div>
+              
+            </div>
+
+            <div className="button-beside">
+                {mode === 'add' ? (
+                    <>
+                        <button type="submit" className="button">Add</button>
+                        <button type="button" className="button" onClick={handleback}>Back</button>
+                    </>
+                ) : (
+                    <>
+                        <button type="submit" className="button">Update</button>
+                        <button type="button" onClick={handleCancelEdit} className="button">Cancel</button>
+                    </>
+                )}
+            </div>
+        </form>
+    </motion.div>
 )}
 
 
             {/* Edit Form */}
-            {showEditForm && (
+            {showEditForm && currentstepupdate === 1 && (
                 <form  className="form">
                     <img src={phonehand} width={180} height={50} style={{ marginBottom: '20px' }} />
                     <div className="input-group">
@@ -824,13 +1225,13 @@ function Form() {
                 <label htmlFor="region" className="label">Region</label>
                 <select name="region" value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="input" required>
                     <option value="">Select Region</option>
-                    <option value="Nafta ">Nafta </option>
-                    <option value="Mercosur">Mercosur</option>
-                    <option value="Europe">Europe</option>
-                    <option value="Eastern_Europe">Eastern Europe</option>
-                    <option value="Africa">Africa</option>
-                    <option value="South_Asia">South Asia</option>
-                    <option value="East_Asia">East Asia</option>
+                    <option value="nafta ">nafta </option>
+                    <option value="mercosur">mercosur</option>
+                    <option value="europe">europe</option>
+                    <option value="easternEurope">easternEurope</option>
+                    <option value="africa">africa</option>
+                    <option value="southAsia">southAsia</option>
+                    <option value="eastAsia">eastAsia</option>
                 </select>
             </div>
             <div className="input-group">
@@ -891,16 +1292,13 @@ function Form() {
              className="input"
              hasSelectAll={false}
                 />
-</div>
-
-
-
+            </div>
             </div>
 
         
         <div className="input-row">
         <div className="input-group">
-                <label htmlFor="revenues" className="label">Revenue Comparison - USD Million</label>
+                <label htmlFor="revenues" className="label">Revenue</label>
                 <input type="text" name="revenues" placeholder="Enter company Revenues" value={formData.revenues} required onChange={(e) => setFormData({ ...formData, revenues: e.target.value })} className="input" />
             </div>
             <div className="input-group">
@@ -911,7 +1309,7 @@ function Form() {
 
         <div className="input-row">
         <div className="input-group">
-                <label htmlFor="productionvolumes" className="label">Production volumes (Mio. Pcs):</label>
+                <label htmlFor="productionvolumes" className="label">Production volumes:</label>
                 <input type="text" name="productionvolumes" placeholder="Enter company Productionvolumes" value={formData.productionvolumes} required onChange={(e) => setFormData({ ...formData, productionvolumes: e.target.value })} className="input" />
             </div>
             <div className="input-group">
@@ -921,7 +1319,7 @@ function Form() {
             </div>
        
 
-        <div className="button-container">
+        {/* <div className="button-container">
             {mode === 'add' ? (
                 <button type="submit" className="button">Add</button>
             ) : (
@@ -930,9 +1328,300 @@ function Form() {
                     <button type="button" onClick={handleCancelEdit} className="button">Cancel</button>
                 </>
             )}
+        </div> */}
+
+        
+       <div className="button-container">
+         <button type="button" onClick={handlenextupdate} className="button">Next</button>
         </div>
-                </form>
+        </form>
+        
             )}
+
+{showEditForm && currentstepupdate === 2 && (
+    <motion.div
+        key="step2"
+        variants={stepVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        transition={{ duration: 0.5 }}
+        className="form-container"
+        style={{ marginTop: '60px' }} 
+    >
+        <form className="form" onSubmit={handleSubmit}>
+        <img src={phonehand} width={180} height={50} style={{ display:'block', margin:'20px auto' }} />
+            <div className='input-row'>
+                <div className="input-group">
+                    <label htmlFor="foundingYear" className="label">Founding Year</label>
+                    <input 
+                        type="date" 
+                        name="foundingYear" 
+                        value={formData.foundingYear} 
+                        onChange={(e) => setFormData({ ...formData, foundingYear: e.target.value })}
+                        placeholder="Enter the founding year"
+                        required 
+                   
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="Businessstrategies" className="label">Strategic Buisness</label>
+
+                      <select 
+                        name="Businessstrategies" 
+                        value={formData.Businessstrategies} 
+                        onChange={(e) => setFormData({ ...formData, Businessstrategies: e.target.value })} 
+                        required 
+                        className="input modern-input"
+                        placeholder="Enter the strategic buisness"
+                    >
+                        <option value="">Select a Buisness</option>
+                        <option value="Productivity">Productivity</option>
+                        <option value="Payment">Payment Investment</option>
+                        <option value="Business">Business Link</option>
+                        <option value="Advance"> Advance bribe to key management</option>
+                        <option value="Growth">Growth partners</option>
+                        <option value="Mutual">Mutual agreement to support each  agreement to support each </option>
+                    </select>
+                </div>
+                <div className="input-group">
+                    <label htmlFor="keyManagement" className="label">Key Management Position</label>
+                    <select 
+                        name="keymanagement" 
+                        value={formData.keymanagement} 
+                        onChange={(e) => setFormData({ ...formData, keymanagement: e.target.value })} 
+                          placeholder="Enter the key management"
+                        required 
+                        className="input modern-input"
+                    >
+                        <option value="">Select a position</option>
+                        <option value="CEO">CEO</option>
+                        <option value="CFO">CFO</option>
+                        <option value="CTO">CTO</option>
+                        <option value="R&D Head">R&D Head</option>
+                        <option value="Sales Head">Sales Head</option>
+                        <option value="Production Head">Production Head</option>
+                        <option value="Key Decision Makers">Key Decision Makers</option>
+                    </select>
+                </div>
+
+              
+            </div>
+          
+            <div className='input-row'>
+                <div className="input-group">
+                    <h3 className='text-bold'>Growth rate</h3>
+                    <Slider
+                        min={0}
+                        max={100}
+                        value={progressvalue}
+                        onChange={handleSliderChange}
+                        style={{ marginBottom: '0px' }}
+                    />
+                    <Progress
+                        percent={progressvalue}
+                        status="active"
+                        showInfo
+                        strokeColor={{
+                            '0%': '#108ee9',
+                            '100%': '#87d068',
+                        }}
+                        style={{ marginTop: '5px' }}
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="Pricingstrategy" className="label">Pricing Strategy (£)</label>
+                    <input
+                        type="number"
+                        value={formData.pricingstrategy}
+                        onChange={(e) => setFormData({ ...formData, pricingstrategy: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="customerneeds" className="label">Customer Needs</label>
+                    <input
+                        type="text"
+                        value={formData.customerneeds}
+                        onChange={(e) => setFormData({ ...formData, customerneeds: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+               
+            </div>
+         
+
+            <div className="input-row">
+                <div className="input-group">
+                    <label htmlFor="technologyuse" className="label">Technology Use</label>
+                    <input
+                        type="text"
+                        value={formData.technologyuse}
+                        onChange={(e) => setFormData({ ...formData, technologyuse: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="challenges" className="label">Challenges</label>
+                    <input
+                        type="text"
+                        value={formData.challenges}
+                        onChange={(e) => setFormData({ ...formData, challenges: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="competitiveadvantage" className="label">Competitive Advantages</label>
+                    <input
+                        type="text"
+                        value={formData.competitiveadvantage}
+                        onChange={(e) => setFormData({ ...formData, competitiveadvantage: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+            </div>
+
+            <div className="input-row">
+             
+                <div className="input-group">
+                    <label htmlFor="Recentnews" className="label">Recent News:</label>
+                    <input
+                        type="text"
+                        value={formData.Recentnews}
+                        onChange={(e) => setFormData({ ...formData, Recentnews: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="Productlaunch" className="label">Product Launch or Updates:</label>
+                    <input
+                        type="text"
+                        value={formData.Productlaunch}
+                        onChange={(e) => setFormData({ ...formData, Productlaunch: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="strategicpartenrship" className="label">Strategic Partnership:</label>
+                    <input
+                        type="text"
+                        value={formData.strategicpartenrship}
+                        onChange={(e) => setFormData({ ...formData, strategicpartenrship: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+            </div>
+
+          
+
+            <div className="input-row">
+                <div className="input-group">
+                    <label htmlFor="comments" className="label">Comments Box</label>
+                    <input
+                        type="text"
+                        value={formData.comments}
+                        onChange={(e) => setFormData({ ...formData, comments: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="financialdetails" className="label">Financial Details</label>
+                    <input
+                        onClick={handleShowFinancialDetails}
+                        placeholder="Click to add financial details"
+                        className="input modern-input"
+                        readOnly
+                    />
+                </div>
+
+                <div className="input-group">
+                    <label htmlFor="employeesperregion" className="label">Employees per Region</label>
+                    <input
+                        type="text"
+                        value={formData.employeesperregion}
+                        onChange={(e) => setFormData({ ...formData, employeesperregion: e.target.value })}
+                        className="input modern-input"
+                    />
+                </div>
+            </div>
+
+            <Modal
+                title="Additional Financial Details"
+                visible={isModalVisible}
+                onCancel={handleModalClose}
+                footer={[
+                    <Button key="save" onClick={handleSave}>Save</Button>,
+                    <Button key="close" onClick={handleModalClose}>Close</Button>,
+                ]}
+            >
+                <div className="modal-input-group">
+                    <label>Revenue</label>
+                    <Input
+                        type="text"
+                        value={formData.revenue}
+                        onChange={(e) => setFormData({ ...formData, revenue: e.target.value })}
+                        className="modern-input"
+                    />
+                </div>
+                <div className="modal-input-group">
+                    <label>EBIT</label>
+                    <Input
+                        type="text"
+                        value={formData.ebit}
+                        onChange={(e) => setFormData({ ...formData, ebit: e.target.value })}
+                        className="modern-input"
+                    />
+                </div>
+                <div className="modal-input-group">
+                    <label>Cash Flow Situation</label>
+                    <Input
+                        type="text"
+                        value={formData.cashFlowSituation}
+                        onChange={(e) => setFormData({ ...formData, cashFlowSituation: e.target.value })}
+                        className="modern-input"
+                    />
+                </div>
+                <div className="modal-input-group">
+                    <label>Roce and Equity Ratio</label>
+                    <Input
+                        type="text"
+                        value={formData.roceandequityRatio}
+                        onChange={(e)=>setFormData({...formData, roceandequityRatio: e.target.value})}
+                        className="modern-input"
+                    />
+                </div>
+            </Modal>
+
+            <div className="input-row">
+                <div className="input-group">
+                    <h3>Offering Products</h3>
+                    <Input.TextArea
+                        value={formData.offeringProducts}
+                        onChange={(e)=>setFormData({...formData, offeringProducts: e.target.value})}
+                        rows={2}
+                        style={{ marginBottom: '20px' }}
+                        placeholder="Enter offering products..."
+                        className="modern-input"
+                    />
+                </div>
+              
+            </div>
+
+            <div className="button-beside">
+                {mode === 'edit' ? (
+                    <>
+                       <button type="submit" className="button">Update</button>
+                        <button type="button" className="button" onClick={handlebackupdate}>Back</button>
+                    </>
+                ) : (
+                    <>
+                        
+                    </>
+                )}
+            </div>
+        </form>
+    </motion.div>
+)}
             {/* Map Component */}
             {showMap && (
                 <div style={{ position: 'absolute', top: '60px', right: '0', width: '20%', height: '80%' }}>
@@ -940,8 +1629,13 @@ function Form() {
                 </div>
             )}
             <Notification message={successMessage} />
+           
+
+
+
         </div>
     );
+
 }
 
 export default Form;
