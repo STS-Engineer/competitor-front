@@ -53,6 +53,42 @@ function Map() {
         // Fetch companies when the component mounts
         fetchCompanies();
     }, []);
+
+ 
+    useEffect(() => {
+        if (map.current) {
+            const bounds = new mapboxgl.LngLatBounds();
+    
+            companies.forEach(company => {
+                const { r_and_d_location, product, name } = company;
+    
+                if (r_and_d_location) {
+                    axios
+                        .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
+                        .then(response => {
+                            if (response.data.features.length > 0) {
+                                const coordinates = response.data.features[0].geometry.coordinates;
+    
+                                // Add the marker to the map
+                                new mapboxgl.Marker()
+                                    .setLngLat(coordinates)
+                                    .setPopup(new mapboxgl.Popup().setHTML(`<h3>${name}</h3><p>${product}</p>`))
+                                    .addTo(map.current);
+    
+                                // Extend the bounds to include this marker
+                                bounds.extend(coordinates);
+                            }
+    
+                            // Adjust the map view to fit all markers after adding them
+                            if (!bounds.isEmpty()) {
+                                map.current.fitBounds(bounds, { padding: 60, maxZoom: 16 });
+                            }
+                        })
+                        .catch(error => console.error('Error fetching location:', error));
+                }
+            });
+        }
+    }, [companies]);
  
     useEffect(() => {
         if (!map.current) {
@@ -195,20 +231,12 @@ function Map() {
     };
    
    
-   const addMarkersForFilteredCompanies = () => {
+const addMarkersForFilteredCompanies = () => {
         let regionFound = false; // Flag to check if region filter is applied
-   
-        const productImages = {
-            chokes: 'https://www.split-corecurrenttransformer.com/photo/pl26101407-ferrite_rod_core_high_frequency_choke_coil_inductor_air_coils_with_flat_wire.jpg',
-            seals: 'https://5.imimg.com/data5/AG/XO/RZ/SELLER-552766/bonded-seals.jpg',
-            assembly: 'https://images.paintball.camp/wp-content/uploads/2022/12/06152724/Protoyz-Speedster-Motor-Assembly.png',
-            injection: 'https://secodi.fr/wp-content/uploads/2022/12/piece-injection-perkins-T417873_3.jpg',
-            brush: 'https://2.imimg.com/data2/VE/EI/MY-978046/products6-250x250.jpg'
-        };
-   
+    
         companies.forEach(company => {
             const { r_and_d_location, product, name, country, headquarters_location, region } = company;
-   
+    
             const companyName = name.toLowerCase();
             const filterName = filters.companyName.toLowerCase();
             const filterProduct = filters.Product.toLowerCase();
@@ -216,7 +244,7 @@ function Map() {
             const filterRdLocation = filters.RDLocation.toLowerCase();
             const filterHeadquartersLocation = filters.HeadquartersLocation.toLowerCase();
             const filterRegion = filters.region.toLowerCase();
-   
+    
             if (
                 r_and_d_location &&
                 companyName.includes(filterName) &&
@@ -233,7 +261,7 @@ function Map() {
                             const coordinates = response.data.features[0].geometry.coordinates;
                             const longitude = coordinates[0];
                             const latitude = coordinates[1];
-   
+    
                             // Add marker for company location
                             let markerColor = '#000'; // Default color
                             if (product) {
@@ -258,9 +286,7 @@ function Map() {
                                         break;
                                 }
                             }
-   
-                            const productImage = productImages[product.toLowerCase()] || 'default_image_url';
-   
+    
                             const marker = new mapboxgl.Marker({ color: markerColor })
                                 .setLngLat([longitude, latitude])
                                 .setPopup(
@@ -269,17 +295,17 @@ function Map() {
                                             <div class="popup-header">
                                                 <h1 class="popup-title">${name}</h1>
                                                 <h2 class="popup-subtitle">${product}</h2>
-                                              
+                                           
                                             </div>
-                                       
+                                        
                                         </div>
                                     `)
                                 )
                                 .addTo(map.current);
-   
+    
                             // Open popup by default
                             marker.getPopup().addTo(map.current);
-   
+    
                             if (filters.region && !regionFound) {
                                 flyToRegion(filters.region);
                                 regionFound = true;
