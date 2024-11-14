@@ -67,5 +67,30 @@
     border-radius: 8px;
     margin: 10px 0;
 }
- 
+
+
+.custom-popup {
+    max-width: 150px;
+    font-family: Arial, sans-serif;
+}
+
+.popup-content {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border-radius: 5px;
+}
+
+.popup-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.popup-subtitle {
+    font-size: 15px;
+    color: #666;
+    margin: 0;
+}
+
+
  
