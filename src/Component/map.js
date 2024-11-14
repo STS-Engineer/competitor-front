@@ -420,17 +420,34 @@ const addMarkersheadquarterForFilteredCompanies = () => {
         const selectedheadquarter = event.target.value;
         setFilters({ ...filters, HeadquartersLocation: selectedheadquarter })
     }
-      const handleDownloadPDF = () => {
+
+     const handleDownloadPDF = () => {
         // Initialize map bounds
         const bounds = new mapboxgl.LngLatBounds();
-   
+        const filteredCompanies = companies.filter(company => {
+            const companyName = company.name.toLowerCase();
+            const product = company.product.toLowerCase();
+            const country = company.country.toLowerCase();
+            const r_and_d_location = company.r_and_d_location.toLowerCase();
+            const headquarters_location = company.headquarters_location.toLowerCase();
+            const region = company.region.toLowerCase();
+    
+            return (
+                companyName.includes(filters.companyName.toLowerCase()) &&
+                product.includes(filters.Product.toLowerCase()) &&
+                country.includes(filters.country.toLowerCase()) &&
+                r_and_d_location.includes(filters.RDLocation.toLowerCase()) &&
+                headquarters_location.includes(filters.HeadquartersLocation.toLowerCase()) &&
+                region.includes(filters.region.toLowerCase())
+            );
+        });
+    
         // Array to store promises for fetching marker data
         const markerPromises = [];
-   
-        // Loop through companies to add markers with popups
-        companies.forEach(company => {
-            const { r_and_d_location, headquarters_location, name, product, country } = company;
-   
+    
+        filteredCompanies.forEach(company => {
+            const { r_and_d_location, name, product } = company;
+    
             // Fetch coordinates for R&D location
             const markerPromise = axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
                 .then(response => {
@@ -438,47 +455,7 @@ const addMarkersheadquarterForFilteredCompanies = () => {
                         const coordinates = response.data.features[0].geometry.coordinates;
                         const longitude = coordinates[0];
                         const latitude = coordinates[1];
-   
-                        // Determine marker color based on product type
-                        let markerColor = '#000'; // Default color
-                        switch (product.toLowerCase()) {
-                            case 'chokes':
-                                markerColor = '#00FF00'; // Green
-                                break;
-                            case 'seals':
-                                markerColor = '#FFA500'; // Orange
-                                break;
-                            case 'assembly':
-                                markerColor = '#0000FF'; // Blue
-                                break;
-                            case 'injection':
-                                markerColor = '#FF00FF'; // Magenta
-                                break;
-                            case 'brush':
-                                markerColor = '#FFFF00'; // Yellow
-                                break;
-                            default:
-                                break;
-                        }
-   
-                        // Create marker with popup containing company information
-                        const popup = new mapboxgl.Popup().setHTML(`
-                            <div>
-                                <h2 style="font-size: 1rem; font-weight: bold;">${name}</h2>
-                                <h3 style="font-size: 1rem; font-weight: normal;">${product}</h3>
-                            </div>
-                        `);
-                       
-   
-                        // Add marker to map with popup
-                        const marker = new mapboxgl.Marker({ color: markerColor })
-                            .setLngLat([longitude, latitude])
-                            .setPopup(popup)
-                            .addTo(map.current);
-   
-                        // Open popup on marker
-                        popup.addTo(map.current);
-   
+    
                         // Extend bounds to include this marker
                         bounds.extend([longitude, latitude]);
                     }
@@ -486,28 +463,36 @@ const addMarkersheadquarterForFilteredCompanies = () => {
                 .catch(error => {
                     console.error('Error fetching company location: ', error);
                 });
-   
+    
             markerPromises.push(markerPromise);
         });
-   
+    
         // After all markers are added, wait for them to be loaded
         Promise.all(markerPromises).then(() => {
-            // Fit map to markers' bounds
+            // Adjust map view for a clear country-wide screenshot with markers visible
             if (!bounds.isEmpty()) {
-                map.current.fitBounds(bounds, { padding: 90 });
+                const paddingOptions = { padding: 50, maxZoom: 4 }; // Limit zoom level to a wider view
+                map.current.fitBounds(bounds, paddingOptions);
             }
-   
-            // Once all markers are added and map is adjusted, capture the map as a canvas
+    
+            // Once the map is adjusted, capture the map as a canvas
             map.current.once('idle', () => {
-                html2canvas(mapContainerRef.current).then((canvas) => {
+                html2canvas(mapContainerRef.current, {
+                    useCORS: true,
+                    scale: 2, // Higher resolution for a clearer screenshot
+                }).then((canvas) => {
                     const imgData = canvas.toDataURL('image/png');
                     const pdf = new jsPDF('landscape');
-                    pdf.addImage(imgData, 'PNG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
-                    pdf.save('map.pdf');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+    
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save('filtered_markers_map.pdf');
                 });
             });
         });
     };
+    
      
  
     const handleDownloadExcel = () => {
