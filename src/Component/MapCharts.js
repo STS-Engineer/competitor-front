@@ -14,7 +14,7 @@ function MapCharts() {
 
     const fetchCompanies = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/companies');
+            const response = await axios.get('https://avo-competitor-map-backend.azurewebsites.net/companies');
             const fetchedCompanies = response.data;
 
             setCompanies(fetchedCompanies);
