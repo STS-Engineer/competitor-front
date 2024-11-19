@@ -359,7 +359,6 @@ function Form() {
          name="name"
         placeholder="Enter company name"
         value={formData.name}
-        required
         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
         className="input"
   />
@@ -373,19 +372,19 @@ function Form() {
             </div>
             <div className="input-group">
                 <label htmlFor="telephone" className="label">Phone number</label>
-                <input type="text" name="telephone" placeholder="Enter company Telephone" value={formData.telephone} required onChange={(e) => setFormData({ ...formData, telephone: e.target.value })} className="input" />
+                <input type="text" name="telephone" placeholder="Enter company Telephone" value={formData.telephone}  onChange={(e) => setFormData({ ...formData, telephone: e.target.value })} className="input" />
             </div>
         </div>
 
         <div className="input-row">
         <div className="input-group">
                 <label htmlFor="website" className="label">Website</label>
-                <input type="text" name="website" placeholder="Enter company website" value={formData.website} required onChange={(e) => setFormData({ ...formData, website: e.target.value })} className="input" />
+                <input type="text" name="website" placeholder="Enter company website" value={formData.website}  onChange={(e) => setFormData({ ...formData, website: e.target.value })} className="input" />
             </div>
 
             <div className="input-group">
                         <label htmlFor="country" className="label">Country:</label>
-                        <select name="country" value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="input" required>
+                        <select name="country" value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="input" >
                             <option value="">Select Country</option>
                             <option value="Afghanistan">Afghanistan</option>
                             <option value="Albania">Albania</option>
@@ -589,7 +588,7 @@ function Form() {
         <div className="input-row">
         <div className="input-group">
                 <label htmlFor="region" className="label">Region</label>
-                <select name="region" value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="input" required>
+                <select name="region" value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="input" >
                     <option value="">Select Region</option>
                     <option value="nafta ">nafta </option>
                     <option value="mercosur">mercosur</option>
@@ -602,7 +601,7 @@ function Form() {
             </div>
             <div className="input-group">
                 <label htmlFor="headquarters_location" className="label">HeadquartersLocation</label>
-                <input type="text" name="headquarters_location" placeholder="Enter headquarters location" value={formData.headquarters_location} required onChange={(e) => {
+                <input type="text" name="headquarters_location" placeholder="Enter headquarters location" value={formData.headquarters_location}  onChange={(e) => {
                     setFormData({ ...formData, headquarters_location: e.target.value });
                     fetchheadquarterSuggestions(e.target.value);
                 }} className="input" />
@@ -629,7 +628,6 @@ function Form() {
                     name="r_and_d_location"
                     placeholder="Enter R&D location"
                     value={formData.r_and_d_location}
-                    required
                     onChange={(e) => {
                         setFormData({ ...formData, r_and_d_location: e.target.value });
                         fetchRdLocationSuggestions(e.target.value);
@@ -664,22 +662,22 @@ function Form() {
         <div className="input-row">
         <div className="input-group">
                 <label htmlFor="revenues" className="label">Currency(USD)</label>
-                <input type="text" name="revenues" placeholder="Enter company Revenues" value={formData.revenues} required onChange={(e) => setFormData({ ...formData, revenues: e.target.value })} className="input" />
+                <input type="text" name="revenues" placeholder="Enter company Revenues" value={formData.revenues}  onChange={(e) => setFormData({ ...formData, revenues: e.target.value })} className="input" />
             </div>
             <div className="input-group">
                 <label htmlFor="employeestrength" className="label">Employees number</label>
-                <input type="text" name="employeestrength" placeholder="Enter company employeestrength" value={formData.employeestrength} required onChange={(e) => setFormData({ ...formData, employeestrength: e.target.value })} className="input" />
+                <input type="text" name="employeestrength" placeholder="Enter company employeestrength" value={formData.employeestrength}  onChange={(e) => setFormData({ ...formData, employeestrength: e.target.value })} className="input" />
             </div>
         </div>
 
         <div className="input-row">
         <div className="input-group">
                 <label htmlFor="productionvolumes" className="label">Production volumes</label>
-                <input type="text" name="productionvolumes" placeholder="Enter company Productionvolumes" value={formData.productionvolumes} required onChange={(e) => setFormData({ ...formData, productionvolumes: e.target.value })} className="input" />
+                <input type="text" name="productionvolumes" placeholder="Enter company Productionvolumes" value={formData.productionvolumes}  onChange={(e) => setFormData({ ...formData, productionvolumes: e.target.value })} className="input" />
             </div>
             <div className="input-group">
                 <label htmlFor="keycustomers" className="label">Key customers</label>
-                <input type="text" name="keycustomers" placeholder="Enter company Keycustomers" value={formData.keycustomers} required onChange={(e) => setFormData({ ...formData, keycustomers: e.target.value })} className="input" />
+                <input type="text" name="keycustomers" placeholder="Enter company Keycustomers" value={formData.keycustomers}  onChange={(e) => setFormData({ ...formData, keycustomers: e.target.value })} className="input" />
             </div>
             </div>
        
@@ -713,7 +711,6 @@ function Form() {
                         value={formData.foundingYear} 
                         onChange={(e) => setFormData({ ...formData, foundingYear: e.target.value })}
                         placeholder="Enter the founding year"
-                        required 
                    
                     />
                 </div>
@@ -724,7 +721,6 @@ function Form() {
                         name="Businessstrategies" 
                         value={formData.Businessstrategies} 
                         onChange={(e) => setFormData({ ...formData, Businessstrategies: e.target.value })} 
-                        required 
                         className="input modern-input"
                         placeholder="Enter the strategic buisness"
                     >
@@ -743,8 +739,7 @@ function Form() {
                         name="keyManagement" 
                         value={formData.keymanagement} 
                         onChange={(e) => setFormData({ ...formData, keymanagement: e.target.value })} 
-                          placeholder="Enter the key management"
-                        required 
+                        placeholder="Enter the key management" 
                         className="input modern-input"
                     >
                         <option value="">Select a position</option>
@@ -993,7 +988,7 @@ function Form() {
                     </div>
                     <div className="input-group">
              <label htmlFor="name" className="label">Company Name</label>
-             <input type="text" name="name" placeholder="Enter company name" value={formData.name} required onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="input" />
+             <input type="text" name="name" placeholder="Enter company name" value={formData.name}  onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="input" />
                     </div>
 
         <div className="input-row">
@@ -1003,7 +998,7 @@ function Form() {
             </div>
             <div className="input-group">
                 <label htmlFor="telephone" className="label">Phone number</label>
-                <input type="text" name="telephone" placeholder="Enter company Telephone" value={formData.telephone} required onChange={(e) => setFormData({ ...formData, telephone: e.target.value })} className="input" />
+                <input type="text" name="telephone" placeholder="Enter company Telephone" value={formData.telephone}  onChange={(e) => setFormData({ ...formData, telephone: e.target.value })} className="input" />
             </div>
         </div>
 
@@ -1015,7 +1010,7 @@ function Form() {
 
             <div className="input-group">
                         <label htmlFor="country" className="label">Country</label>
-                        <select name="country" value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="input" required>
+                        <select name="country" value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="input">
                             <option value="">Select Country</option>
                             <option value="Afghanistan">Afghanistan</option>
                             <option value="Albania">Albania</option>
@@ -1220,7 +1215,7 @@ function Form() {
 
         <div className="input-group">
                 <label htmlFor="region" className="label">Region</label>
-                <select name="region" value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="input" required>
+                <select name="region" value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="input" >
                     <option value="">Select Region</option>
                     <option value="nafta ">nafta </option>
                     <option value="mercosur">mercosur</option>
@@ -1233,7 +1228,7 @@ function Form() {
             </div>
             <div className="input-group">
                 <label htmlFor="headquarters_location" className="label">HeadquartersLocation</label>
-                <input type="text" name="headquarters_location" placeholder="Enter headquarters location" value={formData.headquarters_location} required onChange={(e) => {
+                <input type="text" name="headquarters_location" placeholder="Enter headquarters location" value={formData.headquarters_location} onChange={(e) => {
                     setFormData({ ...formData, headquarters_location: e.target.value });
                     fetchheadquarterSuggestions(e.target.value);
                 }} className="input" />
