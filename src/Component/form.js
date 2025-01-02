@@ -46,7 +46,9 @@ function Form() {
         Businessstrategies:'',
         revenue: '',
         ebit: '',
-        cashFlowSituation: '',
+        operatingcashFlow: '',
+        investingcashFlow: '',
+        freecashFlow: '',
         roceandequityRatio: '',
         
 
@@ -752,7 +754,19 @@ function Form() {
                         <option value="Key Decision Makers">Key Decision Makers</option>
                     </select>
                 </div>
-
+             {formData.keymanagement && (
+             <div className="input-group">
+              <label htmlFor="additionalInput" className="label">Additional Information</label>
+              <input 
+              type="text"
+              name="additionalInput"
+              value={formData.additionalInput || ''}
+              onChange={(e) => setFormData({ ...formData, additionalInput: e.target.value })}
+              className="input modern-input"
+              placeholder="Enter additional information"
+             />
+             </div>
+            )}
               
             </div>
           
@@ -920,12 +934,31 @@ function Form() {
                         className="modern-input"
                     />
                 </div>
-                <div className="modal-input-group">
-                    <label>Cash Flow Situation</label>
+               <div className="modal-input-group">
+                    <label>Operating Cash Flow</label>
                     <Input
                         type="text"
-                        value={formData.cashFlowSituation}
-                        onChange={(e) => setFormData({ ...formData, cashFlowSituation: e.target.value })}
+                        value={formData.operatingcashFlow}
+                        onChange={(e) => setFormData({ ...formData, operatingcashFlow: e.target.value })}
+                        className="modern-input"
+                    />
+                </div>
+
+                <div className="modal-input-group">
+                    <label>Investing Cash Flow</label>
+                    <Input
+                        type="text"
+                        value={formData.investingcashFlow}
+                        onChange={(e) => setFormData({ ...formData, investingcashFlow: e.target.value })}
+                        className="modern-input"
+                    />
+                </div>
+                <div className="modal-input-group">
+                    <label>Free Cash FLow</label>
+                    <Input
+                        type="text"
+                        value={formData.freecashFlow}
+                        onChange={(e) => setFormData({ ...formData, freecashFlow: e.target.value })}
                         className="modern-input"
                     />
                 </div>
@@ -1396,7 +1429,19 @@ function Form() {
                         <option value="Key Decision Makers">Key Decision Makers</option>
                     </select>
                 </div>
-
+               {formData.keymanagement && (
+             <div className="input-group">
+           <label htmlFor="additionalInput" className="label">Additional Information</label>
+           <input 
+           type="text"
+           name="additionalInput"
+          value={formData.additionalInput || ''}
+          onChange={(e) => setFormData({ ...formData, additionalInput: e.target.value })}
+         className="input modern-input"
+         placeholder="Enter additional information"
+          />
+         </div>
+        )}
               
             </div>
           
@@ -1564,12 +1609,31 @@ function Form() {
                         className="modern-input"
                     />
                 </div>
-                <div className="modal-input-group">
-                    <label>Cash Flow Situation</label>
+          <div className="modal-input-group">
+                    <label>Operating Cash Flow</label>
                     <Input
                         type="text"
-                        value={formData.cashFlowSituation}
-                        onChange={(e) => setFormData({ ...formData, cashFlowSituation: e.target.value })}
+                        value={formData.operatingcashFlow}
+                        onChange={(e) => setFormData({ ...formData, operatingcashFlow: e.target.value })}
+                        className="modern-input"
+                    />
+                </div>
+
+                <div className="modal-input-group">
+                    <label>Investing Cash Flow</label>
+                    <Input
+                        type="text"
+                        value={formData.investingcashFlow}
+                        onChange={(e) => setFormData({ ...formData, investingcashFlow: e.target.value })}
+                        className="modern-input"
+                    />
+                </div>
+                <div className="modal-input-group">
+                    <label>Free Cash FLow</label>
+                    <Input
+                        type="text"
+                        value={formData.freecashFlow}
+                        onChange={(e) => setFormData({ ...formData, freecashFlow: e.target.value })}
                         className="modern-input"
                     />
                 </div>
