@@ -13,7 +13,7 @@ import { Button, Input, Modal, Progress, Slider } from 'antd';
 
 
 function Form() {
-    const [companies, setCompanies] = useState([]);
+    const [companies, setCompanies] = useState([]);    
     const [selectedCompanyId, setSelectedCompanyId] = useState('');
     const [progressvalue, setProgressValue] = useState(0);
     const [formData, setFormData] = useState({
