@@ -714,15 +714,20 @@ function Form() {
         <img src={phonehand} width={180} height={50} style={{ display:'block', margin:'20px auto' }} />
             <div className='input-row'>
                 <div className="input-group">
-                    <label htmlFor="foundingYear" className="label">Year of Establishment</label>
-                    <input 
-                        type="date" 
-                        name="foundingYear" 
-                        value={formData.foundingYear} 
-                        onChange={(e) => setFormData({ ...formData, foundingYear: e.target.value })}
-                        placeholder="Enter the founding year"
-                   
-                    />
+                <label htmlFor="foundingYear" className="label">Year of Establishment</label>
+               <select
+                name="foundingYear"
+               value={formData.foundingYear} // Bind the selected year to the form state
+               onChange={(e) => setFormData({ ...formData, foundingYear: e.target.value })} // Update the form state on change
+                >
+              <option value="">Select Year</option>
+             {Array.from({ length: 6 }, (_, i) => 2020 + i).map((year) => (
+            <option key={year} value={year}>
+                 {year}
+          </option>
+             ))}
+            </select>
+ 
                 </div>
                 <div className="input-group">
                <label htmlFor="Businessstrategies" className="label">Strategic Business</label>
@@ -930,6 +935,16 @@ function Form() {
                     <Button key="close" onClick={handleModalClose}>Close</Button>,
                 ]}
             >
+
+             <select
+                name="FinacialYear">
+              <option value="">Select Year</option>
+             {Array.from({ length: 6 }, (_, i) => 2020 + i).map((year) => (
+            <option key={year} value={year}>
+                 {year}
+          </option>
+             ))}
+            </select>
                 <div className="modal-input-group">
                     <label>Revenue</label>
                     <Input
