@@ -743,7 +743,7 @@ function Form() {
                         <option value="Mutual">Mutual agreement to support each  agreement to support each </option>
                     </select>
                 </div>
-              {formdata.Businessstrategies && (
+              {formData.Businessstrategies && (
                 <div className="input-group">
                 <label htmlFor="email" className="label">Details</label>
                 <input type="text" name="email" placeholder="Enter the details" className="input" />
