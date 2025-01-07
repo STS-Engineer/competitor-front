@@ -49,7 +49,8 @@ function Form() {
         operatingcashFlow: '',
         investingcashFlow: '',
         freecashFlow: '',
-        roceandequityRatio: '',
+        roce: '',
+        equityratio: '',
         
 
     });
@@ -116,7 +117,11 @@ function Form() {
             ...prevData,
             revenue: formData.revenue,
             ebit: formData.ebit,
-            cashFlowSituation: formData.cashFlowSituation,
+            operatingcashFlow: formData.operatingcashFlow,
+            investingcashFlow: formData.investingcashFlow,
+            freecashFlow: formData.freecashFlow,
+            roce: formData.roce,
+            equityratio: formData.equityratio,
         }));
         setIsModalVisible(false) // Close the modal after saving
     };
@@ -279,9 +284,12 @@ function Form() {
                     Businessstrategies: selectedCompanyData.Businessstrategies,
                     revenue: selectedCompanyData.revenue,
                     ebit: selectedCompanyData.ebit,
-                    cashFlowSituation: selectedCompanyData.cashFlowSituation,
-                    roceandequityRatio: selectedCompanyData.roceandequityRatio
-                });
+                    operatingcashFlow: formData.operatingcashFlow,
+                    investingcashFlow: formData.investingcashFlow,
+                    freecashFlow: formData.freecashFlow,
+                    roce: formData.roce,
+                    equityratio: formData.equityratio,
+                    });
                 setSelectedRdLocation(selectedCompanyData.r_and_d_location); // Set the selected R&D location
             }
         } catch (error) {
@@ -706,7 +714,7 @@ function Form() {
         <img src={phonehand} width={180} height={50} style={{ display:'block', margin:'20px auto' }} />
             <div className='input-row'>
                 <div className="input-group">
-                    <label htmlFor="foundingYear" className="label">Founding Year</label>
+                    <label htmlFor="foundingYear" className="label">Year of Establishment</label>
                     <input 
                         type="date" 
                         name="foundingYear" 
@@ -717,7 +725,7 @@ function Form() {
                     />
                 </div>
                 <div className="input-group">
-                    <label htmlFor="Businessstrategies" className="label">Strategic Buisness</label>
+               <label htmlFor="Businessstrategies" className="label">Strategic Business</label>
 
                       <select 
                         name="Businessstrategies" 
@@ -735,6 +743,12 @@ function Form() {
                         <option value="Mutual">Mutual agreement to support each  agreement to support each </option>
                     </select>
                 </div>
+              {formdata.Businessstrategies && (
+                <div className="input-group">
+                <label htmlFor="email" className="label">Details</label>
+                <input type="text" name="email" placeholder="Enter the details" className="input" />
+               </div>
+               )}           
                 <div className="input-group">
                     <label htmlFor="keyManagement" className="label">Key Management Position</label>
                     <select 
@@ -756,7 +770,7 @@ function Form() {
                 </div>
              {formData.keymanagement && (
              <div className="input-group">
-              <label htmlFor="additionalInput" className="label">Additional Information</label>
+              <label htmlFor="additionalInput" className="label">Name of person</label>
               <input 
               type="text"
               name="additionalInput"
@@ -792,7 +806,7 @@ function Form() {
                     />
                 </div>
                 <div className="input-group">
-                    <label htmlFor="Pricingstrategy" className="label">Pricing Strategy (£)</label>
+                    <label htmlFor="Pricingstrategy" className="label">Pricing Strategy (€)</label>
                     <input
                         type="number"
                         value={formData.pricingstrategy}
@@ -935,7 +949,7 @@ function Form() {
                     />
                 </div>
                <div className="modal-input-group">
-                    <label>Operating Cash Flow</label>
+                    <label>Operating Cash Flow (€)</label>
                     <Input
                         type="text"
                         value={formData.operatingcashFlow}
@@ -945,7 +959,7 @@ function Form() {
                 </div>
 
                 <div className="modal-input-group">
-                    <label>Investing Cash Flow</label>
+                    <label>Investing Cash Flow (€)</label>
                     <Input
                         type="text"
                         value={formData.investingcashFlow}
@@ -954,7 +968,7 @@ function Form() {
                     />
                 </div>
                 <div className="modal-input-group">
-                    <label>Free Cash FLow</label>
+                    <label>Free Cash FLow (€)</label>
                     <Input
                         type="text"
                         value={formData.freecashFlow}
@@ -963,7 +977,7 @@ function Form() {
                     />
                 </div>
                 <div className="modal-input-group">
-                    <label>Roce and Equity Ratio</label>
+                    <label>Roce </label>
                     <Input
                         type="text"
                         value={formData.roceandequityRatio}
@@ -971,6 +985,16 @@ function Form() {
                         className="modern-input"
                     />
                 </div>
+
+                  <div className="modal-input-group">
+                    <label>Equity Ratio</label>
+                    <Input
+                        type="text"
+                        value={formData.roceandequityRatio}
+                        onChange={(e)=>setFormData({...formData, roceandequityRatio: e.target.value})}
+                        className="modern-input"
+                    />
+                </div>             
             </Modal>
 
             <div className="input-row">
