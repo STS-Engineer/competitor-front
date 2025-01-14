@@ -713,22 +713,65 @@ function Form() {
         <form className="form" onSubmit={handleSubmit}>
         <img src={phonehand} width={180} height={50} style={{ display:'block', margin:'20px auto' }} />
             <div className='input-row'>
-                <div className="input-group">
-                <label htmlFor="foundingYear" className="label">Year of Establishment</label>
-               <select
-                name="foundingYear"
-               value={formData.foundingYear} // Bind the selected year to the form state
-               onChange={(e) => setFormData({ ...formData, foundingYear: e.target.value })} // Update the form state on change
-                >
-              <option value="">Select Year</option>
-             {Array.from({ length: 6 }, (_, i) => 2020 + i).map((year) => (
-            <option key={year} value={year}>
-                 {year}
-          </option>
-             ))}
-            </select>
- 
-                </div>
+      <div
+  className="input-group"
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: "16px",
+    fontFamily: "'Roboto', sans-serif",
+  }}
+>
+  <label
+    htmlFor="foundingYear"
+    style={{
+      fontSize: "14px",
+      marginBottom: "8px",
+      fontWeight: "500",
+      color: "#333",
+    }}
+  >
+    Year of Establishment
+  </label>
+  <select
+    name="foundingYear"
+    value={formData.foundingYear}
+    onChange={(e) => setFormData({ ...formData, foundingYear: e.target.value })}
+    style={{
+      padding: "10px 12px",
+      fontSize: "14px",
+      border: "1px solid #ccc",
+      borderRadius: "6px",
+      background: "#f9f9f9",
+      color: "#333",
+      transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+    }}
+    onFocus={(e) =>
+      (e.target.style = {
+        ...e.target.style,
+        borderColor: "#007bff",
+        boxShadow: "0 0 0 3px rgba(0, 123, 255, 0.2)",
+      })
+    }
+    onBlur={(e) =>
+      (e.target.style = {
+        ...e.target.style,
+        borderColor: "#ccc",
+        boxShadow: "none",
+      })
+    }
+  >
+    <option value="" disabled>
+      Select Year
+    </option>
+    {Array.from({ length: 6 }, (_, i) => 2020 + i).map((year) => (
+      <option key={year} value={year}>
+        {year}
+      </option>
+    ))}
+  </select>
+</div>
+
                 <div className="input-group">
                <label htmlFor="Businessstrategies" className="label">Strategic Business</label>
 
@@ -935,7 +978,7 @@ function Form() {
                     <Button key="close" onClick={handleModalClose}>Close</Button>,
                 ]}
             >
-
+            <div className="modal-input-group">
              <select
                 name="FinacialYear">
               <option value="">Select Year</option>
@@ -945,6 +988,7 @@ function Form() {
           </option>
              ))}
             </select>
+           </div>
                 <div className="modal-input-group">
                     <label>Revenue</label>
                     <Input
@@ -995,8 +1039,8 @@ function Form() {
                     <label>Roce </label>
                     <Input
                         type="text"
-                        value={formData.roceandequityRatio}
-                        onChange={(e)=>setFormData({...formData, roceandequityRatio: e.target.value})}
+                        value={formData.roce}
+                        onChange={(e)=>setFormData({...formData, roce: e.target.value})}
                         className="modern-input"
                     />
                 </div>
@@ -1005,8 +1049,8 @@ function Form() {
                     <label>Equity Ratio</label>
                     <Input
                         type="text"
-                        value={formData.roceandequityRatio}
-                        onChange={(e)=>setFormData({...formData, roceandequityRatio: e.target.value})}
+                        value={formData.equityratio}
+                        onChange={(e)=>setFormData({...formData, equityratio: e.target.value})}
                         className="modern-input"
                     />
                 </div>             
