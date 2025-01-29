@@ -319,62 +319,56 @@ const addMarkersForFilteredCompanies = () => {
         });
     };
    
-const addMarkersheadquarterForFilteredCompanies = () => {
+const addMarkersHeadquarterForFilteredCompanies = () => {
     companies.forEach(company => {
-        const { r_and_d_location, product, name, country, headquarters_location, region } = company;
+        const { headquarters_location, product, name, country, region } = company;
+
+        // Convert filter values to lowercase for case-insensitive comparison
         const companyName = name.toLowerCase();
         const filterName = filters.companyName.toLowerCase();
         const filterProduct = filters.Product.toLowerCase();
         const filterCountry = filters.country.toLowerCase();
-        const filterr_and_d_location = filters.RDLocation.toLowerCase();
-        const filterheadquarters_location = filters.HeadquartersLocation.toLowerCase();
+        const filterHeadquartersLocation = filters.HeadquartersLocation.toLowerCase();
         const filterRegion = filters.region.toLowerCase();
- 
- 
- 
-        if ((r_and_d_location && companyName.includes(filterName) && product.toLowerCase().includes(filterProduct) && country.toLowerCase().includes(filterCountry) && r_and_d_location.toLowerCase().includes(filterr_and_d_location) && headquarters_location.toLowerCase().includes(filterheadquarters_location)&& region.toLowerCase().includes(filterRegion))) {
+
+        // Check if the company matches all filters
+        if (
+            headquarters_location && // Ensure headquarters_location is not empty
+            companyName.includes(filterName) &&
+            product.toLowerCase().includes(filterProduct) &&
+            country.toLowerCase().includes(filterCountry) &&
+            headquarters_location.toLowerCase().includes(filterHeadquartersLocation) &&
+            region.toLowerCase().includes(filterRegion)
+        ) {
+            // Fetch coordinates for the headquarters location
             axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(headquarters_location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
                 .then(response => {
                     if (response.data.features && response.data.features.length > 0) {
                         const coordinates = response.data.features[0].geometry.coordinates;
-                        const longitude = coordinates[0];
-                        const latitude = coordinates[1];
-                        // Check if the marker is in the specified region
+                        const [longitude, latitude] = coordinates;
+
+                        // Check if the marker is within the specified region
                         if (isMarkerInRegion(latitude, longitude, filterRegion)) {
-                            let markerColor = '#000'; // Default color
-                            if (product) {
-                                // Set marker color based on product type
-                                switch (product.toLowerCase()) {
-                                    case 'chokes':
-                                        markerColor = '#00FF00'; // Green
-                                        break;
-                                    case 'seals':
-                                        markerColor = '#FFA500'; // Orange
-                                        break;
-                                    case 'assembly':
-                                        markerColor = '#0000FF'; // Blue
-                                        break;
-                                    case 'injection':
-                                        markerColor = '#FF00FF'; // Magenta
-                                        break;
-                                    case 'brush':
-                                        markerColor = '#FFFF00'; // Yellow
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
- 
-                            // Add marker for company location
+                            // Use a consistent color for headquarter markers (e.g., blue)
+                            const markerColor = '#0000FF'; // Blue for headquarters
+
+                            // Add marker for the headquarters location
                             new mapboxgl.Marker({ color: markerColor })
                                 .setLngLat([longitude, latitude])
-                                .setPopup(new mapboxgl.Popup().setHTML(`<img src="https://th.bing.com/th?id=OIP.HSliSi5UjcDwSy-4P7LijAAAAA&w=150&h=150&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2" alt="Company Image" style="max-width:50%;height:auto;"><h1>name:${name}</h1><p>r_and_d_location:${r_and_d_location}</p><p>headquarters_location:${headquarters_location}</p><p>product: ${product}</p><p>Country: ${country}</p>`))
+                                .setPopup(
+                                    new mapboxgl.Popup().setHTML(`
+                                        <h1>Name: ${name}</h1>
+                                        <p>Headquarters Location: ${headquarters_location}</p>
+                                        <p>Product: ${product}</p>
+                                        <p>Country: ${country}</p>
+                                    `)
+                                )
                                 .addTo(map.current);
                         }
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching company location: ', error);
+                    console.error('Error fetching headquarters location:', error);
                 });
         }
     });
