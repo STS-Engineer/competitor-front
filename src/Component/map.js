@@ -352,10 +352,9 @@ const addMarkersForFilteredCompanies = () => {
                                     new mapboxgl.Popup({ offset: 25, className: 'custom-popup' }).setHTML(`
                                         <div class="popup-content">
                                             <div class="popup-header">
-                                              <p>R&D Location: ${r_and_d_location}</p>
-                                              <h1 class="popup-title">${name}</h1>
-                                              <h2 class="popup-subtitle">${product}</h2>
-                                           
+                                              <p>R&D Location</p>
+                                              <h1 class="popup-title">Name:${name}</h1>
+                                              <h2 class="popup-subtitle">Product: ${product}</h2>
                                             </div>
                                         
                                         </div>
@@ -418,9 +417,9 @@ const  addMarkersheadquarterForFilteredCompanies = () => {
                                 .setPopup(
                                     new mapboxgl.Popup().setHTML(`
                                         <h1>Name: ${name}</h1>
-                                        <p>Headquarters Location: ${headquarters_location}</p>
-                                        <h1 class="popup-title">${name}</h1>
-                                        <h2 class="popup-subtitle">${product}</h2>
+                                        <p>Headquarters Location</p>
+                                        <h1 class="popup-title">Name:${name}</h1>
+                                        <h2 class="popup-subtitle">Product:${product}</h2>
                                     `)
                                 )
                                 .addTo(map.current);
