@@ -422,10 +422,10 @@ const  addMarkersheadquarterForFilteredCompanies = () => {
                                         <h2 class="popup-subtitle">Product:${product}</h2>
                                     `)
                                 )
-                                .addTo(map.current);
-                          // Open popup by default
-                            marker.getPopup().addTo(map.current);
+                            .addTo(map.current);
                         }
+                      // Open popup by default
+                          marker.getPopup().addTo(map.current);
                     }
                 })
                 .catch(error => {
