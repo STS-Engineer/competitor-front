@@ -319,7 +319,7 @@ const addMarkersForFilteredCompanies = () => {
         });
     };
    
-const addMarkersHeadquarterForFilteredCompanies = () => {
+const  addMarkersheadquarterForFilteredCompanies = () => {
     companies.forEach(company => {
         const { headquarters_location, product, name, country, region } = company;
 
