@@ -314,7 +314,7 @@ const addMarkersForFilteredCompanies = () => {
                 region.toLowerCase().includes(filterRegion)
             ) {
                 axios
-                    .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
+                    .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
                     .then(response => {
                         if (response.data.features && response.data.features.length > 0) {
                             const coordinates = response.data.features[0].geometry.coordinates;
@@ -352,8 +352,9 @@ const addMarkersForFilteredCompanies = () => {
                                     new mapboxgl.Popup({ offset: 25, className: 'custom-popup' }).setHTML(`
                                         <div class="popup-content">
                                             <div class="popup-header">
-                                                <h1 class="popup-title">${name}</h1>
-                                                <h2 class="popup-subtitle">${product}</h2>
+                                              <p>R&D Location: ${r_and_d_location}</p>
+                                              <h1 class="popup-title">${name}</h1>
+                                              <h2 class="popup-subtitle">${product}</h2>
                                            
                                             </div>
                                         
@@ -418,11 +419,13 @@ const  addMarkersheadquarterForFilteredCompanies = () => {
                                     new mapboxgl.Popup().setHTML(`
                                         <h1>Name: ${name}</h1>
                                         <p>Headquarters Location: ${headquarters_location}</p>
-                                        <p>Product: ${product}</p>
-                                        <p>Country: ${country}</p>
+                                        <h1 class="popup-title">${name}</h1>
+                                        <h2 class="popup-subtitle">${product}</h2>
                                     `)
                                 )
                                 .addTo(map.current);
+                          // Open popup by default
+                            marker.getPopup().addTo(map.current);
                         }
                     }
                 })
