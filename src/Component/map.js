@@ -413,7 +413,7 @@ const  addMarkersheadquarterForFilteredCompanies = () => {
                             const markerColor = '#0000FF'; // Blue for headquarters
 
                             // Add marker for the headquarters location
-                            new mapboxgl.Marker({ color: markerColor })
+                       const marker = new mapboxgl.Marker({ color: markerColor })
                                 .setLngLat([longitude, latitude])
                                 .setPopup(
                                     new mapboxgl.Popup().setHTML(`
