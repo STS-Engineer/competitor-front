@@ -378,7 +378,7 @@ const addMarkersForFilteredCompanies = () => {
         });
     };
    
-const  addMarkersheadquarterForFilteredCompanies = () => {
+const addMarkersheadquarterForFilteredCompanies = () => {
     companies.forEach(company => {
         const { headquarters_location, product, name, country, region } = company;
 
@@ -406,26 +406,24 @@ const  addMarkersheadquarterForFilteredCompanies = () => {
                         const coordinates = response.data.features[0].geometry.coordinates;
                         const [longitude, latitude] = coordinates;
 
-                        // Check if the marker is within the specified region
-                        if (isMarkerInRegion(latitude, longitude, filterRegion)) {
-                            // Use a consistent color for headquarter markers (e.g., blue)
-                            const markerColor = '#0000FF'; // Blue for headquarters
+                        // Use a consistent color for headquarter markers (e.g., blue)
+                        const markerColor = '#0000FF'; // Blue for headquarters
 
-                            // Add marker for the headquarters location
-                       const marker = new mapboxgl.Marker({ color: markerColor })
-                                .setLngLat([longitude, latitude])
-                                .setPopup(
-                                    new mapboxgl.Popup().setHTML(`
-                                        <h1>Name: ${name}</h1>
-                                        <p>Headquarters Location</p>
-                                        <h1 class="popup-title">Name:${name}</h1>
-                                        <h2 class="popup-subtitle">Product:${product}</h2>
-                                    `)
-                                )
+                        // Add marker for the headquarters location
+                        const marker = new mapboxgl.Marker({ color: markerColor })
+                            .setLngLat([longitude, latitude])
+                            .setPopup(
+                                new mapboxgl.Popup().setHTML(`
+                                    <h1>Name: ${name}</h1>
+                                    <p>Headquarters Location</p>
+                                    <h1 class="popup-title">Name: ${name}</h1>
+                                    <h2 class="popup-subtitle">Product: ${product}</h2>
+                                `)
+                            )
                             .addTo(map.current);
-                        }
-                      // Open popup by default
-                          marker.getPopup().addTo(map.current);
+
+                        // Open popup by default
+                        marker.getPopup().addTo(map.current);
                     }
                 })
                 .catch(error => {
@@ -434,6 +432,7 @@ const  addMarkersheadquarterForFilteredCompanies = () => {
         }
     });
 };
+
  
  
     const isMarkerInRegion = (lat, lng, region) => {
