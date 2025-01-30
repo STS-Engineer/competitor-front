@@ -352,7 +352,7 @@ const addMarkersForFilteredCompanies = () => {
                                     new mapboxgl.Popup({ offset: 25, className: 'custom-popup' }).setHTML(`
                                         <div class="popup-content">
                                             <div class="popup-header">
-                                              <p>R&D Location</p>
+                                              <p style={{fontWeight:'bold'}}>R&D Location</p>
                                               <p>${name}</p>
                                             </div>
                                         
@@ -413,7 +413,7 @@ const addMarkersheadquarterForFilteredCompanies = () => {
                             .setLngLat([longitude, latitude])
                             .setPopup(
                                 new mapboxgl.Popup().setHTML(`
-                                    <p>Headquarters Location</p>
+                                    <p style={{fontWeight:'bold'}}>Headquarters Location</p>
                                     <p>${name}</p>
                                   
                                 `)
