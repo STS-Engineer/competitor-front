@@ -44,6 +44,8 @@ function Map() {
     const [Rdlocation, setRdlocation] = useState([]);
     const [headquarterlocation, setHeadquarterlocation] = useState([]);
     const [region, setRegions] = useState([]);
+    const [showRdLocation, setShowRdLocation] = useState(true);
+    const [showHeadquarterLocation, setShowHeadquarterLocation] = useState(true);
     const navigate=useNavigate();
     const handlenavigate = ()=>{
         navigate("/stats")
@@ -145,7 +147,7 @@ useEffect(() => {
             addMarkersheadquarterForFilteredCompanies();
             addAvoPlantMarkers();
         }
-    }, [companies, filters]);
+    }, [companies, filters,showRdLocation, showHeadquarterLocation]);
  
     useEffect(() => {
         addAvoPlantPopup();
@@ -264,8 +266,9 @@ useEffect(() => {
    
    
 const addMarkersForFilteredCompanies = () => {
+        if (!showRdLocation) return;
         let regionFound = false; // Flag to check if region filter is applied
-    
+       
         companies.forEach(company => {
             const { r_and_d_location, product, name, country, headquarters_location, region } = company;
     
@@ -351,6 +354,7 @@ const addMarkersForFilteredCompanies = () => {
     };
    
 const addMarkersheadquarterForFilteredCompanies = () => {
+    if (!showHeadquarterLocation) return; 
     companies.forEach(company => {
         const { headquarters_location, product, name, country, region } = company;
 
@@ -471,6 +475,15 @@ const addMarkersheadquarterForFilteredCompanies = () => {
         const selectedheadquarter = event.target.value;
         setFilters({ ...filters, HeadquartersLocation: selectedheadquarter })
     }
+
+
+ const handleRdLocationCheckbox = (e) => {
+    setShowRdLocation(e.target.checked); // Toggle R&D checkbox
+};
+
+const handleHeadquarterLocationCheckbox = (e) => {
+    setShowHeadquarterLocation(e.target.checked); // Toggle Headquarters checkbox
+};
 
      const handleDownloadPDF = () => {
         // Initialize map bounds
@@ -799,7 +812,27 @@ const addAvoPlantPopup = () => {
                     ))}
                    </select>
  
- 
+                  
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <label style={{ color: '#fff', marginRight: '1rem' }}>
+                    <input
+                        type="checkbox"
+                        checked={showRdLocation}
+                        onChange={handleRdLocationCheckbox}
+                        style={{ marginRight: '0.5rem' }}
+                    />
+                    R&D Location
+                </label>
+                <label style={{ color: '#fff' }}>
+                    <input
+                        type="checkbox"
+                        checked={showHeadquarterLocation}
+                        onChange={handleHeadquarterLocationCheckbox}
+                        style={{ marginRight: '0.5rem' }}
+                    />
+                    Headquarters Location
+                </label>
+            </div>
                 <select
                name="avoPlant"
                value={filters.avoPlant}
