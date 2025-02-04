@@ -58,96 +58,69 @@ function Map() {
 useEffect(() => {
     if (map.current) {
         const bounds = new mapboxgl.LngLatBounds();
-
-        // Fetch and add R&D location markers
+        
+        // Filter companies based on active filters
         companies.forEach(company => {
-            const { r_and_d_location, product, name, country, region } = company;
-
+            const { r_and_d_location, headquarters_location, product, name, country, region } = company;
             const companyName = name.toLowerCase();
             const filterName = filters.companyName.toLowerCase();
             const filterProduct = filters.Product.toLowerCase();
             const filterCountry = filters.country.toLowerCase();
+            const filterRegion = filters.region.toLowerCase();
             const filterRdLocation = filters.RDLocation.toLowerCase();
-            const filterRegion = filters.region.toLowerCase();
-
-            if (
-                r_and_d_location &&
-                companyName.includes(filterName) &&
-                product.toLowerCase().includes(filterProduct) &&
-                country.toLowerCase().includes(filterCountry) &&
-                r_and_d_location.toLowerCase().includes(filterRdLocation) &&
-                region.toLowerCase().includes(filterRegion)
-            ) {
-                axios
-                    .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
-                    .then(response => {
-                        if (response.data.features.length > 0) {
-                            const coordinates = response.data.features[0].geometry.coordinates;
-
-                            // Add R&D marker to the map
-                            new mapboxgl.Marker({ color: '#00FF00' }) // Green for R&D
-                                .setLngLat(coordinates)
-                                .setPopup(new mapboxgl.Popup().setHTML(`<h3>${name}</h3><p>${product}</p>`))
-                                .addTo(map.current);
-
-                            // Extend the bounds to include this marker
-                            bounds.extend(coordinates);
-                        }
-
-                        // Adjust the map view to fit all markers after adding them
-                        if (!bounds.isEmpty()) {
-                            map.current.fitBounds(bounds, { padding: 60, maxZoom: 16 });
-                        }
-                    })
-                    .catch(error => console.error('Error fetching R&D location:', error));
-            }
-        });
-
-        // Fetch and add headquarter location markers
-        companies.forEach(company => {
-            const { headquarters_location, product, name, country, region } = company;
-
-            const companyName = name.toLowerCase();
-            const filterName = filters.companyName.toLowerCase();
-            const filterProduct = filters.Product.toLowerCase();
-            const filterCountry = filters.country.toLowerCase();
             const filterHeadquartersLocation = filters.HeadquartersLocation.toLowerCase();
-            const filterRegion = filters.region.toLowerCase();
 
-            if (
-                headquarters_location &&
+            // Check for region filter
+            const regionMatches = filterRegion ? region.toLowerCase().includes(filterRegion) : true;
+
+            // Check for R&D location filter
+            const rdLocationMatches = filterRdLocation ? r_and_d_location && r_and_d_location.toLowerCase().includes(filterRdLocation) : true;
+
+            // Check for headquarters location filter
+            const headquartersMatches = filterHeadquartersLocation ? headquarters_location && headquarters_location.toLowerCase().includes(filterHeadquartersLocation) : true;
+
+            // Check for company name, product, and country filters
+            const companyMatches =
                 companyName.includes(filterName) &&
                 product.toLowerCase().includes(filterProduct) &&
-                country.toLowerCase().includes(filterCountry) &&
-                headquarters_location.toLowerCase().includes(filterHeadquartersLocation) &&
-                region.toLowerCase().includes(filterRegion)
-            ) {
-                axios
-                    .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(headquarters_location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
-                    .then(response => {
-                        if (response.data.features.length > 0) {
-                            const coordinates = response.data.features[0].geometry.coordinates;
+                country.toLowerCase().includes(filterCountry);
 
-                            // Add headquarter marker to the map
-                            new mapboxgl.Marker({ color: '#0000FF' }) // Blue for headquarters
-                                .setLngLat(coordinates)
-                                .setPopup(new mapboxgl.Popup().setHTML(`<h3>${name}</h3><p>${product}</p>`))
-                                .addTo(map.current);
+            // If all conditions are met, add the marker
+            if (companyMatches && regionMatches && rdLocationMatches && headquartersMatches) {
+                const location = r_and_d_location || headquarters_location;
+                if (location) {
+                    // Use the appropriate color for the location type (R&D or HQ)
+                    const markerColor = r_and_d_location ? '#00FF00' : '#0000FF'; // Green for R&D, Blue for HQ
+                    const markerPopup = `<h3>${name}</h3><p>${product}</p>`;
 
-                            // Extend the bounds to include this marker
-                            bounds.extend(coordinates);
-                        }
+                    axios
+                        .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
+                        .then(response => {
+                            if (response.data.features.length > 0) {
+                                const coordinates = response.data.features[0].geometry.coordinates;
 
-                        // Adjust the map view to fit all markers after adding them
-                        if (!bounds.isEmpty()) {
-                            map.current.fitBounds(bounds, { padding: 60, maxZoom: 16 });
-                        }
-                    })
-                    .catch(error => console.error('Error fetching headquarter location:', error));
+                                // Add the marker to the map
+                                new mapboxgl.Marker({ color: markerColor })
+                                    .setLngLat(coordinates)
+                                    .setPopup(new mapboxgl.Popup().setHTML(markerPopup))
+                                    .addTo(map.current);
+
+                                // Extend the bounds to include this marker
+                                bounds.extend(coordinates);
+                            }
+
+                            // Adjust the map view to fit all markers after adding them
+                            if (!bounds.isEmpty()) {
+                                map.current.fitBounds(bounds, { padding: 60, maxZoom: 16 });
+                            }
+                        })
+                        .catch(error => console.error('Error fetching location:', error));
+                }
             }
         });
     }
 }, [companies, filters]);
+
  
     useEffect(() => {
         if (!map.current) {
