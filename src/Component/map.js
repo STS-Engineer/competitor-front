@@ -56,7 +56,7 @@ function Map() {
         fetchCompanies();
     }, []);
 
- 
+     const markersRef = useRef([]);
 useEffect(() => {
     if (map.current) {
         const bounds = new mapboxgl.LngLatBounds();
