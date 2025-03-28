@@ -30,25 +30,25 @@ function Form() {
         productionvolumes: '',
         keycustomers: '',
         region: '',
-        foundingYear: '', // Add founding year field
+        foundingyear: '', // Add founding year field
         rate: progressvalue,
-        offeringProducts:'',
+        offeringproducts:'',
         pricingstrategy: '',
         customerneeds:'',
         technologyuse: '',
         competitiveadvantage:'',
         challenges: '',
-        Recentnews:'',
-        Productlaunch: '',
+        recentnews:'',
+        productlaunch: '',
         strategicpartenrship:'',
         comments: '',
         employeesperregion: '',
-        Businessstrategies:'',
+        businessstrategies:'',
         revenue: '',
         ebit: '',
-        operatingcashFlow: '',
-        investingcashFlow: '',
-        freecashFlow: '',
+        operatingcashflow: '',
+        investingcashflow: '',
+        freecashflow: '',
         roce: '',
         equityratio: '',
         
@@ -117,9 +117,9 @@ function Form() {
             ...prevData,
             revenue: formData.revenue,
             ebit: formData.ebit,
-            operatingcashFlow: formData.operatingcashFlow,
-            investingcashFlow: formData.investingcashFlow,
-            freecashFlow: formData.freecashFlow,
+            operatingcashflow: formData.operatingcashflow,
+            investingcashflow: formData.investingcashflow,
+            freecashflow: formData.freecashflow,
             roce: formData.roce,
             equityratio: formData.equityratio,
         }));
@@ -270,7 +270,7 @@ function Form() {
                     foundingYear: selectedCompanyData.foundingYear,
                     keymanagement: selectedCompanyData.keymanagement,
                     rate: selectedCompanyData.rate,
-                    offeringProducts: selectedCompanyData.offeringProducts,
+                    offeringproducts: selectedCompanyData.offeringproducts,
                     pricingstrategy: selectedCompanyData.pricingstrategy,
                     customereeds: selectedCompanyData.customereeds,
                     technologyuse: selectedCompanyData.technologyuse,
@@ -284,9 +284,9 @@ function Form() {
                     Businessstrategies: selectedCompanyData.Businessstrategies,
                     revenue: selectedCompanyData.revenue,
                     ebit: selectedCompanyData.ebit,
-                    operatingcashFlow: formData.operatingcashFlow,
-                    investingcashFlow: formData.investingcashFlow,
-                    freecashFlow: formData.freecashFlow,
+                    operatingcashflow: formData.operatingcashflow,
+                    investingcashflow: formData.investingcashflow,
+                    freecashflow: formData.freecashflow,
                     roce: formData.roce,
                     equityratio: formData.equityratio,
                     });
@@ -734,9 +734,9 @@ function Form() {
     Year of Establishment
   </label>
   <select
-    name="foundingYear"
-    value={formData.foundingYear}
-    onChange={(e) => setFormData({ ...formData, foundingYear: e.target.value })}
+    name="foundingyear"
+    value={formData.foundingyear}
+    onChange={(e) => setFormData({ ...formData, foundingyear: e.target.value })}
     style={{
       padding: "10px 12px",
       fontSize: "14px",
@@ -776,9 +776,9 @@ function Form() {
                <label htmlFor="Businessstrategies" className="label">Strategic Business</label>
 
                       <select 
-                        name="Businessstrategies" 
-                        value={formData.Businessstrategies} 
-                        onChange={(e) => setFormData({ ...formData, Businessstrategies: e.target.value })} 
+                        name="businessstrategies" 
+                        value={formData.businessstrategies} 
+                        onChange={(e) => setFormData({ ...formData, businessstrategies: e.target.value })} 
                         className="input modern-input"
                         placeholder="Enter the strategic buisness"
                     >
@@ -791,7 +791,7 @@ function Form() {
                         <option value="Mutual">Mutual agreement to support each  agreement to support each </option>
                     </select>
                 </div>
-              {formData.Businessstrategies && (
+              {formData.businessstrategies && (
                 <div className="input-group">
                 <label htmlFor="email" className="label">Details</label>
                 <input type="text" name="email" placeholder="Enter the details" className="input" />
@@ -911,8 +911,8 @@ function Form() {
                     <label htmlFor="Recentnews" className="label">Recent News</label>
                     <input
                         type="text"
-                        value={formData.Recentnews}
-                        onChange={(e) => setFormData({ ...formData, Recentnews: e.target.value })}
+                        value={formData.recentnews}
+                        onChange={(e) => setFormData({ ...formData, recentnews: e.target.value })}
                         className="input modern-input"
                     />
                 </div>
@@ -920,8 +920,8 @@ function Form() {
                     <label htmlFor="Productlaunch" className="label">Product Launch or Updates:</label>
                     <input
                         type="text"
-                        value={formData.Productlaunch}
-                        onChange={(e) => setFormData({ ...formData, Productlaunch: e.target.value })}
+                        value={formData.productlaunch}
+                        onChange={(e) => setFormData({ ...formData, productlaunch: e.target.value })}
                         className="input modern-input"
                     />
                 </div>
@@ -1011,8 +1011,8 @@ function Form() {
                     <label>Operating Cash Flow (€)</label>
                     <Input
                         type="text"
-                        value={formData.operatingcashFlow}
-                        onChange={(e) => setFormData({ ...formData, operatingcashFlow: e.target.value })}
+                        value={formData.operatingcashflow}
+                        onChange={(e) => setFormData({ ...formData, operatingcashflow: e.target.value })}
                         className="modern-input"
                     />
                 </div>
@@ -1030,8 +1030,8 @@ function Form() {
                     <label>Free Cash FLow (€)</label>
                     <Input
                         type="text"
-                        value={formData.freecashFlow}
-                        onChange={(e) => setFormData({ ...formData, freecashFlow: e.target.value })}
+                        value={formData.freecashflow}
+                        onChange={(e) => setFormData({ ...formData, freecashflow: e.target.value })}
                         className="modern-input"
                     />
                 </div>
@@ -1060,8 +1060,8 @@ function Form() {
                 <div className="input-group">
                     <h3>Offering Products</h3>
                     <Input.TextArea
-                        value={formData.offeringProducts}
-                        onChange={(e)=>setFormData({...formData, offeringProducts: e.target.value})}
+                        value={formData.offeringproducts}
+                        onChange={(e)=>setFormData({...formData, offeringproducts: e.target.value})}
                         rows={2}
                         style={{ marginBottom: '20px' }}
                         placeholder="Enter offering products..."
@@ -1463,9 +1463,9 @@ function Form() {
                     <label htmlFor="foundingYear" className="label">Founding Year</label>
                     <input 
                         type="date" 
-                        name="foundingYear" 
-                        value={formData.foundingYear} 
-                        onChange={(e) => setFormData({ ...formData, foundingYear: e.target.value })}
+                        name="foundingyear" 
+                        value={formData.foundingyear} 
+                        onChange={(e) => setFormData({ ...formData, foundingyear: e.target.value })}
                         placeholder="Enter the founding year"
                      
                    
@@ -1604,8 +1604,8 @@ function Form() {
                     <label htmlFor="Recentnews" className="label">Recent News:</label>
                     <input
                         type="text"
-                        value={formData.Recentnews}
-                        onChange={(e) => setFormData({ ...formData, Recentnews: e.target.value })}
+                        value={formData.recentnews}
+                        onChange={(e) => setFormData({ ...formData, recentnews: e.target.value })}
                         className="input modern-input"
                     />
                 </div>
@@ -1613,8 +1613,8 @@ function Form() {
                     <label htmlFor="Productlaunch" className="label">Product Launch or Updates:</label>
                     <input
                         type="text"
-                        value={formData.Productlaunch}
-                        onChange={(e) => setFormData({ ...formData, Productlaunch: e.target.value })}
+                        value={formData.productlaunch}
+                        onChange={(e) => setFormData({ ...formData, productlaunch: e.target.value })}
                         className="input modern-input"
                     />
                 </div>
@@ -1703,8 +1703,8 @@ function Form() {
                     <label>Investing Cash Flow</label>
                     <Input
                         type="text"
-                        value={formData.investingcashFlow}
-                        onChange={(e) => setFormData({ ...formData, investingcashFlow: e.target.value })}
+                        value={formData.investingcashflow}
+                        onChange={(e) => setFormData({ ...formData, investingcashflow: e.target.value })}
                         className="modern-input"
                     />
                 </div>
@@ -1732,8 +1732,8 @@ function Form() {
                 <div className="input-group">
                     <h3>Offering Products</h3>
                     <Input.TextArea
-                        value={formData.offeringProducts}
-                        onChange={(e)=>setFormData({...formData, offeringProducts: e.target.value})}
+                        value={formData.offeringproducts}
+                        onChange={(e)=>setFormData({...formData, offeringproducts: e.target.value})}
                         rows={2}
                         style={{ marginBottom: '20px' }}
                         placeholder="Enter offering products..."
