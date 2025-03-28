@@ -61,7 +61,16 @@ useEffect(() => {
     if (map.current) {
         const bounds = new mapboxgl.LngLatBounds();
         
-        // Filter companies based on active filters
+        // Remove existing markers before adding new ones
+        if (markersRef.current.length > 0) {
+            markersRef.current.forEach(marker => marker.remove());
+            markersRef.current = [];
+        }
+
+        // Define icons for R&D and HQ locations
+        const rdIcon = 'https://example.com/rd-icon.png';  // Replace with actual R&D icon URL
+        const hqIcon = 'https://example.com/hq-icon.png';  // Replace with actual HQ icon URL
+
         companies.forEach(company => {
             const { r_and_d_location, headquarters_location, product, name, country, region } = company;
             const companyName = name.toLowerCase();
@@ -72,48 +81,50 @@ useEffect(() => {
             const filterRdLocation = filters.RDLocation.toLowerCase();
             const filterHeadquartersLocation = filters.HeadquartersLocation.toLowerCase();
 
-            // Check for region filter
             const regionMatches = filterRegion ? region.toLowerCase().includes(filterRegion) : true;
+            const rdLocationMatches = filterRdLocation ? r_and_d_location?.toLowerCase().includes(filterRdLocation) : true;
+            const headquartersMatches = filterHeadquartersLocation ? headquarters_location?.toLowerCase().includes(filterHeadquartersLocation) : true;
+            const companyMatches = companyName.includes(filterName) &&
+                                   product.toLowerCase().includes(filterProduct) &&
+                                   country.toLowerCase().includes(filterCountry);
 
-            // Check for R&D location filter
-            const rdLocationMatches = filterRdLocation ? r_and_d_location && r_and_d_location.toLowerCase().includes(filterRdLocation) : true;
-
-            // Check for headquarters location filter
-            const headquartersMatches = filterHeadquartersLocation ? headquarters_location && headquarters_location.toLowerCase().includes(filterHeadquartersLocation) : true;
-
-            // Check for company name, product, and country filters
-            const companyMatches =
-                companyName.includes(filterName) &&
-                product.toLowerCase().includes(filterProduct) &&
-                country.toLowerCase().includes(filterCountry);
-
-            // If all conditions are met, add the marker
             if (companyMatches && regionMatches && rdLocationMatches && headquartersMatches) {
                 const location = r_and_d_location || headquarters_location;
                 if (location) {
-                    // Use the appropriate color for the location type (R&D or HQ)
-                    const markerColor = r_and_d_location ? '#00FF00' : '#0000FF'; // Green for R&D, Blue for HQ
-                    const markerPopup = `<h3>${name}</h3><p>${product}</p>`;
+                    const markerIcon = r_and_d_location ? rdIcon : hqIcon; // Set appropriate icon
+                    const markerPopup = `
+                        <div style="font-family: Arial, sans-serif; padding: 8px; text-align: center;">
+                            <h3 style="margin: 5px 0; font-size: 16px;">${name}</h3>
+                            <p style="margin: 2px 0; font-size: 14px; color: gray;">${product}</p>
+                        </div>
+                    `;
 
-                    axios
-                        .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
+                    axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json?access_token=YOUR_MAPBOX_ACCESS_TOKEN`)
                         .then(response => {
                             if (response.data.features.length > 0) {
                                 const coordinates = response.data.features[0].geometry.coordinates;
 
-                                // Add the marker to the map
-                                new mapboxgl.Marker({ color: markerColor })
+                                // Create a custom marker element
+                                const el = document.createElement('div');
+                                el.style.backgroundImage = `url(${markerIcon})`;
+                                el.style.width = '30px'; // Adjust size
+                                el.style.height = '30px';
+                                el.style.backgroundSize = 'cover';
+                                el.style.borderRadius = '50%';
+                                el.style.cursor = 'pointer';
+
+                                // Create and add the marker
+                                const marker = new mapboxgl.Marker(el)
                                     .setLngLat(coordinates)
-                                    .setPopup(new mapboxgl.Popup().setHTML(markerPopup))
+                                    .setPopup(new mapboxgl.Popup({ offset: 10 }).setHTML(markerPopup))
                                     .addTo(map.current);
 
-                                // Extend the bounds to include this marker
+                                markersRef.current.push(marker); // Store reference to remove markers later
                                 bounds.extend(coordinates);
                             }
 
-                            // Adjust the map view to fit all markers after adding them
                             if (!bounds.isEmpty()) {
-                                map.current.fitBounds(bounds, { padding: 60, maxZoom: 16 });
+                                map.current.fitBounds(bounds, { padding: 80, maxZoom: 14 });
                             }
                         })
                         .catch(error => console.error('Error fetching location:', error));
@@ -122,6 +133,7 @@ useEffect(() => {
         });
     }
 }, [companies, filters]);
+
 
  
     useEffect(() => {
