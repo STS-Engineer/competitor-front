@@ -571,45 +571,88 @@ const handleHeadquarterLocationCheckbox = (e) => {
     
      
  
-    const handleDownloadExcel = () => {
-        const filteredCompanies = companies.filter(company => {
-            const companyName = company.name.toLowerCase();
-            const product = company.product.toLowerCase();
-            const country = company.country.toLowerCase();
-            const r_and_d_location = company.r_and_d_location.toLowerCase();
-            const headquarters_location = company.headquarters_location.toLowerCase();
-   
-            return (
-                companyName.includes(filters.companyName.toLowerCase()) &&
-                product.includes(filters.Product.toLowerCase()) &&
-                country.includes(filters.country.toLowerCase()) &&
-                r_and_d_location.includes(filters.RDLocation.toLowerCase()) &&
-                headquarters_location.includes(filters.HeadquartersLocation.toLowerCase())
-            );
-        });
-   
-        const worksheetData = filteredCompanies.map(company => ({
-            Name: company.name,
-            Product: company.product,
-            Country: company.country,
-            Region: company.region,
-            'R&D Location': company.r_and_d_location,
-            'Headquarters Location': company.headquarters_location,
-            Email: company.email, // Add email field
-            Revenues: company.revenues, // Add revenues field
-            Website: company.website, // Add website field
-            Telephone: company.telephone, // Add telephone field
-            'Key Customers': company.keycustomers,// Add key customers field
-            'ProductionVolumes': company.productionvolumes, // Add key customers field
-            'Employees Strength ': company.employeestrength // Add key customers field
-        }));
-   
-        const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Companies');
-   
-        XLSX.writeFile(workbook, 'companies.xlsx');
-    };
+  const handleDownloadExcel = () => {
+  // Create a mapping between filter names and company fields
+  const filterToFieldMap = {
+    companyName: 'name',
+    Product: 'product',
+    country: 'country',
+    RDLocation: 'r_and_d_location',
+    HeadquartersLocation: 'headquarters_location',
+    region: 'region',
+    avoPlant: 'avoPlant' // Make sure this field exists in your company data
+  };
+
+  // Filter companies based on all active filters
+  const filteredCompanies = companies.filter(company => {
+    return Object.entries(filters).every(([filterKey, filterValue]) => {
+      if (!filterValue) return true; // Skip empty filters
+      
+      const companyField = filterToFieldMap[filterKey];
+      if (!companyField) return true; // Skip unmapped filters
+      
+      const companyValue = company[companyField]?.toString().toLowerCase() || '';
+      return companyValue.includes(filterValue.toLowerCase());
+    });
+  });
+
+  // Prepare Excel data with all fields you want to export
+  const excelData = filteredCompanies.map(company => ({
+    'Company Name': company.name,
+    'Email': company.email,
+    'Headquarters': company.headquarters_location,
+    'R&D Location': company.r_and_d_location,
+    'Country': company.country,
+    'Products': company.product,
+    'Employee Strength': company.employeestrength,
+    'Revenues': company.revenues,
+    'Phone': company.telephone,
+    'Website': company.website,
+    'Production Volume': company.productionvolumes,
+    'Key Customers': company.keycustomers,
+    'Region': company.region,
+    'Founding Year': company.foundingyear,
+    'Rating': company.rate,
+    'Offering Products': company.offeringproducts,
+    'Pricing Strategy': company.pricingstrategy,
+    'Customer Needs': company.customerneeds,
+    'Technology Used': company.technologyuse,
+    'Competitive Advantage': company.competitiveadvantage,
+    'Challenges': company.challenges,
+    'Recent News': company.recentnews,
+    'Product Launch': company.productlaunch,
+    'Strategic Partnership': company.strategicpartenrship,
+    'Comments': company.comments,
+    'Employees Per Region': company.employeesperregion,
+    'Business Strategies': company.businessstrategies,
+    'Revenue': company.revenue,
+    'EBIT': company.ebit,
+    'Operating Cash Flow': company.operatingcashflow,
+    'Investing Cash Flow': company.investingcashflow,
+    'Free Cash Flow': company.freecashflow,
+    'ROCE': company.roce,
+    'Equity Ratio': company.equityratio
+  }));
+
+  // Create Excel worksheet
+  const ws = XLSX.utils.json_to_sheet(excelData);
+  
+  // Set column widths (optional)
+  const wscols = [
+    {wch: 25}, // Company Name
+    {wch: 30}, // Email
+    {wch: 20}, // Headquarters
+    // Add more column width definitions as needed
+  ];
+  ws['!cols'] = wscols;
+
+  // Create workbook and add worksheet
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Companies");
+
+  // Generate Excel file and download
+  XLSX.writeFile(wb, "Companies_Export.xlsx");
+};
     const findClosestCompany = async (selectedPlantname,selectedPlantCoordinates, companies, mapboxToken) => {
         let closestCompany = null;
         let minDistance = Infinity;
