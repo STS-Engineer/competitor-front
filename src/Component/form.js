@@ -736,7 +736,7 @@ function Form() {
   <select
     name="foundingyear"
     value={formData.foundingyear}
-    onChange={(e) => setFormData({ ...formData, foundingyear: e.target.value })}
+    onChange={(e) => setFormData({ ...formData, foundingyear: e.target.value.toString() })}
     style={{
       padding: "10px 12px",
       fontSize: "14px",
@@ -764,11 +764,11 @@ function Form() {
     <option value="" disabled>
       Select Year
     </option>
-    {Array.from({ length: 6 }, (_, i) => 2020 + i).map((year) => (
-      <option key={year} value={year}>
-        {year}
-      </option>
-    ))}
+  {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+  <option key={year} value={year.toString()}>
+    {year}
+  </option>
+  ))}
   </select>
 </div>
 
