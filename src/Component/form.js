@@ -95,7 +95,7 @@ function Form() {
 
     const fetchCompanies = async () => {
         try {
-            const response = await axios.get('https://avo-competitor-map-backend.azurewebsites.net/companies');
+            const response = await axios.get('https://compt-back.azurewebsites.net/companies');
             setCompanies(response.data);
         } catch (error) {
             console.error('Error fetching companies: ', error);
@@ -195,9 +195,9 @@ function Form() {
         try {
             let response;
             if (mode === 'add') {
-                response = await axios.post('https://avo-competitor-map-backend.azurewebsites.net/companies', formData);
+                response = await axios.post('https://compt-back.azurewebsites.net/companies', formData);
             } else if (mode === 'edit') {
-                response = await axios.put(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompanyId}`, formData);
+                response = await axios.put(`https://compt-back.azurewebsites.net/companies/${selectedCompanyId}`, formData);
             }
 
             const newCompanyData = response.data;
@@ -249,7 +249,7 @@ function Form() {
 
         // Fetch the company details from the backend using the company ID
         try {
-            const response = await axios.get(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompany.id}`);
+            const response = await axios.get(`https://compt-back.azurewebsites.net/companies/${selectedCompany.id}`);
             const selectedCompanyData = response.data;
             if (selectedCompanyData) {
                 // Set the form data with the details of the selected company
@@ -314,7 +314,7 @@ function Form() {
         e.preventDefault();
         // Implement your update logic here, using formData and selectedCompanyId
         try {
-            const response = await axios.put(`https://avo-competitor-map-backend.azurewebsites.net/companies/${selectedCompanyId}`, formData);
+            const response = await axios.put(`https://compt-back.azurewebsites.net/companies/${selectedCompanyId}`, formData);
             setSuccessMessage('Company updated successfully');
             // Inside handleUpdate function, after successful update
             setSelectedRdLocation(formData.r_and_d_location);
