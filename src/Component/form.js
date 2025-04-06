@@ -10,7 +10,7 @@ import { MultiSelect } from 'react-multi-select-component';
 import { motion } from 'framer-motion';
 import { Button, Input, Modal, Progress, Slider } from 'antd';
 
-function Form() {
+const Form = () => {
     const [companies, setCompanies] = useState([]);    
     const [selectedCompanyId, setSelectedCompanyId] = useState('');
     const [progressvalue, setProgressValue] = useState(0);
@@ -1776,4 +1776,4 @@ function Form() {
 
 }
 
-export default form;
+export default Form;
