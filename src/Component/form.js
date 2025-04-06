@@ -187,11 +187,7 @@ const Form = () => {
         setheadquarterSuggestions([]);
     }
 
-    const sanitizeData = (data) => {
-    const numericFields = [
-        'revenue', 'ebit', 'operatingcashflow', 'investingcashflow',
-        'freecashflow', 'roce', 'equityratio'
-    ];
+   
 
 
 
