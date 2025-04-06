@@ -22,7 +22,7 @@ function Form() {
         r_and_d_location: '',
         country: '',
         product: '',
-        email: '',
+        email: '',  
         employeestrength: '',
         revenues: '',
         telephone: '',
