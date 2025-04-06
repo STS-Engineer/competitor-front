@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 import {useNavigate} from 'react-router-dom';
 import Navbar from '../Components/Navbar';
 import XlsxPopulate from 'xlsx-populate/browser/xlsx-populate';
-import './map.css'
+import './map.css'  
  
  
 mapboxgl.accessToken = 'pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw';
