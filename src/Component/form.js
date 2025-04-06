@@ -10,8 +10,6 @@ import { MultiSelect } from 'react-multi-select-component';
 import { motion } from 'framer-motion';
 import { Button, Input, Modal, Progress, Slider } from 'antd';
 
-   
-
 function Form() {
     const [companies, setCompanies] = useState([]);    
     const [selectedCompanyId, setSelectedCompanyId] = useState('');
@@ -1773,10 +1771,6 @@ function Form() {
                 </div>
             )}
             <Notification message={successMessage} />
-           
-
-
-
         </div>
     );
 
