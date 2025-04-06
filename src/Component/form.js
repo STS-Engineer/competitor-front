@@ -1765,15 +1765,14 @@ const Form = () => {
     </motion.div>
 )}
             {/* Map Component */}
-            {showMap && (
-                <div style={{ position: 'absolute', top: '60px', right: '0', width: '20%', height: '80%' }}>
-                    <MapComponent coordinates={newCompanyCoordinates} coordinateslocations={newCompanyCoordinatesheadquarter} />
-                </div>
-            )}
-            <Notification message={successMessage} />
+ {showMap && (
+        <div style={{ position: 'absolute', top: '60px', right: '0', width: '20%', height: '80%' }}>
+            <MapComponent coordinates={newCompanyCoordinates} coordinateslocations={newCompanyCoordinatesheadquarter} />
         </div>
-    );
-
+    )}
+    <Notification message={successMessage} />
+</div>  
+);       
 }
 
 export default Form;
