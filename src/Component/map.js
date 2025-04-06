@@ -569,8 +569,7 @@ const handleHeadquarterLocationCheckbox = (e) => {
     
      
  
-  const handleDownloadExcel = () => {
-  // Create a mapping between filter names and company fields
+ const handleDownloadExcel = async () => {
   const filterToFieldMap = {
     companyName: 'name',
     Product: 'product',
@@ -578,78 +577,88 @@ const handleHeadquarterLocationCheckbox = (e) => {
     RDLocation: 'r_and_d_location',
     HeadquartersLocation: 'headquarters_location',
     region: 'region',
-    avoPlant: 'avoPlant' // Make sure this field exists in your company data
+    avoPlant: 'avoPlant'
   };
 
-  // Filter companies based on all active filters
   const filteredCompanies = companies.filter(company => {
     return Object.entries(filters).every(([filterKey, filterValue]) => {
-      if (!filterValue) return true; // Skip empty filters
-      
+      if (!filterValue) return true;
       const companyField = filterToFieldMap[filterKey];
-      if (!companyField) return true; // Skip unmapped filters
-      
+      if (!companyField) return true;
       const companyValue = company[companyField]?.toString().toLowerCase() || '';
       return companyValue.includes(filterValue.toLowerCase());
     });
   });
 
-  // Prepare Excel data with all fields you want to export
-  const excelData = filteredCompanies.map(company => ({
-    'Company Name': company.name,
-    'Email': company.email,
-    'Headquarters': company.headquarters_location,
-    'R&D Location': company.r_and_d_location,
-    'Country': company.country,
-    'Products': company.product,
-    'Employee Strength': company.employeestrength,
-    'Revenues': company.revenues,
-    'Phone': company.telephone,
-    'Website': company.website,
-    'Production Volume': company.productionvolumes,
-    'Key Customers': company.keycustomers,
-    'Region': company.region,
-    'Founding Year': company.foundingyear,
-    'Rating': company.rate,
-    'Offering Products': company.offeringproducts,
-    'Pricing Strategy': company.pricingstrategy,
-    'Customer Needs': company.customerneeds,
-    'Technology Used': company.technologyuse,
-    'Competitive Advantage': company.competitiveadvantage,
-    'Challenges': company.challenges,
-    'Recent News': company.recentnews,
-    'Product Launch': company.productlaunch,
-    'Strategic Partnership': company.strategicpartenrship,
-    'Comments': company.comments,
-    'Employees Per Region': company.employeesperregion,
-    'Business Strategies': company.businessstrategies,
-    'Revenue': company.revenue,
-    'EBIT': company.ebit,
-    'Operating Cash Flow': company.operatingcashflow,
-    'Investing Cash Flow': company.investingcashflow,
-    'Free Cash Flow': company.freecashflow,
-    'ROCE': company.roce,
-    'Equity Ratio': company.equityratio
-  }));
-
-  // Create Excel worksheet
-  const ws = XLSX.utils.json_to_sheet(excelData);
-  
-  // Set column widths (optional)
-  const wscols = [
-    {wch: 25}, // Company Name
-    {wch: 30}, // Email
-    {wch: 20}, // Headquarters
-    // Add more column width definitions as needed
+  const header = [
+    'Company Name', 'Email', 'Headquarters', 'R&D Location', 'Country', 'Products',
+    'Employee Strength', 'Revenues', 'Phone', 'Website', 'Production Volume', 'Key Customers',
+    'Region', 'Founding Year', 'Rating', 'Offering Products', 'Pricing Strategy', 'Customer Needs',
+    'Technology Used', 'Competitive Advantage', 'Challenges', 'Recent News', 'Product Launch',
+    'Strategic Partnership', 'Comments', 'Employees Per Region', 'Business Strategies',
+    'Revenue', 'EBIT', 'Operating Cash Flow', 'Investing Cash Flow', 'Free Cash Flow', 'ROCE',
+    'Equity Ratio'
   ];
-  ws['!cols'] = wscols;
 
-  // Create workbook and add worksheet
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Companies");
+  const rows = filteredCompanies.map(company => [
+    company.name, company.email, company.headquarters_location, company.r_and_d_location,
+    company.country, company.product, company.employeestrength, company.revenues, company.telephone,
+    company.website, company.productionvolumes, company.keycustomers, company.region,
+    company.foundingyear, company.rate, company.offeringproducts, company.pricingstrategy,
+    company.customerneeds, company.technologyuse, company.competitiveadvantage, company.challenges,
+    company.recentnews, company.productlaunch, company.strategicpartenrship, company.comments,
+    company.employeesperregion, company.businessstrategies, company.revenue, company.ebit,
+    company.operatingcashflow, company.investingcashflow, company.freecashflow, company.roce,
+    company.equityratio
+  ]);
 
-  // Generate Excel file and download
-  XLSX.writeFile(wb, "Companies_Export.xlsx");
+  // Create the workbook
+  XlsxPopulate.fromBlankAsync().then(workbook => {
+    const sheet = workbook.sheet(0);
+    sheet.name("Companies");
+
+    // Set the header row
+    sheet.row(1).style("bold", true);
+    header.forEach((title, index) => {
+      sheet.cell(1, index + 1).value(title);
+    });
+
+    // Add company data
+    rows.forEach((row, rowIndex) => {
+      row.forEach((value, colIndex) => {
+        sheet.cell(rowIndex + 2, colIndex + 1).value(value);
+      });
+    });
+
+    // Add dropdown to "Products" column (F), assuming header row = 1
+    const productOptions = ['Assembly', 'Chokes', 'Injection'];
+    const productRange = `F2:F${rows.length + 1}`;
+    sheet.dataValidations.add(productRange, {
+      type: 'list',
+      allowBlank: true,
+      formula1: `"${productOptions.join(',')}"`
+    });
+
+    // Add dropdown to "Region" column (M)
+    const regionOptions = ['Europe', 'Africa', 'East Europe'];
+    const regionRange = `M2:M${rows.length + 1}`;
+    sheet.dataValidations.add(regionRange, {
+      type: 'list',
+      allowBlank: true,
+      formula1: `"${regionOptions.join(',')}"`
+    });
+
+    // Export the file
+    return workbook.outputAsync().then(blob => {
+      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/octet-stream' }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "Companies_Export.xlsx";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  });
 };
     const findClosestCompany = async (selectedPlantname,selectedPlantCoordinates, companies, mapboxToken) => {
         let closestCompany = null;
