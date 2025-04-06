@@ -99,7 +99,7 @@ useEffect(() => {
                         </div>
                     `;
 
-                    axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json?access_token=YOUR_MAPBOX_ACCESS_TOKEN`)
+                    axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json?access_token=${mapboxgl.accessToken}`)
                         .then(response => {
                             if (response.data.features.length > 0) {
                                 const coordinates = response.data.features[0].geometry.coordinates;
@@ -198,8 +198,6 @@ useEffect(() => {
             console.error('Error fetching companies: ', error);
         }
     };
- 
- 
  
     const clearMarkers = () => {
         if (map.current) {
@@ -525,7 +523,7 @@ const handleHeadquarterLocationCheckbox = (e) => {
             const { r_and_d_location, name, product } = company;
     
             // Fetch coordinates for R&D location
-            const markerPromise = axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
+            const markerPromise = axios.get(`geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
                 .then(response => {
                     if (response.data.features && response.data.features.length > 0) {
                         const coordinates = response.data.features[0].geometry.coordinates;
@@ -662,7 +660,7 @@ const handleHeadquarterLocationCheckbox = (e) => {
             const location = r_and_d_location || headquarters_location;
             if (location) {
                 try {
-                    const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json?access_token=${mapboxToken}`);
+                    const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json?access_token=${mapboxgl.accessToken}`);
                     if (response.data.features && response.data.features.length > 0) {
                         const companyCoords = response.data.features[0].geometry.coordinates;
                         const distance = haversineDistance(selectedPlantCoordinates, companyCoords);
