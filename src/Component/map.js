@@ -614,23 +614,25 @@ const handleHeadquarterLocationCheckbox = (e) => {
   ]);
 
   // Create the workbook
-  XlsxPopulate.fromBlankAsync().then(workbook => {
-    const sheet = workbook.sheet(0);
-    sheet.name("Companies");
+ XlsxPopulate.fromBlankAsync().then(workbook => {
+  const sheet = workbook.sheet(0);
+  sheet.name("Companies");
 
-    // Set the header row
-    sheet.row(1).style("bold", true);
-    header.forEach((title, index) => {
-      sheet.cell(1, index + 1).value(title);
+  // Set the header row
+  sheet.row(1).style("bold", true);
+  header.forEach((title, index) => {
+    sheet.cell(1, index + 1).value(title);
+  });
+
+  // Add company data
+  rows.forEach((row, rowIndex) => {
+    row.forEach((value, colIndex) => {
+      sheet.cell(rowIndex + 2, colIndex + 1).value(value);
     });
+  });
 
-    // Add company data
-    rows.forEach((row, rowIndex) => {
-      row.forEach((value, colIndex) => {
-        sheet.cell(rowIndex + 2, colIndex + 1).value(value);
-      });
-    });
-
+  // Ensure `sheet.dataValidations` is available
+  if (sheet.dataValidations) {
     // Add dropdown to "Products" column (F), assuming header row = 1
     const productOptions = ['Assembly', 'Chokes', 'Injection'];
     const productRange = `F2:F${rows.length + 1}`;
@@ -648,18 +650,24 @@ const handleHeadquarterLocationCheckbox = (e) => {
       allowBlank: true,
       formula1: `"${regionOptions.join(',')}"`
     });
+  } else {
+    console.error("Data validations are not supported on this sheet.");
+  }
 
-    // Export the file
-    return workbook.outputAsync().then(blob => {
-      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/octet-stream' }));
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "Companies_Export.xlsx";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+  // Export the file
+  return workbook.outputAsync().then(blob => {
+    const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/octet-stream' }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Companies_Export.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
+}).catch(err => {
+  console.error("Error generating workbook:", err);
+});
+
 };
     const findClosestCompany = async (selectedPlantname,selectedPlantCoordinates, companies, mapboxToken) => {
         let closestCompany = null;
