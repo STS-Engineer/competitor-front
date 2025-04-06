@@ -644,7 +644,7 @@ const handleHeadquarterLocationCheckbox = (e) => {
 
     // Add dropdown to "Region" column (M)
     const regionOptions = ['Europe', 'Africa', 'East Europe'];
-    const regionRange = `M2:M${rows.length + 1}`;
+    const regionRange = `M2:M${rows.length + 1}`; 
     sheet.dataValidations.add(regionRange, {
       type: 'list',
       allowBlank: true,
