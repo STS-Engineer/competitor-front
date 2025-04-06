@@ -44,13 +44,13 @@ function Form() {
         comments: '',
         employeesperregion: '',
         businessstrategies:'',
-        revenue: '',
-        ebit: '',
-        operatingcashflow: '',
-        investingcashflow: '',
-        freecashflow: '',
-        roce: '',
-        equityratio: '',
+        revenue: 0,
+        ebit: 0,
+        operatingcashflow: 0,
+        investingcashflow: 0,
+        freecashflow: 0,
+        roce: 0,
+        equityratio: 0,
         
 
     });
