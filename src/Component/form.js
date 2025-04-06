@@ -195,17 +195,6 @@ function Form() {
         'freecashflow', 'roce', 'equityratio'
     ];
 
-    const sanitized = { ...data };
-    numericFields.forEach(field => {
-        if (sanitized[field] === '') {
-            sanitized[field] = null;
-        } else if (!isNaN(sanitized[field])) {
-            sanitized[field] = parseFloat(sanitized[field]);
-        }
-    });
-
-    return sanitized;
-};
 
 
     const handleSubmit = async (event) => {
@@ -214,7 +203,7 @@ function Form() {
         try {
             let response;
             if (mode === 'add') {
-                response = await axios.post('https://compt-back.azurewebsites.net/companies', sanitizeData(formData));
+                response = await axios.post('https://compt-back.azurewebsites.net/companies', formData);
             } else if (mode === 'edit') {
                 response = await axios.put(`https://compt-back.azurewebsites.net/companies/${selectedCompanyId}`, formData);
             }
