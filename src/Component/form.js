@@ -49,6 +49,13 @@ const Form = () => {
         freecashflow: '',
         roce: '',
         equityratio: '',
+        ceo: '',
+        cfo: '',
+        cto: '',
+        rdhead: '',
+        saleshead: '',
+        productionhead: '',
+        keydecisionmarker: '',
         
 
     });
@@ -800,40 +807,45 @@ const Form = () => {
                </div>
                )}           
                 <div className="input-group">
-                    <label htmlFor="keyManagement" className="label">Key Management Position</label>
-                    <select 
-                        name="keyManagement" 
-                        value={formData.keymanagement} 
-                        onChange={(e) => setFormData({ ...formData, keymanagement: e.target.value })} 
-                        placeholder="Enter the key management" 
-                        className="input modern-input"
-                    >
-                        <option value="">Select a position</option>
-                        <option value="CEO">CEO</option>
-                        <option value="CFO">CFO</option>
-                        <option value="CTO">CTO</option>
-                        <option value="R&D Head">R&D Head</option>
-                        <option value="Sales Head">Sales Head</option>
-                        <option value="Production Head">Production Head</option>
-                        <option value="Key Decision Makers">Key Decision Makers</option>
-                    </select>
-                </div>
-             {formData.keymanagement && (
-             <div className="input-group">
-              <label htmlFor="additionalInput" className="label">Name of person</label>
-              <input 
-              type="text"
-              name="additionalInput"
-              value={formData.additionalInput || ''}
-              onChange={(e) => setFormData({ ...formData, additionalInput: e.target.value })}
-              className="input modern-input"
-              placeholder="Enter additional information"
-             />
-             </div>
-            )}
-              
-            </div>
-          
+  <label htmlFor="keyManagement" className="label">Key Management Position</label>
+  <select 
+    name="keyManagement" 
+    value={formData.keymanagement} 
+    onChange={(e) => setFormData({ ...formData, keymanagement: e.target.value })} 
+    className="input modern-input"
+  >
+    <option value="">Select a position</option>
+    <option value="ceo">CEO</option>
+    <option value="cfo">CFO</option>
+    <option value="cto">CTO</option>
+    <option value="rdhead">R&D Head</option>
+    <option value="saleshead">Sales Head</option>
+    <option value="productionhead">Production Head</option>
+    <option value="keydecisionmarker">Key Decision Makers</option>
+  </select>
+</div>
+
+{formData.keymanagement && (
+  <div className="input-group">
+    <label htmlFor={formData.keymanagement} className="label">
+      Name of {formData.keymanagement.toUpperCase().replace(/([a-z])([A-Z])/g, '$1 $2')}
+    </label>
+    <input 
+      type="text"
+      name={formData.keymanagement}
+      value={formData[formData.keymanagement] || ''}
+      onChange={(e) =>
+        setFormData({ 
+          ...formData, 
+          [formData.keymanagement]: e.target.value 
+        })
+      }
+      className="input modern-input"
+      placeholder={`Enter name of ${formData.keymanagement.toUpperCase()}`}
+    />
+  </div>
+)}
+
             <div className='input-row'>
                 <div className="input-group">
                     <h3 className='text-bold'>Growth rate</h3>
