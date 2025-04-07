@@ -49,6 +49,7 @@ const Form = () => {
         freecashflow: '',
         roce: '',
         equityratio: '',
+        keymanagement: [],
         ceo: '',
         cfo: '',
         cto: '',
@@ -806,15 +807,18 @@ const Form = () => {
                 <input type="text" name="email" placeholder="Enter the details" className="input" />
                </div>
                )}           
-                <div className="input-group">
-  <label htmlFor="keyManagement" className="label">Key Management Position</label>
-  <select 
-    name="keyManagement" 
-    value={formData.keymanagement} 
-    onChange={(e) => setFormData({ ...formData, keymanagement: e.target.value })} 
+           <div className="input-group">
+  <label htmlFor="keyManagement" className="label">Key Management Positions</label>
+  <select
+    name="keyManagement"
+    multiple
+    value={formData.keymanagement || []}
+    onChange={(e) => {
+      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+      setFormData({ ...formData, keymanagement: selectedOptions });
+    }}
     className="input modern-input"
   >
-    <option value="">Select a position</option>
     <option value="ceo">CEO</option>
     <option value="cfo">CFO</option>
     <option value="cto">CTO</option>
@@ -825,26 +829,28 @@ const Form = () => {
   </select>
 </div>
 
-{formData.keymanagement && (
-  <div className="input-group">
-    <label htmlFor={formData.keymanagement} className="label">
-      Name of {formData.keymanagement.toUpperCase().replace(/([a-z])([A-Z])/g, '$1 $2')}
+  {formData.keymanagement && formData.keymanagement.map((role) => (
+  <div className="input-group" key={role}>
+    <label htmlFor={role} className="label">
+      Name of {role.toUpperCase().replace(/([a-z])([A-Z])/g, '$1 $2')}
     </label>
-    <input 
+    <input
       type="text"
-      name={formData.keymanagement}
-      value={formData[formData.keymanagement] || ''}
+      name={role}
+      value={formData[role] || ''}
       onChange={(e) =>
-        setFormData({ 
-          ...formData, 
-          [formData.keymanagement]: e.target.value 
-        })
-      }
-      className="input modern-input"
-      placeholder={`Enter name of ${formData.keymanagement.toUpperCase()}`}
-    />
-  </div>
-)}
+        setFormData({
+          ...formData,
+          [role]: e.target.value
+         })
+          }
+           className="input modern-input"
+           placeholder={`Enter name of ${role.toUpperCase()}`}
+           />
+          </div>
+          ))}
+
+    
 
             <div className='input-row'>
                 <div className="input-group">
@@ -1098,7 +1104,7 @@ const Form = () => {
                     </>
                 )}
             </div>
-           </div>               
+                    
         </form>
     </motion.div>
 )}
