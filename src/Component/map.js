@@ -617,7 +617,7 @@ const handleHeadquarterLocationCheckbox = (e) => {
     'Strategic Partnership', 'Comments', 'Employees Per Region', 'Business Strategies',
     'Revenue', 'EBIT', 'Operating Cash Flow', 'Investing Cash Flow', 'Free Cash Flow', 'ROCE',
     'Equity Ratio', 'CEO', 'CFO', 'CTO', 'RD&head', 'Sales head', 'Production head', 'Key decision marker', 
-    'Equity Ratio', 
+   
   ];
 
   const rows = filteredCompanies.map(company => [
@@ -997,6 +997,14 @@ const addAvoPlantPopup = () => {
 
             <p>
               <strong>Founding Year:</strong> {selectedCompany.foundingyear}
+            </p>
+             
+             <p>
+              <strong>Offering Products:</strong> {selectedCompany.offeringproducts}
+            </p>
+
+             <p>
+              <strong>Competitive advantages:</strong> {selectedCompany.competitiveadvantage}
             </p>
           
           </div>
