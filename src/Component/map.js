@@ -47,6 +47,8 @@ function Map() {
     const [region, setRegions] = useState([]);
     const [showRdLocation, setShowRdLocation] = useState(true);
     const [showHeadquarterLocation, setShowHeadquarterLocation] = useState(true);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedCompany, setSelectedCompany] = useState(null);
     const navigate=useNavigate();
     const handlenavigate = ()=>{
         navigate("/stats")
@@ -143,7 +145,7 @@ useEffect(() => {
                 container: mapContainerRef.current,
                 style: 'mapbox://styles/mapbox/streets-v11',
                 center: [0, 0], // Default center
-                zoom: 1 // Default zoom
+                zoom: 20 // Default zoom
             });
  
             map.current.on('load', () => {
@@ -199,6 +201,15 @@ useEffect(() => {
             console.error('Error fetching companies: ', error);
         }
     };
+
+      const productImages = {
+        chokes: "https://www.split-corecurrenttransformer.com/photo/pl26101407-ferrite_rod_core_high_frequency_choke_coil_inductor_air_coils_with_flat_wire.jpg",
+        seals: "https://5.imimg.com/data5/AG/XO/RZ/SELLER-552766/bonded-seals.jpg",
+        assembly: "https://images.paintball.camp/wp-content/uploads/2022/12/06152724/Protoyz-Speedster-Motor-Assembly.png",
+        injection: "https://secodi.fr/wp-content/uploads/2022/12/piece-injection-perkins-T417873_3.jpg",
+        brush: "https://2.imimg.com/data2/VE/EI/MY-978046/products6-250x250.jpg",
+      };
+    
  
     const clearMarkers = () => {
         if (map.current) {
@@ -333,28 +344,23 @@ const addMarkersForFilteredCompanies = () => {
                                 }
                             }
     
-                            const marker = new mapboxgl.Marker({ color: markerColor })
-                                .setLngLat([longitude, latitude])
-                                .setPopup(
-                                    new mapboxgl.Popup({ offset: 25, className: 'custom-popup' }).setHTML(`
-                                        <div class="popup-content">
-                                            <div class="popup-header">
-                                              <p style={{fontWeight:'bold'}}>R&D Location</p>
-                                              <p>${name}</p>
-                                            </div>
-                                        
-                                        </div>
-                                    `)
-                                )
-                                .addTo(map.current);
-    
-                            // Open popup by default
-                            marker.getPopup().addTo(map.current);
-    
-                            if (filters.region && !regionFound) {
-                                flyToRegion(filters.region);
-                                regionFound = true;
-                            }
+                      const marker = new mapboxgl.Marker({
+                     scale: 0.7 // Adjust the scale as needed
+                       })
+                    .setLngLat(coordinates)
+                    .addTo(map.current);
+                  
+                    const el = marker.getElement();
+                    el.addEventListener('click', () => {
+                      // Code to display the modal
+                      showModal(company);
+                    });
+                    
+                // Show Ant Design Modal when clicking a marker
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent map click event from firing
+                    showModal(company);
+                  });
                         }
                     })
                     .catch(error => {
@@ -397,19 +403,23 @@ const addMarkersheadquarterForFilteredCompanies = () => {
                         const markerColor = '#0000FF'; // Blue for headquarters
 
                         // Add marker for the headquarters location
-                        const marker = new mapboxgl.Marker({ color: markerColor })
-                            .setLngLat([longitude, latitude])
-                            .setPopup(
-                                new mapboxgl.Popup().setHTML(`
-                                    <p style={{fontWeight:'bold'}}>Headquarters Location</p>
-                                    <p>${name}</p>
-                                  
-                                `)
-                            )
-                            .addTo(map.current);
-
-                        // Open popup by default
-                        marker.getPopup().addTo(map.current);
+                         const marker = new mapboxgl.Marker({
+                     scale: 0.7 // Adjust the scale as needed
+                       })
+                    .setLngLat(coordinates)
+                    .addTo(map.current);
+                  
+                    const el = marker.getElement();
+                    el.addEventListener('click', () => {
+                      // Code to display the modal
+                      showModal(company);
+                    });
+                    
+                // Show Ant Design Modal when clicking a marker
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent map click event from firing
+                    showModal(company);
+                  });
                     }
                 })
                 .catch(error => {
@@ -935,6 +945,52 @@ const addAvoPlantPopup = () => {
                 </div>
             </nav>
             <div ref={mapContainerRef} style={{ width: '100vw', height: 'calc(100vh - 50px)' }} />
+                 <Modal
+        title={selectedCompany?.name}
+        open={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        {selectedCompany && (
+          <div>
+
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
+              <img
+                src={productImages[selectedCompany.product.toLowerCase()] || ""}
+                alt={selectedCompany.product}
+                style={{
+                  width: "100px",
+                  height: "auto",
+                  borderRadius: "8px",
+                  border: "2px solid #ddd",
+                }}
+              />
+            </div>
+            <p>
+              <strong>Product:</strong>{" "}
+                {selectedCompany.product}
+            </p>
+            <p>
+              <strong>R&D Location:</strong> {selectedCompany.r_and_d_location}
+            </p>
+            <p>
+              <strong>Headquarters:</strong> {selectedCompany.headquarters_location}
+            </p>
+
+            <p>
+              <strong>Region:</strong> {selectedCompany.region}
+            </p>
+            <p>
+              <strong>Country:</strong> {selectedCompany.country}
+            </p>
+
+            <p>
+              <strong>Founding Year:</strong> {selectedCompany.foundingyear}
+            </p>
+          
+          </div>
+        )}
+      </Modal>
         </div>
     );
 }
