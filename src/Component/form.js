@@ -1088,7 +1088,7 @@ const Form = () => {
                         className="modern-input"
                     />
                 </div>
-              
+             </div>  
             </div>
 
             <div className="button-beside">
