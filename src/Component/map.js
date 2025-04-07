@@ -4,7 +4,7 @@ import axios from 'axios';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx';    
 import Swal from 'sweetalert2';
 import {useNavigate} from 'react-router-dom';
 import Navbar from '../Components/Navbar';
