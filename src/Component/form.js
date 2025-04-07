@@ -807,7 +807,7 @@ const Form = () => {
                 <input type="text" name="email" placeholder="Enter the details" className="input" />
                </div>
                )}           
-           <div className="input-group">
+  <div className="input-group">
   <label htmlFor="keyManagement" className="label">Key Management Positions</label>
   <select
     name="keyManagement"
@@ -849,8 +849,7 @@ const Form = () => {
            />
           </div>
           ))}
-
-    
+       </div>  
 
             <div className='input-row'>
                 <div className="input-group">
@@ -1088,7 +1087,7 @@ const Form = () => {
                         className="modern-input"
                     />
                 </div>
-             </div>  
+           
             </div>
 
             <div className="button-beside">
