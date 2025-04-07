@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import {useNavigate} from 'react-router-dom';
 import Navbar from '../Components/Navbar';
 import XlsxPopulate from 'xlsx-populate/browser/xlsx-populate';
+import { Modal } from 'antd';
 import './map.css'  
  
  
@@ -209,7 +210,11 @@ useEffect(() => {
         injection: "https://secodi.fr/wp-content/uploads/2022/12/piece-injection-perkins-T417873_3.jpg",
         brush: "https://2.imimg.com/data2/VE/EI/MY-978046/products6-250x250.jpg",
       };
-    
+
+   const showModal = (company) => {
+        setSelectedCompany(company);
+        setIsModalVisible(true);
+      };
  
     const clearMarkers = () => {
         if (map.current) {
