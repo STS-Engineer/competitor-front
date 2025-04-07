@@ -616,7 +616,8 @@ const handleHeadquarterLocationCheckbox = (e) => {
     'Technology Used', 'Competitive Advantage', 'Challenges', 'Recent News', 'Product Launch',
     'Strategic Partnership', 'Comments', 'Employees Per Region', 'Business Strategies',
     'Revenue', 'EBIT', 'Operating Cash Flow', 'Investing Cash Flow', 'Free Cash Flow', 'ROCE',
-    'Equity Ratio'
+    'Equity Ratio', 'CEO', 'CFO', 'CTO', 'RD&head', 'Sales head', 'Production head', 'Key decision marker', 
+    'Equity Ratio', 
   ];
 
   const rows = filteredCompanies.map(company => [
@@ -628,7 +629,9 @@ const handleHeadquarterLocationCheckbox = (e) => {
     company.recentnews, company.productlaunch, company.strategicpartenrship, company.comments,
     company.employeesperregion, company.businessstrategies, company.revenue, company.ebit,
     company.operatingcashflow, company.investingcashflow, company.freecashflow, company.roce,
-    company.equityratio
+    company.equityratio, company.ceo, company.cfo,
+    company.cto, company.rdhead, company.saleshead, company.productionhead,
+    company.keydecisionmarker
   ]);
 
   // Create the workbook
