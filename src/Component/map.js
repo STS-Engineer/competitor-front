@@ -215,6 +215,9 @@ useEffect(() => {
         setSelectedCompany(company);
         setIsModalVisible(true);
       };
+       const handleCancel = () => {
+        setIsModalVisible(false);
+      };
  
     const clearMarkers = () => {
         if (map.current) {
