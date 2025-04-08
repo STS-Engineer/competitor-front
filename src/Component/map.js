@@ -514,26 +514,31 @@ const handleHeadquarterLocationCheckbox = (e) => {
     setShowHeadquarterLocation(e.target.checked); // Toggle Headquarters checkbox
 };
 
-const handleDownloadPDF = () => {
+const handleDownloadPDF = (filtered = true) => {
   const bounds = new mapboxgl.LngLatBounds();
 
-  const filteredCompanies = companies.filter(company => {
-    const companyName = company.name.toLowerCase();
-    const product = company.product.toLowerCase();
-    const country = company.country.toLowerCase();
-    const r_and_d_location = company.r_and_d_location.toLowerCase();
-    const headquarters_location = company.headquarters_location.toLowerCase();
-    const region = company.region.toLowerCase();
+  const getFilteredCompanies = () => {
+    const filterToFieldMap = {
+      companyName: 'name',
+      Product: 'product',
+      country: 'country',
+      RDLocation: 'r_and_d_location',
+      HeadquartersLocation: 'headquarters_location',
+      region: 'region',
+      avoPlant: 'avoPlant'
+    };
 
-    return (
-      companyName.includes(filters.companyName.toLowerCase()) &&
-      product.includes(filters.Product.toLowerCase()) &&
-      country.includes(filters.country.toLowerCase()) &&
-      r_and_d_location.includes(filters.RDLocation.toLowerCase()) &&
-      headquarters_location.includes(filters.HeadquartersLocation.toLowerCase()) &&
-      region.includes(filters.region.toLowerCase())
+    return companies.filter(company =>
+      Object.entries(filters).every(([filterKey, filterValue]) => {
+        if (!filterValue) return true;
+        const companyField = filterToFieldMap[filterKey];
+        const companyValue = company[companyField]?.toString().toLowerCase() || '';
+        return companyValue.includes(filterValue.toLowerCase());
+      })
     );
-  });
+  };
+
+  const targetCompanies = filtered ? getFilteredCompanies() : companies;
 
   const markerPromises = [];
 
@@ -541,7 +546,7 @@ const handleDownloadPDF = () => {
   const oldMarkers = document.querySelectorAll('.pdf-marker');
   oldMarkers.forEach(marker => marker.remove());
 
-  filteredCompanies.forEach(company => {
+  targetCompanies.forEach(company => {
     const { r_and_d_location, name } = company;
 
     const markerPromise = axios
@@ -551,38 +556,48 @@ const handleDownloadPDF = () => {
           const [longitude, latitude] = response.data.features[0].geometry.coordinates;
           bounds.extend([longitude, latitude]);
 
-          const el = document.createElement('div');
-          el.className = 'pdf-marker';
-          el.style.backgroundColor = '#f00';
-          el.style.borderRadius = '50%';
-          el.style.width = '12px';
-          el.style.height = '12px';
+          // Create the marker circle
+          const markerDot = document.createElement('div');
+          markerDot.className = 'pdf-marker';
+          Object.assign(markerDot.style, {
+            backgroundColor: '#3B82F6',
+            borderRadius: '50%',
+            width: '12px',
+            height: '12px',
+            border: '2px solid white',
+            boxShadow: '0 0 4px rgba(0,0,0,0.3)',
+          });
 
+          // Create label
           const label = document.createElement('div');
           label.className = 'pdf-marker-label';
           label.textContent = name;
           Object.assign(label.style, {
-            color: '#000',
+            color: '#111827',
             fontSize: '12px',
-            backgroundColor: 'white',
-            padding: '2px 5px',
-            borderRadius: '4px',
-            marginBottom: '5px',
-            textAlign: 'center',
-            fontFamily: 'sans-serif',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
-            maxWidth: '150px',
+            fontWeight: '600',
+            backgroundColor: '#ffffff',
+            padding: '4px 8px',
+            borderRadius: '6px',
+            marginBottom: '6px',
+            fontFamily: 'Arial, sans-serif',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+            maxWidth: '160px',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           });
 
+          // Container
           const container = document.createElement('div');
-          container.style.display = 'flex';
-          container.style.flexDirection = 'column';
-          container.style.alignItems = 'center';
+          Object.assign(container.style, {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          });
+
           container.appendChild(label);
-          container.appendChild(el);
+          container.appendChild(markerDot);
 
           new mapboxgl.Marker(container).setLngLat([longitude, latitude]).addTo(map.current);
         }
@@ -610,12 +625,14 @@ const handleDownloadPDF = () => {
           const pdfWidth = pdf.internal.pageSize.getWidth();
           const pdfHeight = pdf.internal.pageSize.getHeight();
           pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-          pdf.save('Map_Export.pdf');
+          const filename = filtered ? 'Filtered_Map_Export.pdf' : 'Companies.pdf';
+          pdf.save(filename);
         });
-      }, 500); // Allow labels and pins to render fully
+      }, 500); // wait for labels to render
     });
   });
 };
+
 
      
  
