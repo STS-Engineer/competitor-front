@@ -514,78 +514,109 @@ const handleHeadquarterLocationCheckbox = (e) => {
     setShowHeadquarterLocation(e.target.checked); // Toggle Headquarters checkbox
 };
 
-     const handleDownloadPDF = () => {
-        // Initialize map bounds
-        const bounds = new mapboxgl.LngLatBounds();
-        const filteredCompanies = companies.filter(company => {
-            const companyName = company.name.toLowerCase();
-            const product = company.product.toLowerCase();
-            const country = company.country.toLowerCase();
-            const r_and_d_location = company.r_and_d_location.toLowerCase();
-            const headquarters_location = company.headquarters_location.toLowerCase();
-            const region = company.region.toLowerCase();
-    
-            return (
-                companyName.includes(filters.companyName.toLowerCase()) &&
-                product.includes(filters.Product.toLowerCase()) &&
-                country.includes(filters.country.toLowerCase()) &&
-                r_and_d_location.includes(filters.RDLocation.toLowerCase()) &&
-                headquarters_location.includes(filters.HeadquartersLocation.toLowerCase()) &&
-                region.includes(filters.region.toLowerCase())
-            );
+const handleDownloadPDF = () => {
+  const bounds = new mapboxgl.LngLatBounds();
+
+  const filteredCompanies = companies.filter(company => {
+    const companyName = company.name.toLowerCase();
+    const product = company.product.toLowerCase();
+    const country = company.country.toLowerCase();
+    const r_and_d_location = company.r_and_d_location.toLowerCase();
+    const headquarters_location = company.headquarters_location.toLowerCase();
+    const region = company.region.toLowerCase();
+
+    return (
+      companyName.includes(filters.companyName.toLowerCase()) &&
+      product.includes(filters.Product.toLowerCase()) &&
+      country.includes(filters.country.toLowerCase()) &&
+      r_and_d_location.includes(filters.RDLocation.toLowerCase()) &&
+      headquarters_location.includes(filters.HeadquartersLocation.toLowerCase()) &&
+      region.includes(filters.region.toLowerCase())
+    );
+  });
+
+  const markerPromises = [];
+
+  // Remove old markers
+  const oldMarkers = document.querySelectorAll('.pdf-marker');
+  oldMarkers.forEach(marker => marker.remove());
+
+  filteredCompanies.forEach(company => {
+    const { r_and_d_location, name } = company;
+
+    const markerPromise = axios
+      .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
+      .then(response => {
+        if (response.data.features.length > 0) {
+          const [longitude, latitude] = response.data.features[0].geometry.coordinates;
+          bounds.extend([longitude, latitude]);
+
+          const el = document.createElement('div');
+          el.className = 'pdf-marker';
+          el.style.backgroundColor = '#f00';
+          el.style.borderRadius = '50%';
+          el.style.width = '12px';
+          el.style.height = '12px';
+
+          const label = document.createElement('div');
+          label.className = 'pdf-marker-label';
+          label.textContent = name;
+          Object.assign(label.style, {
+            color: '#000',
+            fontSize: '12px',
+            backgroundColor: 'white',
+            padding: '2px 5px',
+            borderRadius: '4px',
+            marginBottom: '5px',
+            textAlign: 'center',
+            fontFamily: 'sans-serif',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+            maxWidth: '150px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          });
+
+          const container = document.createElement('div');
+          container.style.display = 'flex';
+          container.style.flexDirection = 'column';
+          container.style.alignItems = 'center';
+          container.appendChild(label);
+          container.appendChild(el);
+
+          new mapboxgl.Marker(container).setLngLat([longitude, latitude]).addTo(map.current);
+        }
+      })
+      .catch(error => {
+        console.error('Geocoding error:', error);
+      });
+
+    markerPromises.push(markerPromise);
+  });
+
+  Promise.all(markerPromises).then(() => {
+    if (!bounds.isEmpty()) {
+      map.current.fitBounds(bounds, { padding: 80, maxZoom: 4 });
+    }
+
+    map.current.once('idle', () => {
+      setTimeout(() => {
+        html2canvas(mapContainerRef.current, {
+          useCORS: true,
+          scale: 2,
+        }).then(canvas => {
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('landscape', 'pt', 'a4');
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          pdf.save('Map_Export.pdf');
         });
-    
-        // Array to store promises for fetching marker data
-        const markerPromises = [];
-    
-        filteredCompanies.forEach(company => {
-            const { r_and_d_location, name, product } = company;
-    
-            // Fetch coordinates for R&D location
-            const markerPromise = axios.get(`geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
-                .then(response => {
-                    if (response.data.features && response.data.features.length > 0) {
-                        const coordinates = response.data.features[0].geometry.coordinates;
-                        const longitude = coordinates[0];
-                        const latitude = coordinates[1];
-    
-                        // Extend bounds to include this marker
-                        bounds.extend([longitude, latitude]);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching company location: ', error);
-                });
-    
-            markerPromises.push(markerPromise);
-        });
-    
-        // After all markers are added, wait for them to be loaded
-        Promise.all(markerPromises).then(() => {
-            // Adjust map view for a clear country-wide screenshot with markers visible
-            if (!bounds.isEmpty()) {
-                const paddingOptions = { padding: 50, maxZoom: 4 }; // Limit zoom level to a wider view
-                map.current.fitBounds(bounds, paddingOptions);
-            }
-    
-            // Once the map is adjusted, capture the map as a canvas
-            map.current.once('idle', () => {
-                html2canvas(mapContainerRef.current, {
-                    useCORS: true,
-                    scale: 2, // Higher resolution for a clearer screenshot
-                }).then((canvas) => {
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jsPDF('landscape');
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = pdf.internal.pageSize.getHeight();
-    
-                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                    pdf.save('filtered_markers_map.pdf');
-                });
-            });
-        });
-    };
-    
+      }, 500); // Allow labels and pins to render fully
+    });
+  });
+};
+
      
  
  const handleDownloadExcel = async () => {
