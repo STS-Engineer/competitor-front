@@ -607,7 +607,7 @@ const handleDownloadPDF = (filtered = true) => {
     'Employee Strength', 'Revenues', 'Phone', 'Website', 'Production Volume', 'Key Customers',
     'Region', 'Founding Year', 'Rating', 'Offering Products', 'Pricing Strategy', 'Customer Needs',
     'Technology Used', 'Competitive Advantage', 'Challenges', 'Recent News', 'Product Launch',
-    'Strategic Partnership', 'Comments', 'Employees Per Region', 'Business Strategies', 'Year of financial detail'
+    'Strategic Partnership', 'Comments', 'Employees Per Region', 'Business Strategies', 'Year of financial detail',
     'Revenue', 'EBIT', 'Operating Cash Flow', 'Investing Cash Flow', 'Free Cash Flow', 'ROCE',
     'Equity Ratio', 'CEO', 'CFO', 'CTO', 'RD&head', 'Sales head', 'Production head', 'Key decision marker', 
    
