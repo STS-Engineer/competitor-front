@@ -547,7 +547,7 @@ const handleDownloadPDF = (filtered = true) => {
   oldMarkers.forEach(marker => marker.remove());
 
   targetCompanies.forEach(company => {
-    const { r_and_d_location, name } = company;
+    const { r_and_d_location } = company;
 
     const markerPromise = axios
       .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
@@ -556,7 +556,7 @@ const handleDownloadPDF = (filtered = true) => {
           const [longitude, latitude] = response.data.features[0].geometry.coordinates;
           bounds.extend([longitude, latitude]);
 
-          // Create the marker circle
+          // Create only the circular marker (no label)
           const markerDot = document.createElement('div');
           markerDot.className = 'pdf-marker';
           Object.assign(markerDot.style, {
@@ -568,38 +568,7 @@ const handleDownloadPDF = (filtered = true) => {
             boxShadow: '0 0 4px rgba(0,0,0,0.3)',
           });
 
-          // Create label
-          const label = document.createElement('div');
-          label.className = 'pdf-marker-label';
-          label.textContent = name;
-          Object.assign(label.style, {
-            color: '#111827',
-            fontSize: '12px',
-            fontWeight: '600',
-            backgroundColor: '#ffffff',
-            padding: '4px 8px',
-            borderRadius: '6px',
-            marginBottom: '6px',
-            fontFamily: 'Arial, sans-serif',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-            maxWidth: '160px',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          });
-
-          // Container
-          const container = document.createElement('div');
-          Object.assign(container.style, {
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          });
-
-          container.appendChild(label);
-          container.appendChild(markerDot);
-
-          new mapboxgl.Marker(container).setLngLat([longitude, latitude]).addTo(map.current);
+          new mapboxgl.Marker(markerDot).setLngLat([longitude, latitude]).addTo(map.current);
         }
       })
       .catch(error => {
@@ -628,7 +597,7 @@ const handleDownloadPDF = (filtered = true) => {
           const filename = filtered ? 'Filtered_Map_Export.pdf' : 'Companies.pdf';
           pdf.save(filename);
         });
-      }, 500); // wait for labels to render
+      }, 500); // wait for rendering
     });
   });
 };
