@@ -515,9 +515,9 @@ const handleHeadquarterLocationCheckbox = (e) => {
 };
 
 const handleDownloadPDF = (filtered = true) => {
-  const bounds = new mapboxgl.LngLatBounds();
+  let targetCompanies = companies;
 
-  const getFilteredCompanies = () => {
+  if (filtered) {
     const filterToFieldMap = {
       companyName: 'name',
       Product: 'product',
@@ -528,7 +528,7 @@ const handleDownloadPDF = (filtered = true) => {
       avoPlant: 'avoPlant'
     };
 
-    return companies.filter(company =>
+    targetCompanies = companies.filter(company =>
       Object.entries(filters).every(([filterKey, filterValue]) => {
         if (!filterValue) return true;
         const companyField = filterToFieldMap[filterKey];
@@ -536,71 +536,47 @@ const handleDownloadPDF = (filtered = true) => {
         return companyValue.includes(filterValue.toLowerCase());
       })
     );
-  };
+  }
 
-  const targetCompanies = filtered ? getFilteredCompanies() : companies;
+  // Fit map to markers if filtered
+  if (filtered) {
+    const bounds = new mapboxgl.LngLatBounds();
 
-  const markerPromises = [];
-
-  // Remove old markers
-  const oldMarkers = document.querySelectorAll('.pdf-marker');
-  oldMarkers.forEach(marker => marker.remove());
-
-  targetCompanies.forEach(company => {
-    const { r_and_d_location } = company;
-
-    const markerPromise = axios
-      .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=${mapboxgl.accessToken}`)
-      .then(response => {
-        if (response.data.features.length > 0) {
-          const [longitude, latitude] = response.data.features[0].geometry.coordinates;
-          bounds.extend([longitude, latitude]);
-
-          // Create only the circular marker (no label)
-          const markerDot = document.createElement('div');
-          markerDot.className = 'pdf-marker';
-          Object.assign(markerDot.style, {
-            backgroundColor: '#3B82F6',
-            borderRadius: '50%',
-            width: '12px',
-            height: '12px',
-            border: '2px solid white',
-            boxShadow: '0 0 4px rgba(0,0,0,0.3)',
-          });
-
-          new mapboxgl.Marker(markerDot).setLngLat([longitude, latitude]).addTo(map.current);
+    targetCompanies.forEach(company => {
+      const location = company.r_and_d_location;
+      // If you already have coordinates stored, use them here instead of geocoding
+      if (location) {
+        const marker = markers.find(m => m.companyId === company.id); // Assuming you store markers separately
+        if (marker) {
+          bounds.extend(marker.getLngLat());
         }
-      })
-      .catch(error => {
-        console.error('Geocoding error:', error);
-      });
+      }
+    });
 
-    markerPromises.push(markerPromise);
-  });
-
-  Promise.all(markerPromises).then(() => {
     if (!bounds.isEmpty()) {
       map.current.fitBounds(bounds, { padding: 80, maxZoom: 4 });
     }
+  }
 
-    map.current.once('idle', () => {
-      setTimeout(() => {
-        html2canvas(mapContainerRef.current, {
-          useCORS: true,
-          scale: 2,
-        }).then(canvas => {
-          const imgData = canvas.toDataURL('image/png');
-          const pdf = new jsPDF('landscape', 'pt', 'a4');
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = pdf.internal.pageSize.getHeight();
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-          const filename = filtered ? 'Filtered_Map_Export.pdf' : 'Companies.pdf';
-          pdf.save(filename);
-        });
-      }, 500); // wait for rendering
-    });
+  // Take screenshot after map finishes rendering
+  map.current.once('idle', () => {
+    setTimeout(() => {
+      html2canvas(mapContainerRef.current, {
+        useCORS: true,
+        scale: 2,
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('landscape', 'pt', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        const filename = filtered ? 'Filtered_Map_Export.pdf' : 'All_Companies_Map.pdf';
+        pdf.save(filename);
+      });
+    }, 500); // optional delay to ensure rendering
   });
 };
+
 
 
      
@@ -631,7 +607,7 @@ const handleDownloadPDF = (filtered = true) => {
     'Employee Strength', 'Revenues', 'Phone', 'Website', 'Production Volume', 'Key Customers',
     'Region', 'Founding Year', 'Rating', 'Offering Products', 'Pricing Strategy', 'Customer Needs',
     'Technology Used', 'Competitive Advantage', 'Challenges', 'Recent News', 'Product Launch',
-    'Strategic Partnership', 'Comments', 'Employees Per Region', 'Business Strategies',
+    'Strategic Partnership', 'Comments', 'Employees Per Region', 'Business Strategies', 'Year of financial detail'
     'Revenue', 'EBIT', 'Operating Cash Flow', 'Investing Cash Flow', 'Free Cash Flow', 'ROCE',
     'Equity Ratio', 'CEO', 'CFO', 'CTO', 'RD&head', 'Sales head', 'Production head', 'Key decision marker', 
    
@@ -644,7 +620,7 @@ const handleDownloadPDF = (filtered = true) => {
     company.foundingyear, company.rate, company.offeringproducts, company.pricingstrategy,
     company.customerneeds, company.technologyuse, company.competitiveadvantage, company.challenges,
     company.recentnews, company.productlaunch, company.strategicpartenrship, company.comments,
-    company.employeesperregion, company.businessstrategies, company.revenue, company.ebit,
+    company.employeesperregion, company.businessstrategies,company.financialyear, company.revenue, company.ebit,
     company.operatingcashflow, company.investingcashflow, company.freecashflow, company.roce,
     company.equityratio, company.ceo, company.cfo,
     company.cto, company.rdhead, company.saleshead, company.productionhead,
@@ -827,7 +803,7 @@ const addAvoPlantPopup = () => {
     const addAvoPlantMarkers = () => {
         avoPlants.forEach(plant => {
             if (filters.avoPlant === '' || plant.name.toLowerCase() === filters.avoPlant.toLowerCase()) {
-                new mapboxgl.Marker({ color: 'red' })
+                new mapboxgl.Marker({ color: 'red', scale: 0.7 })
                     .setLngLat(plant.coordinates)
                     .setPopup(new mapboxgl.Popup().setHTML(`<h3>${plant.name}</h3>`))
                     .addTo(map.current);
