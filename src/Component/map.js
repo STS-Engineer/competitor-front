@@ -515,8 +515,8 @@ const handleHeadquarterLocationCheckbox = (e) => {
 };
 
 const handleDownloadPDF = (filtered = true) => {
+  // 1. Prepare target companies based on filter
   let targetCompanies = companies;
-
   if (filtered) {
     const filterToFieldMap = {
       companyName: 'name',
@@ -538,43 +538,115 @@ const handleDownloadPDF = (filtered = true) => {
     );
   }
 
-  // Fit map to markers if filtered
-  if (filtered) {
-    const bounds = new mapboxgl.LngLatBounds();
+  // 2. Store current map style and UI state
+  const originalStyle = map.current.getStyle();
+  const originalZoom = map.current.getZoom();
+  const originalCenter = map.current.getCenter();
+  const originalUI = map.current.hasControl(mapboxgl.NavigationControl);
 
-    targetCompanies.forEach(company => {
-      const location = company.r_and_d_location;
-      // If you already have coordinates stored, use them here instead of geocoding
-      if (location) {
-        const marker = markers.find(m => m.companyId === company.id); // Assuming you store markers separately
+  try {
+    // 3. Prepare the map for capture
+    // Remove UI controls if present
+    if (originalUI) {
+      map.current.removeControl(mapboxgl.NavigationControl);
+    }
+
+    // Fit bounds to markers
+    if (targetCompanies.length > 0) {
+      const bounds = new mapboxgl.LngLatBounds();
+      targetCompanies.forEach(company => {
+        const marker = markers.find(m => m.companyId === company.id);
         if (marker) {
           bounds.extend(marker.getLngLat());
         }
+      });
+      
+      if (!bounds.isEmpty()) {
+        // Add some padding and set max zoom for better visibility
+        map.current.fitBounds(bounds, {
+          padding: 100,
+          maxZoom: 12,  // Increased from 4 to 12 for closer zoom
+          duration: 0    // Instant transition
+        });
       }
+    }
+
+    // 4. Create a temporary container for clean capture
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'fixed';
+    tempContainer.style.top = '-9999px';
+    tempContainer.style.width = '1200px';
+    tempContainer.style.height = '800px';
+    document.body.appendChild(tempContainer);
+
+    // Clone the map container
+    const mapClone = mapContainerRef.current.cloneNode(true);
+    tempContainer.appendChild(mapClone);
+
+    // Hide unwanted elements in the clone
+    const elementsToHide = [
+      '.mapboxgl-control-container',  // UI controls
+      '.mapboxgl-ctrl-top-left',     // Other controls
+      '.mapboxgl-ctrl-top-right',
+      '.mapboxgl-ctrl-bottom-left',
+      '.mapboxgl-ctrl-bottom-right',
+      // Add any other selectors for elements you want to hide
+    ];
+    
+    elementsToHide.forEach(selector => {
+      const elements = mapClone.querySelectorAll(selector);
+      elements.forEach(el => el.style.display = 'none');
     });
 
-    if (!bounds.isEmpty()) {
-      map.current.fitBounds(bounds, { padding: 80, maxZoom: 4 });
-    }
-  }
-
-  // Take screenshot after map finishes rendering
-  map.current.once('idle', () => {
+    // 5. Capture the clean map
     setTimeout(() => {
-      html2canvas(mapContainerRef.current, {
+      html2canvas(mapClone, {
         useCORS: true,
-        scale: 2,
+        scale: 3,  // Higher scale for better quality
+        logging: false,
+        backgroundColor: null,
+        ignoreElements: (element) => {
+          // Hide any other unwanted elements
+          return element.classList.contains('mapboxgl-control') || 
+                 element.classList.contains('other-unwanted-class');
+        }
       }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
+        // Create PDF
         const pdf = new jsPDF('landscape', 'pt', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        
+        // Calculate dimensions to maintain aspect ratio
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+        const finalWidth = imgWidth * ratio;
+        const finalHeight = imgHeight * ratio;
+        
+        pdf.addImage(canvas, 'PNG', 
+          (pdfWidth - finalWidth) / 2,  // Center horizontally
+          (pdfHeight - finalHeight) / 2, // Center vertically
+          finalWidth, finalHeight);
+        
         const filename = filtered ? 'Filtered_Map_Export.pdf' : 'All_Companies_Map.pdf';
         pdf.save(filename);
+
+        // Clean up
+        document.body.removeChild(tempContainer);
       });
-    }, 500); // optional delay to ensure rendering
-  });
+    }, 1000); // Give time for map to render and bounds to fit
+
+  } finally {
+    // 6. Restore original map state
+    setTimeout(() => {
+      map.current.setStyle(originalStyle);
+      map.current.setZoom(originalZoom);
+      map.current.setCenter(originalCenter);
+      if (originalUI) {
+        map.current.addControl(new mapboxgl.NavigationControl());
+      }
+    }, 1500);
+  }
 };
 
 
