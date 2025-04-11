@@ -514,36 +514,32 @@ const handleHeadquarterLocationCheckbox = (e) => {
     setShowHeadquarterLocation(e.target.checked); // Toggle Headquarters checkbox
 };
 
-const handleDownloadPDF = (filtered = false) => {
-  if (!map.current) return;
+const handleDownloadPDF = async (filtered = false) => {
+  const mapContainer = document.getElementById('map'); // Adjust this to your map container ID
+  if (!mapContainer) return;
 
-  // Wait for the map to finish rendering
-  map.current.once('idle', () => {
-    // Get the canvas element as a base64 image
-    const canvas = map.current.getCanvas();
-    const dataUrl = canvas.toDataURL('image/png');
+  // Wait for all markers and tiles to load
+  await new Promise(resolve => setTimeout(resolve, 500));
 
+  html2canvas(mapContainer, { useCORS: true }).then(canvas => {
+    const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('landscape', 'pt', 'a4');
+
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    const img = new Image();
-    img.onload = () => {
-      const imgWidth = img.width;
-      const imgHeight = img.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const finalWidth = imgWidth * ratio;
-      const finalHeight = imgHeight * ratio;
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
 
-      // Center the image in the PDF page
-      const x = (pdfWidth - finalWidth) / 2;
-      const y = (pdfHeight - finalHeight) / 2;
+    const finalWidth = imgWidth * ratio;
+    const finalHeight = imgHeight * ratio;
 
-      pdf.addImage(img, 'PNG', x, y, finalWidth, finalHeight);
-      pdf.save(filtered ? 'Filtered_Map_Export.pdf' : 'All_Companies_Map.pdf');
-    };
+    const x = (pdfWidth - finalWidth) / 2;
+    const y = (pdfHeight - finalHeight) / 2;
 
-    img.src = dataUrl;
+    pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
+    pdf.save(filtered ? 'Filtered_Map_Export.pdf' : 'All_Companies_Map.pdf');
   });
 };
 
