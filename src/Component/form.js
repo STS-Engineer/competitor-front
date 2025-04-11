@@ -49,6 +49,7 @@ const Form = () => {
         freecashflow: '',
         roce: '',
         equityratio: '',
+        financialyear:'',
         keymanagement: [],
         ceo: '',
         cfo: '',
@@ -997,17 +998,23 @@ const Form = () => {
                     <Button key="close" onClick={handleModalClose}>Close</Button>,
                 ]}
             >
-            <div className="modal-input-group">
-             <select
-                name="FinacialYear">
-              <option value="">Select Year</option>
-             {Array.from({ length: 6 }, (_, i) => 2020 + i).map((year) => (
-            <option key={year} value={year}>
-                 {year}
-          </option>
-             ))}
-            </select>
-           </div>
+         <div className="modal-input-group">
+      <select
+       name="financialyear"
+      value={formData.financialyear}
+      onChange={(e) =>
+      setFormData({ ...formData, financialyear: e.target.value })
+    }
+     >
+    <option value="">Select Year</option>
+    {Array.from({ length: 6 }, (_, i) => 2020 + i).map((year) => (
+      <option key={year} value={year}>
+        {year}
+        </option>
+         ))}
+        </select>
+         </div>
+
                 <div className="modal-input-group">
                     <label>Revenue</label>
                     <Input
