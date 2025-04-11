@@ -817,8 +817,10 @@ const Form = () => {
                 <input type="text" name="email" placeholder="Enter the details" className="input" />
                </div>
                )}           
-    <div style={{ marginBottom: '1.5rem' }}>
+
+<div style={{ marginBottom: '1.5rem' }}>
   <label
+    htmlFor="keymanagement"
     style={{
       fontSize: '16px',
       fontWeight: '600',
@@ -830,61 +832,41 @@ const Form = () => {
     Key Management Positions
   </label>
 
-  <div
-    style={{
-      backgroundColor: '#ffffff',
-      border: '1px solid #e5e7eb',
-      borderRadius: '12px',
-      padding: '16px',
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+  <MultiSelect
+    options={[
+      { label: 'CEO', value: 'ceo' },
+      { label: 'CFO', value: 'cfo' },
+      { label: 'CTO', value: 'cto' },
+      { label: 'R&D Head', value: 'rdhead' },
+      { label: 'Sales Head', value: 'saleshead' },
+      { label: 'Production Head', value: 'productionhead' },
+      { label: 'Key Decision Makers', value: 'keydecisionmarker' },
+    ]}
+    value={
+      formData.keymanagement
+        ? formData.keymanagement.split(', ').map((value) => ({
+            label:
+              [
+                { label: 'CEO', value: 'ceo' },
+                { label: 'CFO', value: 'cfo' },
+                { label: 'CTO', value: 'cto' },
+                { label: 'R&D Head', value: 'rdhead' },
+                { label: 'Sales Head', value: 'saleshead' },
+                { label: 'Production Head', value: 'productionhead' },
+                { label: 'Key Decision Makers', value: 'keydecisionmarker' },
+              ].find((opt) => opt.value === value)?.label || value,
+            value: value,
+          }))
+        : []
+    }
+    onChange={(selectedOptions) => {
+      const formatted = selectedOptions.map((opt) => opt.value).join(', ');
+      setFormData({ ...formData, keymanagement: formatted });
     }}
-  >
-    {optionskey.map((option) => {
-      const isSelected = formData.keymanagement?.includes(option.value);
-
-      return (
-        <div
-          key={option.value}
-          onClick={() => {
-            const selected = formData.keymanagement || [];
-            const updated = isSelected
-              ? selected.filter((v) => v !== option.value)
-              : [...selected, option.value];
-            setFormData({ ...formData, keymanagement: updated });
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '10px 14px',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            backgroundColor: isSelected ? '#dbeafe' : '#f9fafb',
-            border: isSelected ? '1px solid #3b82f6' : '1px solid #e5e7eb',
-            color: isSelected ? '#1d4ed8' : '#374151',
-            fontWeight: isSelected ? '600' : '500',
-            transition: 'all 0.2s ease-in-out',
-            minWidth: '150px',
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={isSelected}
-            readOnly
-            style={{
-              accentColor: '#3b82f6',
-              pointerEvents: 'none',
-            }}
-          />
-          <span style={{ fontSize: '14px' }}>{option.label}</span>
-        </div>
-      );
-    })}
-  </div>
+    labelledBy="Select Key Roles"
+  />
 </div>
+
 
   {formData.keymanagement && formData.keymanagement.map((role) => (
   <div className="input-group" key={role}>
