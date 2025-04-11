@@ -88,6 +88,15 @@ const Form = () => {
         { label: 'Injection', value: 'Injection' },
         { label: 'Brush', value: 'Brush' }
     ];
+    const optionskey = [
+  { value: 'ceo', label: 'CEO' },
+  { value: 'cfo', label: 'CFO' },
+  { value: 'cto', label: 'CTO' },
+  { value: 'rdhead', label: 'R&D Head' },
+  { value: 'saleshead', label: 'Sales Head' },
+  { value: 'productionhead', label: 'Production Head' },
+  { value: 'keydecisionmarker', label: 'Key Decision Makers' },
+];
 
     useEffect(() => {
         fetchCompanies();
@@ -808,27 +817,33 @@ const Form = () => {
                 <input type="text" name="email" placeholder="Enter the details" className="input" />
                </div>
                )}           
-  <div className="input-group">
-  <label htmlFor="keyManagement" className="label">Key Management Positions</label>
-  <select
-    name="keyManagement"
-    multiple
-    value={formData.keymanagement || []}
-    onChange={(e) => {
-      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-      setFormData({ ...formData, keymanagement: selectedOptions });
-    }}
-    className="input modern-input"
-  >
-    <option value="ceo">CEO</option>
-    <option value="cfo">CFO</option>
-    <option value="cto">CTO</option>
-    <option value="rdhead">R&D Head</option>
-    <option value="saleshead">Sales Head</option>
-    <option value="productionhead">Production Head</option>
-    <option value="keydecisionmarker">Key Decision Makers</option>
-  </select>
+   <div className="input-group">
+  <label className="label">Key Management Positions</label>
+  <div className="custom-multiselect">
+    {optionskey.map((option) => (
+      <div
+        key={option.value}
+        className={`custom-option ${formData.keymanagement?.includes(option.value) ? 'selected' : ''}`}
+        onClick={() => {
+          const selected = formData.keymanagement || [];
+          const alreadySelected = selected.includes(option.value);
+          const updated = alreadySelected
+            ? selected.filter((v) => v !== option.value)
+            : [...selected, option.value];
+          setFormData({ ...formData, keymanagement: updated });
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={formData.keymanagement?.includes(option.value)}
+          readOnly
+        />
+        <span>{option.label}</span>
+      </div>
+    ))}
+  </div>
 </div>
+
 
   {formData.keymanagement && formData.keymanagement.map((role) => (
   <div className="input-group" key={role}>
