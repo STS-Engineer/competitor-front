@@ -514,15 +514,21 @@ const handleHeadquarterLocationCheckbox = (e) => {
     setShowHeadquarterLocation(e.target.checked); // Toggle Headquarters checkbox
 };
 
-const handleDownloadPDF = async (filtered = false, mapContainerRef) => {
+const handleDownloadPDF = async (filtered = false) => {
+  console.log("Button clicked, checking mapContainerRef...");
+
   if (!mapContainerRef.current) {
     console.error('Map container not found');
     return;
   }
 
+  console.log("Map container found, generating PDF...");
+
   await new Promise(resolve => setTimeout(resolve, 500));
 
   html2canvas(mapContainerRef.current, { useCORS: true }).then(canvas => {
+    console.log("Canvas created, generating PDF...");
+
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('landscape', 'pt', 'a4');
 
@@ -537,6 +543,8 @@ const handleDownloadPDF = async (filtered = false, mapContainerRef) => {
 
     pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
     pdf.save(filtered ? 'Filtered_Map_Export.pdf' : 'All_Companies_Map.pdf');
+  }).catch((error) => {
+    console.error("Error while generating PDF:", error);
   });
 };
 
