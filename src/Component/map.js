@@ -514,27 +514,24 @@ const handleHeadquarterLocationCheckbox = (e) => {
     setShowHeadquarterLocation(e.target.checked); // Toggle Headquarters checkbox
 };
 
-const handleDownloadPDF = async (filtered = false) => {
-  const mapContainer = document.getElementById('map'); // Adjust this to your map container ID
-  if (!mapContainer) return;
+const handleDownloadPDF = async (filtered = false, mapContainerRef) => {
+  if (!mapContainerRef.current) {
+    console.error('Map container not found');
+    return;
+  }
 
-  // Wait for all markers and tiles to load
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  html2canvas(mapContainer, { useCORS: true }).then(canvas => {
+  html2canvas(mapContainerRef.current, { useCORS: true }).then(canvas => {
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('landscape', 'pt', 'a4');
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-
-    const finalWidth = imgWidth * ratio;
-    const finalHeight = imgHeight * ratio;
-
+    const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
+    const finalWidth = canvas.width * ratio;
+    const finalHeight = canvas.height * ratio;
     const x = (pdfWidth - finalWidth) / 2;
     const y = (pdfHeight - finalHeight) / 2;
 
@@ -542,6 +539,7 @@ const handleDownloadPDF = async (filtered = false) => {
     pdf.save(filtered ? 'Filtered_Map_Export.pdf' : 'All_Companies_Map.pdf');
   });
 };
+
 
  const handleDownloadExcel = async () => {
   const filterToFieldMap = {
@@ -905,7 +903,7 @@ const addAvoPlantPopup = () => {
                         />
                     ))} */}
                     <button  onClick={handleDownloadExcel} style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', backgroundColor: 'green', color: 'white' }}>Download excel file</button>
-                    <button onClick={handleDownloadPDF} style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', backgroundColor: 'red', color: 'white' }}>Download pdf file</button>
+                    <button onClick={handleDownloadPDF(false, mapContainerRef)} style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', backgroundColor: 'red', color: 'white' }}>Download pdf file</button>
                     <button onClick={handlenavigate} style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none', backgroundColor: 'orange', color: 'white' }}>Chart</button>
  
                 </div>
