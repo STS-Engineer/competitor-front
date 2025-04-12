@@ -514,57 +514,55 @@ const handleHeadquarterLocationCheckbox = (e) => {
     setShowHeadquarterLocation(e.target.checked); // Toggle Headquarters checkbox
 };
 
-const handleDownloadPDF = async (filtered = false) => {
-  console.log("Button clicked, checking mapContainerRef...");
+const handleDownloadPDF = async () => {
+  // Decide whether we're exporting filtered or all companies
+  const isFiltered = filteredCompanies.length > 0 && filteredCompanies.length < companies.length;
+  const visibleCompanies = isFiltered ? filteredCompanies : companies;
 
-  if (!mapContainerRef.current) {
-    console.error('Map container not found');
+  if (!mapRef.current || !mapContainerRef.current) {
+    console.error('Map or map container not found');
     return;
   }
 
-  console.log("Map container found, generating PDF...");
+  // Zoom to fit all visible markers
+  if (visibleCompanies.length > 0) {
+    const bounds = new mapboxgl.LngLatBounds();
+    visibleCompanies.forEach(company => {
+      bounds.extend([company.longitude, company.latitude]);
+    });
 
-  // Ensure the map has fully loaded
+    mapRef.current.fitBounds(bounds, { padding: 100, duration: 1000 });
+  }
+
+  // Wait for the zoom animation and marker rendering
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
   const mapCanvas = mapContainerRef.current.querySelector('.mapboxgl-canvas');
-
   if (!mapCanvas) {
     console.error('Map canvas not found');
     return;
   }
 
-  // Wait until the map is fully loaded
-  await new Promise(resolve => {
-    mapCanvas.addEventListener('load', resolve);
-  });
-
-  // Make sure to allow some time for rendering before taking a screenshot
+  // Wait a little more to let markers and names settle visually
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Now take the screenshot
   html2canvas(mapContainerRef.current, { useCORS: true }).then(canvas => {
-    console.log("Canvas created, generating PDF...");
-
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('landscape', 'pt', 'a4');
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    // Calculate the correct ratio to scale the canvas to fit the PDF size
     const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
     const finalWidth = canvas.width * ratio;
     const finalHeight = canvas.height * ratio;
 
-    // Calculate the position to center the canvas on the page
     const x = (pdfWidth - finalWidth) / 2;
     const y = (pdfHeight - finalHeight) / 2;
 
-    // Add the map screenshot to the PDF
     pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
-
-    // Save the generated PDF with a name based on whether filtered data is applied
-    pdf.save(filtered ? 'Filtered_Map_Export.pdf' : 'All_Companies_Map.pdf');
-  }).catch((error) => {
+    pdf.save(isFiltered ? 'Filtered_Map_Export.pdf' : 'All_Companies_Map.pdf');
+  }).catch(error => {
     console.error("Error while generating PDF:", error);
   });
 };
