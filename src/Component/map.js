@@ -143,12 +143,13 @@ useEffect(() => {
  
     useEffect(() => {
         if (!map.current) {
-            map.current = new mapboxgl.Map({
-                container: mapContainerRef.current,
-                style: 'mapbox://styles/mapbox/streets-v11',
-                center: [0, 0], // Default center
-                zoom: 20 // Default zoom,
-                preserveDrawingBuffer: true // Crucial for PDF capture
+          map.current = new mapboxgl.Map({
+          container: mapContainerRef.current,
+          style: 'mapbox://styles/mapbox/streets-v11',
+          center: [0, 0],
+          zoom: 20,
+          preserveDrawingBuffer: true // Crucial for PDF capture
+         });
             });
  
             map.current.on('load', () => {
