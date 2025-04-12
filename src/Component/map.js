@@ -527,6 +527,12 @@ const handleDownloadPDF = async () => {
       );
     });
 
+    if (visibleCompanies.length === 0) {
+      alert('No companies match the current filters.');
+      return;
+    }
+
+    // Clear existing markers
     if (markersRef.current.length > 0) {
       markersRef.current.forEach(marker => marker.remove());
       markersRef.current = [];
@@ -567,6 +573,7 @@ const handleDownloadPDF = async () => {
       bearing: map.current.getBearing()
     };
 
+    // Fit bounds and wait until map settles
     await new Promise(resolve => {
       map.current.fitBounds(bounds, {
         padding: 100,
@@ -576,29 +583,35 @@ const handleDownloadPDF = async () => {
       map.current.once('idle', resolve);
     });
 
+    // Wait a bit more to make sure markers are added
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // ✅ Capture only the canvas (map image)
-    const mapCanvas = mapContainerRef.current.querySelector('.mapboxgl-canvas');
+    // Re-add markers
+    addMarkersForFilteredCompanies();
+    addMarkersheadquarterForFilteredCompanies();
+    addAvoPlantMarkers();
 
-    const canvasCopy = document.createElement('canvas');
-    canvasCopy.width = mapCanvas.width;
-    canvasCopy.height = mapCanvas.height;
-    const ctx = canvasCopy.getContext('2d');
-    ctx.drawImage(mapCanvas, 0, 0);
+    // Wait for one more idle event to ensure DOM markers are there
+    await new Promise(resolve => {
+      map.current.once('idle', resolve);
+    });
 
-    const imgData = canvasCopy.toDataURL('image/jpeg', 1.0);
+    // Capture the entire map container (canvas + markers)
+    const mapElement = mapContainerRef.current;
 
-    // ✅ Create PDF and add the map image
+    const canvas = await html2canvas(mapElement, {
+      useCORS: true,
+      logging: false,
+      backgroundColor: null
+    });
+
+    const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('landscape', 'pt', 'a4');
+
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgProps = {
-      width: canvasCopy.width,
-      height: canvasCopy.height
-    };
 
-    const aspectRatio = imgProps.width / imgProps.height;
+    const aspectRatio = canvas.width / canvas.height;
     let width = pdfWidth;
     let height = width / aspectRatio;
 
@@ -610,9 +623,9 @@ const handleDownloadPDF = async () => {
     const x = (pdfWidth - width) / 2;
     const y = (pdfHeight - height) / 2;
 
-    pdf.addImage(imgData, 'JPEG', x, y, width, height);
+    pdf.addImage(imgData, 'PNG', x, y, width, height);
 
-    // ✅ Reset map and re-add markers
+    // Restore original view
     map.current.jumpTo(originalView);
     addMarkersForFilteredCompanies();
     addMarkersheadquarterForFilteredCompanies();
