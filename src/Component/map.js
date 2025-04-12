@@ -150,8 +150,6 @@ useEffect(() => {
           zoom: 20,
           preserveDrawingBuffer: true // Crucial for PDF capture
          });
-            });
- 
             map.current.on('load', () => {
                 // Add markers for the filtered companies after the map has loaded
                 addMarkersForFilteredCompanies();
