@@ -515,104 +515,104 @@ const handleHeadquarterLocationCheckbox = (e) => {
     setShowHeadquarterLocation(e.target.checked); // Toggle Headquarters checkbox
 };
 
-const handleDownloadPDF = async () => {
+ const handleDownloadPDF = async () => {
   try {
     if (!mapContainerRef.current || !map.current) {
       console.error('Map references not found');
       return;
     }
 
-    const isFiltered =
-      filteredCompanies.length > 0 &&
-      filteredCompanies.length < companies.length;
+    const isFiltered = filteredCompanies.length > 0 && 
+                      filteredCompanies.length < companies.length;
     const visibleCompanies = isFiltered ? filteredCompanies : companies;
 
+    // Store original map position
     const originalCenter = map.current.getCenter();
     const originalZoom = map.current.getZoom();
 
-    const bounds = new mapboxgl.LngLatBounds();
-    let hasValidCoordinates = false;
+    // Geocode company locations and collect coordinates
+    const coordinatesPromises = visibleCompanies.map(async (company) => {
+      const location = company.r_and_d_location || company.headquarters_location;
+      if (!location) return null;
 
-    visibleCompanies.forEach(company => {
-      const latRaw = company.latitude;
-      const lonRaw = company.longitude;
-
-      // Validate raw latitude/longitude
-      if (
-        latRaw == null || lonRaw == null ||
-        latRaw === '' || lonRaw === ''
-      ) {
-        console.warn('Missing coordinates:', company);
-        return;
+      try {
+        const response = await axios.get(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
+          { params: { access_token: mapboxgl.accessToken } }
+        );
+        
+        if (response.data.features?.length > 0) {
+          return response.data.features[0].geometry.coordinates;
+        }
+      } catch (error) {
+        console.warn('Geocoding failed for:', location, error);
       }
-
-      const latitude = parseFloat(latRaw);
-      const longitude = parseFloat(lonRaw);
-
-      const isValid =
-        isFinite(latitude) &&
-        isFinite(longitude) &&
-        latitude >= -90 &&
-        latitude <= 90 &&
-        longitude >= -180 &&
-        longitude <= 180;
-
-      if (isValid) {
-        bounds.extend([longitude, latitude]);
-        hasValidCoordinates = true;
-      } else {
-        console.warn('Invalid coordinates after parsing:', latRaw, lonRaw, company);
-      }
+      return null;
     });
 
-    if (!hasValidCoordinates) {
-      alert('No valid coordinates found.');
+    // Wait for all geocoding results
+    const coordinatesList = await Promise.all(coordinatesPromises);
+    const validCoordinates = coordinatesList.filter(c => c !== null);
+
+    if (validCoordinates.length === 0) {
+      alert('No valid locations found for PDF generation');
       return;
     }
 
-    // Zoom to bounds
+    // Calculate bounds from valid coordinates
+    const bounds = new mapboxgl.LngLatBounds();
+    validCoordinates.forEach(coords => bounds.extend(coords));
+
+    // Update map view to fit bounds
     await new Promise(resolve => {
       map.current.fitBounds(bounds, { padding: 100, maxZoom: 14, duration: 1000 });
       map.current.once('idle', resolve);
     });
 
-    // Capture map canvas and generate PDF
+    // Capture map canvas
     const mapCanvas = mapContainerRef.current.querySelector('.mapboxgl-canvas');
     if (!mapCanvas) {
       console.error('Map canvas missing');
       return;
     }
 
+    // Generate PDF
     const pdf = new jsPDF('landscape', 'pt', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    const scale = 2;
+    // Create temporary canvas for high-quality image
     const tempCanvas = document.createElement('canvas');
+    const scale = 2; // Increase for better quality
     tempCanvas.width = mapCanvas.width * scale;
     tempCanvas.height = mapCanvas.height * scale;
+    
     const ctx = tempCanvas.getContext('2d');
     ctx.scale(scale, scale);
     ctx.drawImage(mapCanvas, 0, 0);
 
+    // Add image to PDF
     const imgData = tempCanvas.toDataURL('image/jpeg', 0.9);
     const imgRatio = tempCanvas.width / tempCanvas.height;
 
     if (imgRatio > pdfWidth / pdfHeight) {
-      pdf.addImage(imgData, 'JPEG', 0, (pdfHeight - pdfWidth / imgRatio) / 2, pdfWidth, pdfWidth / imgRatio);
+      pdf.addImage(imgData, 'JPEG', 0, (pdfHeight - pdfWidth / imgRatio) / 2, 
+        pdfWidth, pdfWidth / imgRatio);
     } else {
-      pdf.addImage(imgData, 'JPEG', (pdfWidth - pdfHeight * imgRatio) / 2, 0, pdfHeight * imgRatio, pdfHeight);
+      pdf.addImage(imgData, 'JPEG', (pdfWidth - pdfHeight * imgRatio) / 2, 0, 
+        pdfHeight * imgRatio, pdfHeight);
     }
 
-    // Reset map view and save
+    // Restore original map view
     map.current.jumpTo({ center: originalCenter, zoom: originalZoom });
+    
+    // Save PDF
     pdf.save(isFiltered ? 'Filtered_Map.pdf' : 'Full_Map.pdf');
   } catch (error) {
     console.error('PDF generation failed:', error);
     alert('Failed to generate PDF. Check console for details.');
   }
 };
-
 
  const handleDownloadExcel = async () => {
   const filterToFieldMap = {
