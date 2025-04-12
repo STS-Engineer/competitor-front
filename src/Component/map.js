@@ -534,11 +534,21 @@ const handleDownloadPDF = async () => {
     let hasValidCoordinates = false;
 
     visibleCompanies.forEach(company => {
-      // Use parseFloat for better string-to-number conversion
-      const latitude = parseFloat(company.latitude);
-      const longitude = parseFloat(company.longitude);
+      const latRaw = company.latitude;
+      const lonRaw = company.longitude;
 
-      // Check if values are valid geographic coordinates
+      // Validate raw latitude/longitude
+      if (
+        latRaw == null || lonRaw == null ||
+        latRaw === '' || lonRaw === ''
+      ) {
+        console.warn('Missing coordinates:', company);
+        return;
+      }
+
+      const latitude = parseFloat(latRaw);
+      const longitude = parseFloat(lonRaw);
+
       const isValid =
         isFinite(latitude) &&
         isFinite(longitude) &&
@@ -551,7 +561,7 @@ const handleDownloadPDF = async () => {
         bounds.extend([longitude, latitude]);
         hasValidCoordinates = true;
       } else {
-        console.warn('Invalid coordinates:', company.latitude, company.longitude, company);
+        console.warn('Invalid coordinates after parsing:', latRaw, lonRaw, company);
       }
     });
 
@@ -577,7 +587,6 @@ const handleDownloadPDF = async () => {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    // Scale canvas for better image quality
     const scale = 2;
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = mapCanvas.width * scale;
@@ -586,7 +595,6 @@ const handleDownloadPDF = async () => {
     ctx.scale(scale, scale);
     ctx.drawImage(mapCanvas, 0, 0);
 
-    // Add image to PDF
     const imgData = tempCanvas.toDataURL('image/jpeg', 0.9);
     const imgRatio = tempCanvas.width / tempCanvas.height;
 
@@ -596,7 +604,7 @@ const handleDownloadPDF = async () => {
       pdf.addImage(imgData, 'JPEG', (pdfWidth - pdfHeight * imgRatio) / 2, 0, pdfHeight * imgRatio, pdfHeight);
     }
 
-    // Reset map and save PDF
+    // Reset map view and save
     map.current.jumpTo({ center: originalCenter, zoom: originalZoom });
     pdf.save(isFiltered ? 'Filtered_Map.pdf' : 'Full_Map.pdf');
   } catch (error) {
@@ -604,6 +612,7 @@ const handleDownloadPDF = async () => {
     alert('Failed to generate PDF. Check console for details.');
   }
 };
+
 
  const handleDownloadExcel = async () => {
   const filterToFieldMap = {
