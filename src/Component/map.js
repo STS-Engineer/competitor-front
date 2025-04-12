@@ -147,7 +147,8 @@ useEffect(() => {
                 container: mapContainerRef.current,
                 style: 'mapbox://styles/mapbox/streets-v11',
                 center: [0, 0], // Default center
-                zoom: 20 // Default zoom
+                zoom: 20 // Default zoom,
+                preserveDrawingBuffer: true // Crucial for PDF capture
             });
  
             map.current.on('load', () => {
@@ -515,102 +516,97 @@ const handleHeadquarterLocationCheckbox = (e) => {
     setShowHeadquarterLocation(e.target.checked); // Toggle Headquarters checkbox
 };
 
- const handleDownloadPDF = async () => {
+// Modified handleDownloadPDF function
+const handleDownloadPDF = async () => {
   try {
     if (!mapContainerRef.current || !map.current) {
       console.error('Map references not found');
       return;
     }
 
-    const isFiltered = filteredCompanies.length > 0 && 
-                      filteredCompanies.length < companies.length;
-    const visibleCompanies = isFiltered ? filteredCompanies : companies;
-
-    // Store original map position
+    // Get current view state
     const originalCenter = map.current.getCenter();
     const originalZoom = map.current.getZoom();
+    const originalPitch = map.current.getPitch();
+    const originalBearing = map.current.getBearing();
 
-    // Geocode company locations and collect coordinates
-    const coordinatesPromises = visibleCompanies.map(async (company) => {
+    // Get coordinates for all visible markers
+    const visibleCompanies = filteredCompanies.length > 0 && 
+                           filteredCompanies.length < companies.length 
+                           ? filteredCompanies 
+                           : companies;
+
+    const coordinates = [];
+    for (const company of visibleCompanies) {
       const location = company.r_and_d_location || company.headquarters_location;
-      if (!location) return null;
+      if (!location) continue;
 
-      try {
-        const response = await axios.get(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
-          { params: { access_token: mapboxgl.accessToken } }
-        );
-        
-        if (response.data.features?.length > 0) {
-          return response.data.features[0].geometry.coordinates;
-        }
-      } catch (error) {
-        console.warn('Geocoding failed for:', location, error);
+      const response = await axios.get(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
+        { params: { access_token: mapboxgl.accessToken } }
+      );
+      
+      if (response.data.features?.length > 0) {
+        coordinates.push(response.data.features[0].geometry.coordinates);
       }
-      return null;
-    });
+    }
 
-    // Wait for all geocoding results
-    const coordinatesList = await Promise.all(coordinatesPromises);
-    const validCoordinates = coordinatesList.filter(c => c !== null);
-
-    if (validCoordinates.length === 0) {
-      alert('No valid locations found for PDF generation');
+    if (coordinates.length === 0) {
+      alert('No valid locations found');
       return;
     }
 
-    // Calculate bounds from valid coordinates
-    const bounds = new mapboxgl.LngLatBounds();
-    validCoordinates.forEach(coords => bounds.extend(coords));
-
-    // Update map view to fit bounds
+    // Calculate bounds and update view
+    const bounds = coordinates.reduce((acc, coord) => acc.extend(coord), 
+                      new mapboxgl.LngLatBounds());
     await new Promise(resolve => {
-      map.current.fitBounds(bounds, { padding: 100, maxZoom: 14, duration: 1000 });
+      map.current.fitBounds(bounds, { 
+        padding: 100, 
+        maxZoom: 14, 
+        duration: 1000 
+      });
       map.current.once('idle', resolve);
     });
 
-    // Capture map canvas
-    const mapCanvas = mapContainerRef.current.querySelector('.mapboxgl-canvas');
-    if (!mapCanvas) {
-      console.error('Map canvas missing');
-      return;
-    }
+    // Add small delay to ensure markers render
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Generate PDF
+    // Capture entire map container with html2canvas
+    const container = mapContainerRef.current;
+    const canvas = await html2canvas(container, {
+      useCORS: true,
+      scale: 2,
+      logging: true,
+      onclone: (clonedDoc) => {
+        // Ensure map controls are hidden in PDF
+        const cloneContainer = clonedDoc.getElementById(container.id);
+        if (cloneContainer) {
+          cloneContainer.querySelectorAll('.mapboxgl-control-container')
+            .forEach(el => el.style.display = 'none');
+        }
+      }
+    });
+
+    // Create PDF
     const pdf = new jsPDF('landscape', 'pt', 'a4');
+    const imgProps = pdf.getImageProperties(canvas);
     const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-    // Create temporary canvas for high-quality image
-    const tempCanvas = document.createElement('canvas');
-    const scale = 2; // Increase for better quality
-    tempCanvas.width = mapCanvas.width * scale;
-    tempCanvas.height = mapCanvas.height * scale;
+    pdf.addImage(canvas, 'PNG', 0, 0, pdfWidth, pdfHeight);
     
-    const ctx = tempCanvas.getContext('2d');
-    ctx.scale(scale, scale);
-    ctx.drawImage(mapCanvas, 0, 0);
+    // Restore original view
+    map.current.jumpTo({
+      center: originalCenter,
+      zoom: originalZoom,
+      pitch: originalPitch,
+      bearing: originalBearing
+    });
 
-    // Add image to PDF
-    const imgData = tempCanvas.toDataURL('image/jpeg', 0.9);
-    const imgRatio = tempCanvas.width / tempCanvas.height;
-
-    if (imgRatio > pdfWidth / pdfHeight) {
-      pdf.addImage(imgData, 'JPEG', 0, (pdfHeight - pdfWidth / imgRatio) / 2, 
-        pdfWidth, pdfWidth / imgRatio);
-    } else {
-      pdf.addImage(imgData, 'JPEG', (pdfWidth - pdfHeight * imgRatio) / 2, 0, 
-        pdfHeight * imgRatio, pdfHeight);
-    }
-
-    // Restore original map view
-    map.current.jumpTo({ center: originalCenter, zoom: originalZoom });
-    
-    // Save PDF
-    pdf.save(isFiltered ? 'Filtered_Map.pdf' : 'Full_Map.pdf');
+    pdf.save('Map_Export.pdf');
   } catch (error) {
     console.error('PDF generation failed:', error);
-    alert('Failed to generate PDF. Check console for details.');
+    alert('PDF generation failed - check console');
   }
 };
 
