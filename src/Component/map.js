@@ -143,13 +143,13 @@ useEffect(() => {
  
     useEffect(() => {
         if (!map.current) {
-          map.current = new mapboxgl.Map({
-          container: mapContainerRef.current,
-          style: 'mapbox://styles/mapbox/streets-v11',
-          center: [0, 0],
-          zoom: 20,
-          preserveDrawingBuffer: true // Crucial for PDF capture
-         });
+           map.current = new mapboxgl.Map({
+           container: mapContainerRef.current,
+           style: 'mapbox://styles/mapbox/streets-v11',
+           center: [0, 0],
+            zoom: 1, // Start with a broader view
+            preserveDrawingBuffer: true // Critical for PDF export
+            });
             map.current.on('load', () => {
                 // Add markers for the filtered companies after the map has loaded
                 addMarkersForFilteredCompanies();
@@ -518,24 +518,16 @@ const handleHeadquarterLocationCheckbox = (e) => {
 // Modified handleDownloadPDF function
 const handleDownloadPDF = async () => {
   try {
-    if (!mapContainerRef.current || !map.current) {
-      console.error('Map references not found');
-      return;
-    }
+    // 1. Get filtered companies based on current filters (e.g., region: Europe)
+    const visibleCompanies = companies.filter(company => {
+      const regionMatch = filters.region 
+        ? company.region.toLowerCase() === filters.region.toLowerCase()
+        : true;
+      return regionMatch; // Add other filter checks here
+    });
 
-    // Get current view state
-    const originalCenter = map.current.getCenter();
-    const originalZoom = map.current.getZoom();
-    const originalPitch = map.current.getPitch();
-    const originalBearing = map.current.getBearing();
-
-    // Get coordinates for all visible markers
-    const visibleCompanies = filteredCompanies.length > 0 && 
-                           filteredCompanies.length < companies.length 
-                           ? filteredCompanies 
-                           : companies;
-
-    const coordinates = [];
+    // 2. Calculate bounds from filtered markers
+    const bounds = new mapboxgl.LngLatBounds();
     for (const company of visibleCompanies) {
       const location = company.r_and_d_location || company.headquarters_location;
       if (!location) continue;
@@ -546,39 +538,32 @@ const handleDownloadPDF = async () => {
       );
       
       if (response.data.features?.length > 0) {
-        coordinates.push(response.data.features[0].geometry.coordinates);
+        bounds.extend(response.data.features[0].geometry.coordinates);
       }
     }
 
-    if (coordinates.length === 0) {
-      alert('No valid locations found');
-      return;
-    }
-
-    // Calculate bounds and update view
-    const bounds = coordinates.reduce((acc, coord) => acc.extend(coord), 
-                      new mapboxgl.LngLatBounds());
+    // 3. Update map view to filtered bounds
     await new Promise(resolve => {
       map.current.fitBounds(bounds, { 
         padding: 100, 
         maxZoom: 14, 
         duration: 1000 
       });
-      map.current.once('idle', resolve);
+      map.current.once('idle', resolve); // Wait for map to render
     });
 
-    // Add small delay to ensure markers render
+    // 4. Add delay to ensure markers render
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Capture entire map container with html2canvas
-    const container = mapContainerRef.current;
-    const canvas = await html2canvas(container, {
-      useCORS: true,
-      scale: 2,
+    // 5. Capture the entire map container with html2canvas
+    const mapContainer = mapContainerRef.current;
+    const canvas = await html2canvas(mapContainer, {
+      useCORS: true, // Handle CORS for Mapbox tiles
+      scale: 2, // Higher resolution
       logging: true,
       onclone: (clonedDoc) => {
-        // Ensure map controls are hidden in PDF
-        const cloneContainer = clonedDoc.getElementById(container.id);
+        // Hide map controls in the PDF
+        const cloneContainer = clonedDoc.getElementById(mapContainer.id);
         if (cloneContainer) {
           cloneContainer.querySelectorAll('.mapboxgl-control-container')
             .forEach(el => el.style.display = 'none');
@@ -586,26 +571,18 @@ const handleDownloadPDF = async () => {
       }
     });
 
-    // Create PDF
+    // 6. Generate PDF
     const pdf = new jsPDF('landscape', 'pt', 'a4');
     const imgProps = pdf.getImageProperties(canvas);
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
     pdf.addImage(canvas, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    
-    // Restore original view
-    map.current.jumpTo({
-      center: originalCenter,
-      zoom: originalZoom,
-      pitch: originalPitch,
-      bearing: originalBearing
-    });
+    pdf.save('Filtered_Map.pdf');
 
-    pdf.save('Map_Export.pdf');
   } catch (error) {
     console.error('PDF generation failed:', error);
-    alert('PDF generation failed - check console');
+    alert('Failed to generate PDF. Check console for details.');
   }
 };
 
