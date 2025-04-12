@@ -40,6 +40,7 @@ function Map() {
         avoPlant: ''
     });
     const [companies, setCompanies] = useState([]);
+    const [filteredCompanies, setFilteredCompanies] = useState([]);
     const [companyNames, setCompanyNames] = useState([]);
     const [product, setProduct] = useState([]);
     const [country, setCountry] = useState([]);
@@ -515,56 +516,87 @@ const handleHeadquarterLocationCheckbox = (e) => {
 };
 
 const handleDownloadPDF = async () => {
-  // Decide whether we're exporting filtered or all companies
-  const isFiltered = filteredCompanies.length > 0 && filteredCompanies.length < companies.length;
-  const visibleCompanies = isFiltered ? filteredCompanies : companies;
+  try {
+    console.log('Button clicked, checking mapContainerRef...');
+    
+    if (!mapContainerRef.current || !map.current) {
+      console.error('Map references not found');
+      return;
+    }
 
-  if (!mapRef.current || !mapContainerRef.current) {
-    console.error('Map or map container not found');
-    return;
-  }
+    console.log('Map container found, generating PDF...');
+    
+    // Get current state values safely
+    const isFiltered = filteredCompanies.length > 0 && 
+                      filteredCompanies.length < companies.length;
+    const visibleCompanies = isFiltered ? filteredCompanies : companies;
 
-  // Zoom to fit all visible markers
-  if (visibleCompanies.length > 0) {
-    const bounds = new mapboxgl.LngLatBounds();
-    visibleCompanies.forEach(company => {
-      bounds.extend([company.longitude, company.latitude]);
-    });
+    // Store original map state
+    const originalCenter = map.current.getCenter();
+    const originalZoom = map.current.getZoom();
 
-    mapRef.current.fitBounds(bounds, { padding: 100, duration: 1000 });
-  }
+    // Zoom to bounds if companies exist
+    if (visibleCompanies.length > 0) {
+      const bounds = new mapboxgl.LngLatBounds();
+      visibleCompanies.forEach(company => {
+        bounds.extend([company.longitude, company.latitude]);
+      });
 
-  // Wait for the zoom animation and marker rendering
-  await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => {
+        map.current.fitBounds(bounds, {
+          padding: 100,
+          maxZoom: 14,
+          duration: 1000
+        });
+        map.current.once('idle', resolve);
+      });
+    }
 
-  const mapCanvas = mapContainerRef.current.querySelector('.mapboxgl-canvas');
-  if (!mapCanvas) {
-    console.error('Map canvas not found');
-    return;
-  }
+    // Wait for map render
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Wait a little more to let markers and names settle visually
-  await new Promise(resolve => setTimeout(resolve, 500));
+    // Capture map canvas directly
+    const mapCanvas = mapContainerRef.current.querySelector('.mapboxgl-canvas');
+    if (!mapCanvas) {
+      console.error('Map canvas not found');
+      return;
+    }
 
-  html2canvas(mapContainerRef.current, { useCORS: true }).then(canvas => {
-    const imgData = canvas.toDataURL('image/png');
+    // Create PDF with higher quality
     const pdf = new jsPDF('landscape', 'pt', 'a4');
-
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
-    const finalWidth = canvas.width * ratio;
-    const finalHeight = canvas.height * ratio;
+    // Scale factor for better resolution
+    const scale = 2;
+    const tempCanvas = document.createElement('canvas');
+    const ctx = tempCanvas.getContext('2d');
+    
+    tempCanvas.width = mapCanvas.width * scale;
+    tempCanvas.height = mapCanvas.height * scale;
+    ctx.scale(scale, scale);
+    ctx.drawImage(mapCanvas, 0, 0);
 
-    const x = (pdfWidth - finalWidth) / 2;
-    const y = (pdfHeight - finalHeight) / 2;
+    // Add image to PDF
+    const imgData = tempCanvas.toDataURL('image/jpeg', 0.9);
+    const imgRatio = tempCanvas.width / tempCanvas.height;
+    
+    if (imgRatio > pdfWidth / pdfHeight) {
+      pdf.addImage(imgData, 'JPEG', 0, (pdfHeight - pdfWidth/imgRatio)/2, pdfWidth, pdfWidth/imgRatio);
+    } else {
+      pdf.addImage(imgData, 'JPEG', (pdfWidth - pdfHeight*imgRatio)/2, 0, pdfHeight*imgRatio, pdfHeight);
+    }
 
-    pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
-    pdf.save(isFiltered ? 'Filtered_Map_Export.pdf' : 'All_Companies_Map.pdf');
-  }).catch(error => {
-    console.error("Error while generating PDF:", error);
-  });
+    // Restore original map view
+    map.current.jumpTo({ center: originalCenter, zoom: originalZoom });
+    
+    // Save PDF
+    pdf.save(isFiltered ? 'Filtered_Map.pdf' : 'Full_Map.pdf');
+
+  } catch (error) {
+    console.error('PDF generation failed:', error);
+    alert('Failed to generate PDF. Please check the console for details.');
+  }
 };
 
 
