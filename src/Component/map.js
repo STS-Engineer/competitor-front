@@ -542,11 +542,12 @@ const handleDownloadPDF = async () => {
       const latitude = Number(company.latitude);
       const longitude = Number(company.longitude);
 
-      if (!isNaN(latitude) && !isNaN(longitude)) {
+      // Ensure coordinates are valid numbers
+      if (!isNaN(latitude) && !isNaN(longitude) && latitude !== 0 && longitude !== 0) {
         bounds.extend([longitude, latitude]);
         hasValidCoordinates = true;
       } else {
-        console.warn('Invalid coordinates for company:', company);
+        console.warn('Skipping company with invalid coordinates:', company);
       }
     });
 
@@ -617,6 +618,7 @@ const handleDownloadPDF = async () => {
     alert('Failed to generate PDF. Please check the console for details.');
   }
 };
+
 
 
 
