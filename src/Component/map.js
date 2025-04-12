@@ -526,13 +526,11 @@ const handleDownloadPDF = async () => {
 
     console.log('Map container found, generating PDF...');
 
-    // Get current state values safely
     const isFiltered =
       filteredCompanies.length > 0 &&
       filteredCompanies.length < companies.length;
     const visibleCompanies = isFiltered ? filteredCompanies : companies;
 
-    // Store original map state
     const originalCenter = map.current.getCenter();
     const originalZoom = map.current.getZoom();
 
@@ -541,17 +539,14 @@ const handleDownloadPDF = async () => {
     let hasValidCoordinates = false;
 
     visibleCompanies.forEach(company => {
-      const { latitude, longitude } = company;
-      if (
-        typeof latitude === 'number' &&
-        typeof longitude === 'number' &&
-        !isNaN(latitude) &&
-        !isNaN(longitude)
-      ) {
+      const latitude = Number(company.latitude);
+      const longitude = Number(company.longitude);
+
+      if (!isNaN(latitude) && !isNaN(longitude)) {
         bounds.extend([longitude, latitude]);
         hasValidCoordinates = true;
       } else {
-        console.warn('Skipping company with invalid coordinates:', company);
+        console.warn('Invalid coordinates for company:', company);
       }
     });
 
@@ -570,22 +565,18 @@ const handleDownloadPDF = async () => {
       return;
     }
 
-    // Wait for map render
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Capture map canvas directly
     const mapCanvas = mapContainerRef.current.querySelector('.mapboxgl-canvas');
     if (!mapCanvas) {
       console.error('Map canvas not found');
       return;
     }
 
-    // Create PDF with higher quality
     const pdf = new jsPDF('landscape', 'pt', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    // Scale factor for better resolution
     const scale = 2;
     const tempCanvas = document.createElement('canvas');
     const ctx = tempCanvas.getContext('2d');
@@ -595,7 +586,6 @@ const handleDownloadPDF = async () => {
     ctx.scale(scale, scale);
     ctx.drawImage(mapCanvas, 0, 0);
 
-    // Add image to PDF
     const imgData = tempCanvas.toDataURL('image/jpeg', 0.9);
     const imgRatio = tempCanvas.width / tempCanvas.height;
 
@@ -619,17 +609,15 @@ const handleDownloadPDF = async () => {
       );
     }
 
-    // Restore original map view
     map.current.jumpTo({ center: originalCenter, zoom: originalZoom });
 
-    // Save PDF
     pdf.save(isFiltered ? 'Filtered_Map.pdf' : 'Full_Map.pdf');
-
   } catch (error) {
     console.error('PDF generation failed:', error);
     alert('Failed to generate PDF. Please check the console for details.');
   }
 };
+
 
 
  const handleDownloadExcel = async () => {
