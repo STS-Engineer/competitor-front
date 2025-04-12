@@ -517,14 +517,10 @@ const handleHeadquarterLocationCheckbox = (e) => {
 
 const handleDownloadPDF = async () => {
   try {
-    console.log('Button clicked, checking mapContainerRef...');
-
     if (!mapContainerRef.current || !map.current) {
       console.error('Map references not found');
       return;
     }
-
-    console.log('Map container found, generating PDF...');
 
     const isFiltered =
       filteredCompanies.length > 0 &&
@@ -534,43 +530,46 @@ const handleDownloadPDF = async () => {
     const originalCenter = map.current.getCenter();
     const originalZoom = map.current.getZoom();
 
-    // Zoom to bounds if valid companies exist
     const bounds = new mapboxgl.LngLatBounds();
     let hasValidCoordinates = false;
 
     visibleCompanies.forEach(company => {
-      const latitude = Number(company.latitude);
-      const longitude = Number(company.longitude);
+      // Use parseFloat for better string-to-number conversion
+      const latitude = parseFloat(company.latitude);
+      const longitude = parseFloat(company.longitude);
 
-      // Ensure coordinates are valid numbers
-      if (!isNaN(latitude) && !isNaN(longitude) && latitude !== 0 && longitude !== 0) {
+      // Check if values are valid geographic coordinates
+      const isValid =
+        isFinite(latitude) &&
+        isFinite(longitude) &&
+        latitude >= -90 &&
+        latitude <= 90 &&
+        longitude >= -180 &&
+        longitude <= 180;
+
+      if (isValid) {
         bounds.extend([longitude, latitude]);
         hasValidCoordinates = true;
       } else {
-        console.warn('Skipping company with invalid coordinates:', company);
+        console.warn('Invalid coordinates:', company.latitude, company.longitude, company);
       }
     });
 
-    if (hasValidCoordinates) {
-      await new Promise(resolve => {
-        map.current.fitBounds(bounds, {
-          padding: 100,
-          maxZoom: 14,
-          duration: 1000,
-        });
-        map.current.once('idle', resolve);
-      });
-    } else {
-      console.error('No valid coordinates found among companies');
-      alert('Cannot generate PDF: No valid company locations found.');
+    if (!hasValidCoordinates) {
+      alert('No valid coordinates found.');
       return;
     }
 
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Zoom to bounds
+    await new Promise(resolve => {
+      map.current.fitBounds(bounds, { padding: 100, maxZoom: 14, duration: 1000 });
+      map.current.once('idle', resolve);
+    });
 
+    // Capture map canvas and generate PDF
     const mapCanvas = mapContainerRef.current.querySelector('.mapboxgl-canvas');
     if (!mapCanvas) {
-      console.error('Map canvas not found');
+      console.error('Map canvas missing');
       return;
     }
 
@@ -578,49 +577,33 @@ const handleDownloadPDF = async () => {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
+    // Scale canvas for better image quality
     const scale = 2;
     const tempCanvas = document.createElement('canvas');
-    const ctx = tempCanvas.getContext('2d');
-
     tempCanvas.width = mapCanvas.width * scale;
     tempCanvas.height = mapCanvas.height * scale;
+    const ctx = tempCanvas.getContext('2d');
     ctx.scale(scale, scale);
     ctx.drawImage(mapCanvas, 0, 0);
 
+    // Add image to PDF
     const imgData = tempCanvas.toDataURL('image/jpeg', 0.9);
     const imgRatio = tempCanvas.width / tempCanvas.height;
 
     if (imgRatio > pdfWidth / pdfHeight) {
-      pdf.addImage(
-        imgData,
-        'JPEG',
-        0,
-        (pdfHeight - pdfWidth / imgRatio) / 2,
-        pdfWidth,
-        pdfWidth / imgRatio
-      );
+      pdf.addImage(imgData, 'JPEG', 0, (pdfHeight - pdfWidth / imgRatio) / 2, pdfWidth, pdfWidth / imgRatio);
     } else {
-      pdf.addImage(
-        imgData,
-        'JPEG',
-        (pdfWidth - pdfHeight * imgRatio) / 2,
-        0,
-        pdfHeight * imgRatio,
-        pdfHeight
-      );
+      pdf.addImage(imgData, 'JPEG', (pdfWidth - pdfHeight * imgRatio) / 2, 0, pdfHeight * imgRatio, pdfHeight);
     }
 
+    // Reset map and save PDF
     map.current.jumpTo({ center: originalCenter, zoom: originalZoom });
-
     pdf.save(isFiltered ? 'Filtered_Map.pdf' : 'Full_Map.pdf');
   } catch (error) {
     console.error('PDF generation failed:', error);
-    alert('Failed to generate PDF. Please check the console for details.');
+    alert('Failed to generate PDF. Check console for details.');
   }
 };
-
-
-
 
  const handleDownloadExcel = async () => {
   const filterToFieldMap = {
