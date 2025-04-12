@@ -527,23 +527,36 @@ const handleDownloadPDF = async () => {
       );
     });
 
-    const bounds = new mapboxgl.LngLatBounds();
-    const coordinates = [];
+    if (markersRef.current.length > 0) {
+      markersRef.current.forEach(marker => marker.remove());
+      markersRef.current = [];
+    }
 
-    visibleCompanies.forEach(company => {
+    const bounds = new mapboxgl.LngLatBounds();
+    const coordinatesPromises = visibleCompanies.map(async (company) => {
       const location = company.r_and_d_location || company.headquarters_location;
-      if (location && company.longitude && company.latitude) {
-        const lng = parseFloat(company.longitude);
-        const lat = parseFloat(company.latitude);
-        if (!isNaN(lng) && !isNaN(lat)) {
-          bounds.extend([lng, lat]);
-          coordinates.push({ lng, lat, name: company.name });
+      if (!location) return null;
+
+      try {
+        const response = await axios.get(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
+          { params: { access_token: mapboxgl.accessToken } }
+        );
+        if (response.data.features?.length > 0) {
+          const coords = response.data.features[0].geometry.coordinates;
+          bounds.extend(coords);
+          return coords;
         }
+      } catch (error) {
+        console.warn('Geocoding failed for:', location, error);
+        return null;
       }
     });
 
-    if (coordinates.length === 0) {
-      alert('No valid locations found.');
+    await Promise.all(coordinatesPromises);
+
+    if (bounds.isEmpty()) {
+      alert('No valid locations found for current filters');
       return;
     }
 
@@ -554,59 +567,58 @@ const handleDownloadPDF = async () => {
       bearing: map.current.getBearing()
     };
 
-    // Fit map to bounds
     await new Promise(resolve => {
-      map.current.fitBounds(bounds, { padding: 100, maxZoom: 14, duration: 1000 });
+      map.current.fitBounds(bounds, {
+        padding: 100,
+        maxZoom: 14,
+        duration: 1000
+      });
       map.current.once('idle', resolve);
     });
 
-    await new Promise(resolve => setTimeout(resolve, 1000)); // ensure rendering
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
+    // ✅ Capture only the canvas (map image)
     const mapCanvas = mapContainerRef.current.querySelector('.mapboxgl-canvas');
-    if (!mapCanvas) {
-      console.error('Map canvas missing');
-      return;
-    }
 
-    // Create a new temp canvas to draw map + markers
-    const scale = 2;
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = mapCanvas.width * scale;
-    tempCanvas.height = mapCanvas.height * scale;
-    const ctx = tempCanvas.getContext('2d');
-
-    // Draw the map image
-    ctx.scale(scale, scale);
+    const canvasCopy = document.createElement('canvas');
+    canvasCopy.width = mapCanvas.width;
+    canvasCopy.height = mapCanvas.height;
+    const ctx = canvasCopy.getContext('2d');
     ctx.drawImage(mapCanvas, 0, 0);
 
-    // Draw markers
-    ctx.fillStyle = 'red';
-    ctx.font = 'bold 12px Arial';
-    coordinates.forEach(({ lng, lat, name }) => {
-      const pixel = map.current.project([lng, lat]);
-      ctx.beginPath();
-      ctx.arc(pixel.x, pixel.y, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillText(name, pixel.x + 8, pixel.y + 4); // label
-    });
+    const imgData = canvasCopy.toDataURL('image/jpeg', 1.0);
 
-    // Create PDF from final canvas
-    const imgData = tempCanvas.toDataURL('image/jpeg', 0.9);
+    // ✅ Create PDF and add the map image
     const pdf = new jsPDF('landscape', 'pt', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgRatio = tempCanvas.width / tempCanvas.height;
+    const imgProps = {
+      width: canvasCopy.width,
+      height: canvasCopy.height
+    };
 
-    if (imgRatio > pdfWidth / pdfHeight) {
-      pdf.addImage(imgData, 'JPEG', 0, (pdfHeight - pdfWidth / imgRatio) / 2, pdfWidth, pdfWidth / imgRatio);
-    } else {
-      pdf.addImage(imgData, 'JPEG', (pdfWidth - pdfHeight * imgRatio) / 2, 0, pdfHeight * imgRatio, pdfHeight);
+    const aspectRatio = imgProps.width / imgProps.height;
+    let width = pdfWidth;
+    let height = width / aspectRatio;
+
+    if (height > pdfHeight) {
+      height = pdfHeight;
+      width = height * aspectRatio;
     }
 
-    // Restore original view
-    map.current.jumpTo(originalView);
-    pdf.save('Filtered_Map.pdf');
+    const x = (pdfWidth - width) / 2;
+    const y = (pdfHeight - height) / 2;
 
+    pdf.addImage(imgData, 'JPEG', x, y, width, height);
+
+    // ✅ Reset map and re-add markers
+    map.current.jumpTo(originalView);
+    addMarkersForFilteredCompanies();
+    addMarkersheadquarterForFilteredCompanies();
+    addAvoPlantMarkers();
+
+    pdf.save('Filtered_Map.pdf');
   } catch (error) {
     console.error('PDF generation failed:', error);
     alert('Failed to generate PDF. Check console for details.');
