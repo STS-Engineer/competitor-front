@@ -516,70 +516,108 @@ const handleHeadquarterLocationCheckbox = (e) => {
 };
 
 // Modified handleDownloadPDF function
+// In your Map component
 const handleDownloadPDF = async () => {
   try {
-    // 1. Get filtered companies based on current filters (e.g., region: Europe)
+    // 1. Get CURRENT FILTERED COMPANIES (e.g., Europe region)
     const visibleCompanies = companies.filter(company => {
-      const regionMatch = filters.region 
-        ? company.region.toLowerCase() === filters.region.toLowerCase()
-        : true;
-      return regionMatch; // Add other filter checks here
+      return (
+        (!filters.region || company.region.toLowerCase() === filters.region.toLowerCase()) &&
+        // Add other filter checks here
+        (!filters.companyName || company.name.toLowerCase().includes(filters.companyName.toLowerCase())) &&
+        (!filters.Product || company.product.toLowerCase().includes(filters.Product.toLowerCase()))
+      );
     });
 
-    // 2. Calculate bounds from filtered markers
-    const bounds = new mapboxgl.LngLatBounds();
-    for (const company of visibleCompanies) {
-      const location = company.r_and_d_location || company.headquarters_location;
-      if (!location) continue;
-
-      const response = await axios.get(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
-        { params: { access_token: mapboxgl.accessToken } }
-      );
-      
-      if (response.data.features?.length > 0) {
-        bounds.extend(response.data.features[0].geometry.coordinates);
-      }
+    // 2. Remove ALL existing markers before processing
+    if (markersRef.current.length > 0) {
+      markersRef.current.forEach(marker => marker.remove());
+      markersRef.current = [];
     }
 
-    // 3. Update map view to filtered bounds
-    await new Promise(resolve => {
-      map.current.fitBounds(bounds, { 
-        padding: 100, 
-        maxZoom: 14, 
-        duration: 1000 
-      });
-      map.current.once('idle', resolve); // Wait for map to render
+    // 3. Calculate bounds ONLY for filtered companies
+    const bounds = new mapboxgl.LngLatBounds();
+    const coordinatesPromises = visibleCompanies.map(async (company) => {
+      const location = company.r_and_d_location || company.headquarters_location;
+      if (!location) return null;
+
+      try {
+        const response = await axios.get(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
+          { params: { access_token: mapboxgl.accessToken } }
+        );
+        
+        if (response.data.features?.length > 0) {
+          const coords = response.data.features[0].geometry.coordinates;
+          bounds.extend(coords);
+          return coords;
+        }
+      } catch (error) {
+        console.warn('Geocoding failed for:', location, error);
+        return null;
+      }
     });
 
-    // 4. Add delay to ensure markers render
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // 4. Wait for all geocoding results
+    await Promise.all(coordinatesPromises);
 
-    // 5. Capture the entire map container with html2canvas
+    // 5. Update map view to filtered bounds
+    if (bounds.isEmpty()) {
+      alert('No valid locations found for current filters');
+      return;
+    }
+
+    const originalView = {
+      center: map.current.getCenter(),
+      zoom: map.current.getZoom(),
+      pitch: map.current.getPitch(),
+      bearing: map.current.getBearing()
+    };
+
+    await new Promise(resolve => {
+      map.current.fitBounds(bounds, {
+        padding: 100,
+        maxZoom: 14,
+        duration: 1000
+      });
+      map.current.once('idle', resolve);
+    });
+
+    // 6. Add delay to ensure map fully renders
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // 7. Capture ENTIRE MAP CONTAINER with html2canvas
     const mapContainer = mapContainerRef.current;
     const canvas = await html2canvas(mapContainer, {
-      useCORS: true, // Handle CORS for Mapbox tiles
-      scale: 2, // Higher resolution
+      useCORS: true,
+      scale: 2,
       logging: true,
       onclone: (clonedDoc) => {
-        // Hide map controls in the PDF
+        // Hide UI controls in PDF
         const cloneContainer = clonedDoc.getElementById(mapContainer.id);
         if (cloneContainer) {
-          cloneContainer.querySelectorAll('.mapboxgl-control-container')
+          cloneContainer.querySelectorAll('.mapboxgl-control-container, .mapboxgl-marker')
             .forEach(el => el.style.display = 'none');
         }
       }
     });
 
-    // 6. Generate PDF
+    // 8. Generate PDF
     const pdf = new jsPDF('landscape', 'pt', 'a4');
-    const imgProps = pdf.getImageProperties(canvas);
     const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    const pdfHeight = pdf.internal.pageSize.getHeight();
 
     pdf.addImage(canvas, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('Filtered_Map.pdf');
+    
+    // 9. Restore original map view
+    map.current.jumpTo(originalView);
+    
+    // 10. Redraw original markers
+    addMarkersForFilteredCompanies();
+    addMarkersheadquarterForFilteredCompanies();
+    addAvoPlantMarkers();
 
+    pdf.save('Filtered_Map.pdf');
   } catch (error) {
     console.error('PDF generation failed:', error);
     alert('Failed to generate PDF. Check console for details.');
