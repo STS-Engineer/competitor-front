@@ -1544,25 +1544,72 @@ const Form = () => {
         <form className="form" onSubmit={handleSubmit}>
         <img src={phonehand} width={180} height={50} style={{ display:'block', margin:'20px auto' }} />
             <div className='input-row'>
+      <div
+  className="input-group"
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: "16px",
+    fontFamily: "'Roboto', sans-serif",
+  }}
+>
+  <label
+    htmlFor="foundingYear"
+    style={{
+      fontSize: "14px",
+      marginBottom: "8px",
+      fontWeight: "500",
+      color: "#333",
+    }}
+  >
+    Year of Establishment
+  </label>
+  <select
+    name="foundingyear"
+    value={formData.foundingyear}
+    onChange={(e) => setFormData({ ...formData, foundingyear: e.target.value.toString() })}
+    style={{
+      padding: "10px 12px",
+      fontSize: "14px",
+      border: "1px solid #ccc",
+      borderRadius: "6px",
+      background: "#f9f9f9",
+      color: "#333",
+      transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+    }}
+    onFocus={(e) =>
+      (e.target.style = {
+        ...e.target.style,
+        borderColor: "#007bff",
+        boxShadow: "0 0 0 3px rgba(0, 123, 255, 0.2)",
+      })
+    }
+    onBlur={(e) =>
+      (e.target.style = {
+        ...e.target.style,
+        borderColor: "#ccc",
+        boxShadow: "none",
+      })
+    }
+  >
+    <option value="" disabled>
+      Select Year
+    </option>
+  {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+  <option key={year} value={year.toString()}>
+    {year}
+  </option>
+  ))}
+  </select>
+</div>
+
                 <div className="input-group">
-                    <label htmlFor="foundingYear" className="label">Founding Year</label>
-                    <input 
-                        type="date" 
-                        name="foundingyear" 
-                        value={formData.foundingyear} 
-                        onChange={(e) => setFormData({ ...formData, foundingyear: e.target.value })}
-                        placeholder="Enter the founding year"
-                     
-                   
-                    />
-                </div>
-                <div className="input-group">
-                    <label htmlFor="Businessstrategies" className="label">Strategic Buisness</label>
+               <label htmlFor="Businessstrategies" className="label">Strategic Business</label>
 
                       <select 
-                        name="Businessstrategies" 
-                        value={formData.Businessstrategies} 
-                        onChange={(e) => setFormData({ ...formData, Businessstrategies: e.target.value })} 
+                        name="businessstrategies" 
+                        value={formData.businessstrategies} 
+                        onChange={(e) => setFormData({ ...formData, businessstrategies: e.target.value })} 
                         className="input modern-input"
                         placeholder="Enter the strategic buisness"
                     >
@@ -1575,41 +1622,105 @@ const Form = () => {
                         <option value="Mutual">Mutual agreement to support each  agreement to support each </option>
                     </select>
                 </div>
+              {formData.businessstrategies && (
                 <div className="input-group">
-                    <label htmlFor="keyManagement" className="label">Key Management Position</label>
-                    <select 
-                        name="keymanagement" 
-                        value={formData.keymanagement} 
-                        onChange={(e) => setFormData({ ...formData, keymanagement: e.target.value })} 
-                          placeholder="Enter the key management"
-                        className="input modern-input"
-                    >
-                        <option value="">Select a position</option>
-                        <option value="CEO">CEO</option>
-                        <option value="CFO">CFO</option>
-                        <option value="CTO">CTO</option>
-                        <option value="R&D Head">R&D Head</option>
-                        <option value="Sales Head">Sales Head</option>
-                        <option value="Production Head">Production Head</option>
-                        <option value="Key Decision Makers">Key Decision Makers</option>
-                    </select>
-                </div>
-               {formData.keymanagement && (
-             <div className="input-group">
-           <label htmlFor="additionalInput" className="label">Additional Information</label>
-           <input 
-           type="text"
-           name="additionalInput"
-          value={formData.additionalInput || ''}
-          onChange={(e) => setFormData({ ...formData, additionalInput: e.target.value })}
-         className="input modern-input"
-         placeholder="Enter additional information"
+                <label htmlFor="email" className="label">Details</label>
+                <input type="text" name="email" placeholder="Enter the details" className="input" />
+               </div>
+               )}           
+
+<div style={{ marginBottom: '1.5rem' }}>
+  <label
+    style={{
+      fontSize: '16px',
+      fontWeight: '600',
+      marginBottom: '10px',
+      display: 'block',
+      color: '#111827',
+    }}
+  >
+    Key Management Positions
+  </label>
+
+  <div
+    style={{
+      backgroundColor: '#ffffff',
+      border: '1px solid #e5e7eb',
+      borderRadius: '12px',
+      padding: '16px',
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+    }}
+  >
+    {optionskey.map((option) => {
+      const isSelected = formData.keymanagement?.includes(option.value);
+
+      return (
+        <div
+          key={option.value}
+          onClick={() => {
+            const selected = formData.keymanagement || [];
+            const updated = isSelected
+              ? selected.filter((v) => v !== option.value)
+              : [...selected, option.value];
+            setFormData({ ...formData, keymanagement: updated });
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            backgroundColor: isSelected ? '#dbeafe' : '#f9fafb',
+            border: isSelected ? '1px solid #3b82f6' : '1px solid #e5e7eb',
+            color: isSelected ? '#1d4ed8' : '#374151',
+            fontWeight: isSelected ? '600' : '500',
+            transition: 'all 0.2s ease-in-out',
+            minWidth: '150px',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={isSelected}
+            readOnly
+            style={{
+              accentColor: '#3b82f6',
+              pointerEvents: 'none',
+            }}
           />
-         </div>
-        )}
-              
-            </div>
-          
+          <span style={{ fontSize: '14px' }}>{option.label}</span>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+
+  {formData.keymanagement && formData.keymanagement.map((role) => (
+  <div className="input-group" key={role}>
+    <label htmlFor={role} className="label">
+      Name of {role.toUpperCase().replace(/([a-z])([A-Z])/g, '$1 $2')}
+    </label>
+    <input
+      type="text"
+      name={role}
+      value={formData[role] || ''}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          [role]: e.target.value
+         })
+          }
+           className="input modern-input"
+           placeholder={`Enter name of ${role.toUpperCase()}`}
+           />
+          </div>
+          ))}
+       </div>  
+
             <div className='input-row'>
                 <div className="input-group">
                     <h3 className='text-bold'>Growth rate</h3>
@@ -1632,7 +1743,7 @@ const Form = () => {
                     />
                 </div>
                 <div className="input-group">
-                    <label htmlFor="Pricingstrategy" className="label">Pricing Strategy (£)</label>
+                    <label htmlFor="Pricingstrategy" className="label">Pricing Strategy (€)</label>
                     <input
                         type="number"
                         value={formData.pricingstrategy}
@@ -1686,7 +1797,7 @@ const Form = () => {
             <div className="input-row">
              
                 <div className="input-group">
-                    <label htmlFor="Recentnews" className="label">Recent News:</label>
+                    <label htmlFor="Recentnews" className="label">Recent News</label>
                     <input
                         type="text"
                         value={formData.recentnews}
@@ -1756,6 +1867,23 @@ const Form = () => {
                     <Button key="close" onClick={handleModalClose}>Close</Button>,
                 ]}
             >
+         <div className="modal-input-group">
+      <select
+       name="financialyear"
+      value={formData.financialyear}
+      onChange={(e) =>
+      setFormData({ ...formData, financialyear: e.target.value })
+    }
+     >
+    <option value="">Select Year</option>
+    {Array.from({ length: 6 }, (_, i) => 2020 + i).map((year) => (
+      <option key={year} value={year}>
+        {year}
+        </option>
+         ))}
+        </select>
+         </div>
+
                 <div className="modal-input-group">
                     <label>Revenue</label>
                     <Input
@@ -1774,43 +1902,53 @@ const Form = () => {
                         className="modern-input"
                     />
                 </div>
-          <div className="modal-input-group">
-                    <label>Operating Cash Flow</label>
+               <div className="modal-input-group">
+                    <label>Operating Cash Flow (€)</label>
                     <Input
                         type="text"
-                        value={formData.operatingcashFlow}
-                        onChange={(e) => setFormData({ ...formData, operatingcashFlow: e.target.value })}
+                        value={formData.operatingcashflow}
+                        onChange={(e) => setFormData({ ...formData, operatingcashflow: e.target.value })}
                         className="modern-input"
                     />
                 </div>
 
                 <div className="modal-input-group">
-                    <label>Investing Cash Flow</label>
+                    <label>Investing Cash Flow (€)</label>
                     <Input
                         type="text"
-                        value={formData.investingcashflow}
-                        onChange={(e) => setFormData({ ...formData, investingcashflow: e.target.value })}
+                        value={formData.investingcashFlow}
+                        onChange={(e) => setFormData({ ...formData, investingcashFlow: e.target.value })}
                         className="modern-input"
                     />
                 </div>
                 <div className="modal-input-group">
-                    <label>Free Cash FLow</label>
+                    <label>Free Cash FLow (€)</label>
                     <Input
                         type="text"
-                        value={formData.freecashFlow}
-                        onChange={(e) => setFormData({ ...formData, freecashFlow: e.target.value })}
+                        value={formData.freecashflow}
+                        onChange={(e) => setFormData({ ...formData, freecashflow: e.target.value })}
                         className="modern-input"
                     />
                 </div>
                 <div className="modal-input-group">
-                    <label>Roce and Equity Ratio</label>
+                    <label>Roce </label>
                     <Input
                         type="text"
-                        value={formData.roceandequityRatio}
-                        onChange={(e)=>setFormData({...formData, roceandequityRatio: e.target.value})}
+                        value={formData.roce}
+                        onChange={(e)=>setFormData({...formData, roce: e.target.value})}
                         className="modern-input"
                     />
                 </div>
+
+                  <div className="modal-input-group">
+                    <label>Equity Ratio</label>
+                    <Input
+                        type="text"
+                        value={formData.equityratio}
+                        onChange={(e)=>setFormData({...formData, equityratio: e.target.value})}
+                        className="modern-input"
+                    />
+                </div>             
             </Modal>
 
             <div className="input-row">
@@ -1825,21 +1963,22 @@ const Form = () => {
                         className="modern-input"
                     />
                 </div>
-              
+           
             </div>
 
             <div className="button-beside">
-                {mode === 'edit' ? (
+                {mode === 'add' ? (
                     <>
-                       <button type="submit" className="button">Update</button>
-                        <button type="button" className="button" onClick={handlebackupdate}>Back</button>
+                        <button type="submit" className="button">Add</button>
+                        <button type="button" className="button" onClick={handleback}>Back</button>
                     </>
                 ) : (
                     <>
-                        
+                        <button type="submit" className="button">Update</button>
+                        <button type="button" onClick={handleCancelEdit} className="button">Cancel</button>
                     </>
                 )}
-            </div>
+            </div>    
         </form>
     </motion.div>
 )}
