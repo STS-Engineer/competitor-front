@@ -1967,18 +1967,11 @@ const Form = () => {
             </div>
 
             <div className="button-beside">
-                {mode === 'add' ? (
-                    <>
-                        <button type="submit" className="button">Add</button>
-                        <button type="button" className="button" onClick={handleback}>Back</button>
-                    </>
-                ) : (
-                    <>
-                        <button type="submit" className="button">Update</button>
-                        <button type="button" onClick={handleCancelEdit} className="button">Cancel</button>
-                    </>
-                )}
+                         {selectedCompanyId && <button onClick={handleUpdate} className="button">Update</button>}
+                        <button type="button" className="button" onClick={()=>currentstepupdate(1)}>Back</button>
+                 
             </div>    
+                            
         </form>
     </motion.div>
 )}
