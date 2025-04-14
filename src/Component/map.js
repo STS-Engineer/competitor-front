@@ -205,7 +205,7 @@ useEffect(() => {
     };
 
       const productImages = {
-        chokes: "https://www.split-corecurrenttransformer.com/photo/pl26101407-ferrite_rod_core_high_frequency_choke_coil_inductor_air_coils_with_flat_wire.jpg",
+        choke: "https://www.split-corecurrenttransformer.com/photo/pl26101407-ferrite_rod_core_high_frequency_choke_coil_inductor_air_coils_with_flat_wire.jpg",
         seals: "https://5.imimg.com/data5/AG/XO/RZ/SELLER-552766/bonded-seals.jpg",
         assembly: "https://images.paintball.camp/wp-content/uploads/2022/12/06152724/Protoyz-Speedster-Motor-Assembly.png",
         injection: "https://secodi.fr/wp-content/uploads/2022/12/piece-injection-perkins-T417873_3.jpg",
