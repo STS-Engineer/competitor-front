@@ -474,11 +474,28 @@ const addMarkersheadquarterForFilteredCompanies = () => {
         const selectedcountry = event.target.value;
         setFilters({ ...filters, country: selectedcountry });
     };
-    const handleRegionChange = (event) => {
-        const selectedRegion = event.target.value;
-        // Ensure the selected region name matches the keys in your regionBoundaries object
-        setFilters({ ...filters, region: selectedRegion });
-    };
+ const handleRegionChange = (event) => {
+  const selectedRegion = event.target.value;
+  setFilters((prev) => ({ ...prev, region: selectedRegion }));
+
+  if (selectedRegion && regionBoundaries[selectedRegion]) {
+    const { minLat, maxLat, minLng, maxLng } = regionBoundaries[selectedRegion];
+
+    const filteredCompanies = allCompanies.filter((company) => {
+      return (
+        company.lat >= minLat &&
+        company.lat <= maxLat &&
+        company.lng >= minLng &&
+        company.lng <= maxLng
+      );
+    });
+
+    setFilteredCompanies(filteredCompanies); // Assuming you're storing filtered results
+  } else {
+    setFilteredCompanies(allCompanies); // Reset if no region is selected
+  }
+};
+
    
     const handlefilterrdlocationchange = (event) => {
         const selectedRdLocation = event.target.value;
@@ -927,18 +944,17 @@ const addAvoPlantPopup = () => {
                         ))}
                     </select>
  
-                    <select
-                    value={filters.region}
-                    onChange={handleRegionChange}
-                    style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
+                  <select
+                   value={filters.region}
+                   onChange={handleRegionChange}
+                   style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
                     >
-                    <option value="">Region</option>
-                    {region.map((name,index)=>(
+                   <option value="">Region</option>
+                   {region.map((name, index) => (
                     <option key={index} value={name}>{name}</option>
                     ))}
-                   </select>
- 
-                  
+                  </select>
+        
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <label style={{ color: '#fff', marginRight: '1rem' }}>
                     <input
