@@ -481,7 +481,7 @@ const addMarkersheadquarterForFilteredCompanies = () => {
   if (selectedRegion && regionBoundaries[selectedRegion]) {
     const { minLat, maxLat, minLng, maxLng } = regionBoundaries[selectedRegion];
 
-    const filteredCompanies = allCompanies.filter((company) => {
+    const filteredCompanies = companies.filter((company) => {
       return (
         company.lat >= minLat &&
         company.lat <= maxLat &&
@@ -492,7 +492,7 @@ const addMarkersheadquarterForFilteredCompanies = () => {
 
     setFilteredCompanies(filteredCompanies); // Assuming you're storing filtered results
   } else {
-    setFilteredCompanies(allCompanies); // Reset if no region is selected
+    setFilteredCompanies(companies); // Reset if no region is selected
   }
 };
 
