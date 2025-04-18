@@ -474,25 +474,12 @@ const addMarkersheadquarterForFilteredCompanies = () => {
         const selectedcountry = event.target.value;
         setFilters({ ...filters, country: selectedcountry });
     };
- const handleRegionChange = (event) => {
+const handleRegionChange = (event) => {
   const selectedRegion = event.target.value;
   setFilters((prev) => ({ ...prev, region: selectedRegion }));
 
-  if (selectedRegion && regionBoundaries[selectedRegion]) {
-    const { minLat, maxLat, minLng, maxLng } = regionBoundaries[selectedRegion];
-
-    const filteredCompanies = companies.filter((company) => {
-      return (
-        company.lat >= minLat &&
-        company.lat <= maxLat &&
-        company.lng >= minLng &&
-        company.lng <= maxLng
-      );
-    });
-
-    setFilteredCompanies(filteredCompanies); // Assuming you're storing filtered results
-  } else {
-    setFilteredCompanies(companies); // Reset if no region is selected
+  if (selectedRegion) {
+    flyToRegion(selectedRegion); // Optional, animates the map
   }
 };
 
@@ -650,15 +637,36 @@ const handleDownloadPDF = async () => {
     avoPlant: 'avoPlant'
   };
 
-  const filteredCompanies = companies.filter(company => {
-    return Object.entries(filters).every(([filterKey, filterValue]) => {
-      if (!filterValue) return true;
-      const companyField = filterToFieldMap[filterKey];
-      if (!companyField) return true;
-      const companyValue = company[companyField]?.toString().toLowerCase() || '';
-      return companyValue.includes(filterValue.toLowerCase());
-    });
+ const filteredCompanies = companies.filter(company => {
+  // First: basic text filters
+  const passesBasicFilters = Object.entries(filters).every(([filterKey, filterValue]) => {
+    if (!filterValue || filterKey === 'region') return true;
+    const companyField = filterToFieldMap[filterKey];
+    if (!companyField) return true;
+    const companyValue = company[companyField]?.toString().toLowerCase() || '';
+    return companyValue.includes(filterValue.toLowerCase());
   });
+
+  if (!passesBasicFilters) return false;
+
+  // Then: region boundaries (if selected)
+  const region = filters.region;
+  if (region && regionBoundaries[region]) {
+    const bounds = regionBoundaries[region];
+    const lat = parseFloat(company.headquartersLat);
+    const lng = parseFloat(company.headquartersLng);
+
+    if (
+      isNaN(lat) || isNaN(lng) ||
+      lat < bounds.minLat || lat > bounds.maxLat ||
+      lng < bounds.minLng || lng > bounds.maxLng
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+});
 
   const header = [
     'Company Name', 'Email', 'Headquarters', 'R&D Location', 'Country', 'Products',
@@ -943,18 +951,18 @@ const addAvoPlantPopup = () => {
                             <option key={index} value={name}>{name}</option>
                         ))}
                     </select>
- 
                   <select
-                   value={filters.region}
-                   onChange={handleRegionChange}
-                   style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
-                    >
-                   <option value="">Region</option>
-                   {region.map((name, index) => (
-                    <option key={index} value={name}>{name}</option>
-                    ))}
-                  </select>
-        
+                 value={filters.region}
+                 onChange={handleRegionChange}
+               style={{ padding: '0.5rem', marginRight: '1rem', borderRadius: '5px', border: 'none' }}
+                   >
+              <option value="">Region</option>
+              {Object.keys(regionBoundaries).map((name) => (
+            <option key={name} value={name}>{name}</option>
+           ))}
+           </select>
+
+
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <label style={{ color: '#fff', marginRight: '1rem' }}>
                     <input
