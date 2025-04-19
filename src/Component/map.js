@@ -300,14 +300,25 @@ const addMarkersForFilteredCompanies = () => {
                 product.toLowerCase().includes(filterProduct) &&
                 country.toLowerCase().includes(filterCountry) &&
                 r_and_d_location.toLowerCase().includes(filterRdLocation) &&
-                headquarters_location.toLowerCase().includes(filterHeadquartersLocation) &&
-                region.toLowerCase().includes(filterRegion)
+                headquarters_location.toLowerCase().includes(filterHeadquartersLocation) 
             ) {
                 axios
                     .get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(r_and_d_location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
                     .then(response => {
                         if (response.data.features && response.data.features.length > 0) {
-                            const coordinates = response.data.features[0].geometry.coordinates;
+                          const coordinates = response.data.features[0].geometry.coordinates;
+                         if (filters.region) {
+                          const boundaries = regionBoundaries[filters.region];
+                         if (boundaries) {
+                          const [lng, lat] = coordinates;
+                           if (
+                           lat < boundaries.minLat || lat > boundaries.maxLat ||
+                           lng < boundaries.minLng || lng > boundaries.maxLng
+                              ) {
+                              return; // Skip this marker if it's outside the selected region
+                                }
+                               }
+                                }
                             const longitude = coordinates[0];
                             const latitude = coordinates[1];
     
@@ -381,14 +392,25 @@ const addMarkersheadquarterForFilteredCompanies = () => {
             companyName.includes(filterName) &&
             product.toLowerCase().includes(filterProduct) &&
             country.toLowerCase().includes(filterCountry) &&
-            headquarters_location.toLowerCase().includes(filterHeadquartersLocation) &&
-            region.toLowerCase().includes(filterRegion)
+            headquarters_location.toLowerCase().includes(filterHeadquartersLocation)
         ) {
             // Fetch coordinates for the headquarters location
             axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(headquarters_location)}.json?access_token=pk.eyJ1IjoibW9vdGV6ZmFyd2EiLCJhIjoiY2x1Z3BoaTFqMW9hdjJpcGdibnN1djB5cyJ9.It7emRJnE-Ee59ysZKBOJw`)
                 .then(response => {
                     if (response.data.features && response.data.features.length > 0) {
                         const coordinates = response.data.features[0].geometry.coordinates;
+                          if (filters.region) {
+                          const boundaries = regionBoundaries[filters.region];
+                         if (boundaries) {
+                          const [lng, lat] = coordinates;
+                           if (
+                           lat < boundaries.minLat || lat > boundaries.maxLat ||
+                           lng < boundaries.minLng || lng > boundaries.maxLng
+                              ) {
+                              return; // Skip this marker if it's outside the selected region
+                                }
+                               }
+                                }
                         const [longitude, latitude] = coordinates;
 
                         // Use a consistent color for headquarter markers (e.g., blue)
