@@ -235,25 +235,25 @@ useEffect(() => {
    
  
  const regionBoundaries = {
-   europe: {
+   Europe: {
     minLat: 36,
     maxLat: 71,
     minLng: -33,
     maxLng: 41,
   },
-  eastAsia: {
+  East_Asia: {
     minLat: 18,
     maxLat: 54,
     minLng: 100,
     maxLng: 150,
    },
-  southAsia: {
+  South_Asia: {
     minLat: 5,
     maxLat: 35,
     minLng: 65,
     maxLng: 106,
      },
-   nafta: {
+   NAFTA: {
     minLat: 10,
     maxLat: 72,
     minLng: -168,
