@@ -1112,14 +1112,15 @@ const addAvoPlantPopup = () => {
             <p>
               <strong>Founding Year:</strong> {selectedCompany.foundingyear}
             </p>
-             
-             <p>
-              <strong>Offering Products:</strong> {selectedCompany.offeringproducts}
-            </p>
-
-             <p>
-              <strong>Competitive advantages:</strong> {selectedCompany.competitiveadvantage}
-            </p>
+                   
+           {/* Executive Information Section */}
+            {selectedCompany.ceo && <p><strong>CEO:</strong> {selectedCompany.ceo}</p>}
+            {selectedCompany.cfo && <p><strong>CFO:</strong> {selectedCompany.cfo}</p>}
+            {selectedCompany.cto && <p><strong>CTO:</strong> {selectedCompany.cto}</p>}
+            {selectedCompany.rdhead && <p><strong>R&D Head:</strong> {selectedCompany.rdhead}</p>}
+            {selectedCompany.saleshead && <p><strong>Sales Head:</strong> {selectedCompany.saleshead}</p>}
+            {selectedCompany.productionhead && <p><strong>Production Head:</strong> {selectedCompany.productionhead}</p>}
+            {selectedCompany.keydecisionmarker && <p><strong>Key Decision Marker:</strong> {selectedCompany.keydecisionmarker}</p>}
           
           </div>
         )}
