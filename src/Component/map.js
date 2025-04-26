@@ -676,10 +676,15 @@ const handleDownloadPDF = async () => {
           const location = company.r_and_d_location || company.headquarters_location;
           if (!location) return null;
 
-          const response = await axios.get(
-            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
-            { params: { access_token: mapboxgl.accessToken, limit: 1 }
-          );
+         const response = await axios.get(
+         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
+           { 
+          params: { 
+           access_token: mapboxgl.accessToken,
+           limit: 1 
+           }
+           }
+           );
 
           if (!response.data.features?.length) return null;
 
