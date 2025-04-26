@@ -647,129 +647,158 @@ const handleDownloadPDF = async () => {
   }
 };
 
+   const handleDownloadExcel = async () => {
+  try {
+    // Geocode and filter companies with async processing
+    const filteredCompanies = await Promise.all(
+      companies.map(async (company) => {
+        try {
+          // 1. Apply text filters first
+          const passesTextFilters = Object.entries(filters).every(([filterKey, filterValue]) => {
+            if (!filterValue || filterKey === 'region') return true;
+            const companyField = {
+              companyName: 'name',
+              Product: 'product',
+              country: 'country',
+              RDLocation: 'r_and_d_location',
+              HeadquartersLocation: 'headquarters_location',
+              region: 'region'
+            }[filterKey];
+            
+            if (!companyField) return true;
+            const companyValue = company[companyField]?.toString().toLowerCase() || '';
+            return companyValue.includes(filterValue.toLowerCase());
+          });
 
- const handleDownloadExcel = async () => {
-  const filterToFieldMap = {
-    companyName: 'name',
-    Product: 'product',
-    country: 'country',
-    RDLocation: 'r_and_d_location',
-    HeadquartersLocation: 'headquarters_location',
-    region: 'region',
-    avoPlant: 'avoPlant'
-  };
+          if (!passesTextFilters) return null;
 
- const filteredCompanies = companies.filter(company => {
-  // First: basic text filters
-  const passesBasicFilters = Object.entries(filters).every(([filterKey, filterValue]) => {
-    if (!filterValue || filterKey === 'region') return true;
-    const companyField = filterToFieldMap[filterKey];
-    if (!companyField) return true;
-    const companyValue = company[companyField]?.toString().toLowerCase() || '';
-    return companyValue.includes(filterValue.toLowerCase());
-  });
+          // 2. Geocode company location
+          const location = company.r_and_d_location || company.headquarters_location;
+          if (!location) return null;
 
-  if (!passesBasicFilters) return false;
+          const response = await axios.get(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
+            { params: { access_token: mapboxgl.accessToken, limit: 1 }
+          );
 
-  // Then: region boundaries (if selected)
-  const region = filters.region;
-  if (region && regionBoundaries[region]) {
-    const bounds = regionBoundaries[region];
-    const lat = parseFloat(company.headquartersLat);
-    const lng = parseFloat(company.headquartersLng);
+          if (!response.data.features?.length) return null;
 
-    if (
-      isNaN(lat) || isNaN(lng) ||
-      lat < bounds.minLat || lat > bounds.maxLat ||
-      lng < bounds.minLng || lng > bounds.maxLng
-    ) {
-      return false;
+          // 3. Extract coordinates
+          const [lng, lat] = response.data.features[0].geometry.coordinates;
+
+          // 4. Apply region boundary check if region filter is active
+          if (filters.region) {
+            const boundaries = regionBoundaries[filters.region];
+            if (!boundaries) return null;
+            
+            const inRegion = lat >= boundaries.minLat && 
+                            lat <= boundaries.maxLat && 
+                            lng >= boundaries.minLng && 
+                            lng <= boundaries.maxLng;
+            
+            if (!inRegion) return null;
+          }
+
+          return company;
+
+        } catch (error) {
+          console.warn('Error processing company:', company.name, error);
+          return null;
+        }
+      })
+    );
+
+    // Remove null/undefined entries and invalid companies
+    const validCompanies = filteredCompanies.filter(c => c);
+
+    if (validCompanies.length === 0) {
+      Swal.fire('No Data', 'No companies match the current filters.', 'warning');
+      return;
     }
+
+    // Excel data preparation
+    const header = [
+      'Company Name', 'Email', 'Headquarters', 'R&D Location', 'Country', 'Products',
+      'Employee Strength', 'Revenues', 'Phone', 'Website', 'Production Volume', 'Key Customers',
+      'Region', 'Founding Year', 'Rating', 'Offering Products', 'Pricing Strategy', 'Customer Needs',
+      'Technology Used', 'Competitive Advantage', 'Challenges', 'Recent News', 'Product Launch',
+      'Strategic Partnership', 'Comments', 'Employees Per Region', 'Business Strategies', 
+      'Year of financial detail', 'Revenue', 'EBIT', 'Operating Cash Flow', 'Investing Cash Flow', 
+      'Free Cash Flow', 'ROCE', 'Equity Ratio', 'CEO', 'CFO', 'CTO', 'RD&head', 'Sales head', 
+      'Production head', 'Key decision marker'
+    ];
+
+    const rows = validCompanies.map(company => [
+      company.name, company.email, company.headquarters_location, company.r_and_d_location,
+      company.country, company.product, company.employeestrength, company.revenues, company.telephone,
+      company.website, company.productionvolumes, company.keycustomers, company.region,
+      company.foundingyear, company.rate, company.offeringproducts, company.pricingstrategy,
+      company.customerneeds, company.technologyuse, company.competitiveadvantage, company.challenges,
+      company.recentnews, company.productlaunch, company.strategicpartenrship, company.comments,
+      company.employeesperregion, company.businessstrategies, company.financialyear, company.revenue, 
+      company.ebit, company.operatingcashflow, company.investingcashflow, company.freecashflow, 
+      company.roce, company.equityratio, company.ceo, company.cfo, company.cto, company.rdhead, 
+      company.saleshead, company.productionhead, company.keydecisionmarker
+    ]);
+
+    // Create workbook with XlsxPopulate
+    XlsxPopulate.fromBlankAsync().then(workbook => {
+      const sheet = workbook.sheet(0);
+      sheet.name("Companies");
+
+      // Add header row with styling
+      sheet.row(1).style("bold", true);
+      header.forEach((title, index) => {
+        sheet.cell(1, index + 1).value(title);
+      });
+
+      // Add company data
+      rows.forEach((row, rowIndex) => {
+        row.forEach((value, colIndex) => {
+          sheet.cell(rowIndex + 2, colIndex + 1).value(value);
+        });
+      });
+
+      // Add data validations
+      if (sheet.dataValidations) {
+        // Product dropdown
+        const productOptions = ['Assembly', 'Chokes', 'Injection', 'Seals', 'Brush'];
+        const productRange = `F2:F${rows.length + 1}`;
+        sheet.dataValidations.add(productRange, {
+          type: 'list',
+          allowBlank: true,
+          formula1: `"${productOptions.join(',')}"`
+        });
+
+        // Region dropdown
+        const regionOptions = Object.keys(regionBoundaries);
+        const regionRange = `M2:M${rows.length + 1}`;
+        sheet.dataValidations.add(regionRange, {
+          type: 'list',
+          allowBlank: true,
+          formula1: `"${regionOptions.join(',')}"`
+        });
+      }
+
+      // Generate and download file
+      return workbook.outputAsync().then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Companies_Export_${new Date().toISOString().slice(0,10)}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }).catch(err => {
+      console.error("Excel generation error:", err);
+      Swal.fire('Error', 'Failed to generate Excel file.', 'error');
+    });
+
+  } catch (error) {
+    console.error("Download error:", error);
+    Swal.fire('Error', 'Failed to process company data.', 'error');
   }
-
-  return true;
-});
-
-  const header = [
-    'Company Name', 'Email', 'Headquarters', 'R&D Location', 'Country', 'Products',
-    'Employee Strength', 'Revenues', 'Phone', 'Website', 'Production Volume', 'Key Customers',
-    'Region', 'Founding Year', 'Rating', 'Offering Products', 'Pricing Strategy', 'Customer Needs',
-    'Technology Used', 'Competitive Advantage', 'Challenges', 'Recent News', 'Product Launch',
-    'Strategic Partnership', 'Comments', 'Employees Per Region', 'Business Strategies', 'Year of financial detail',
-    'Revenue', 'EBIT', 'Operating Cash Flow', 'Investing Cash Flow', 'Free Cash Flow', 'ROCE',
-    'Equity Ratio', 'CEO', 'CFO', 'CTO', 'RD&head', 'Sales head', 'Production head', 'Key decision marker', 
-   
-  ];
-
-  const rows = filteredCompanies.map(company => [
-    company.name, company.email, company.headquarters_location, company.r_and_d_location,
-    company.country, company.product, company.employeestrength, company.revenues, company.telephone,
-    company.website, company.productionvolumes, company.keycustomers, company.region,
-    company.foundingyear, company.rate, company.offeringproducts, company.pricingstrategy,
-    company.customerneeds, company.technologyuse, company.competitiveadvantage, company.challenges,
-    company.recentnews, company.productlaunch, company.strategicpartenrship, company.comments,
-    company.employeesperregion, company.businessstrategies,company.financialyear, company.revenue, company.ebit,
-    company.operatingcashflow, company.investingcashflow, company.freecashflow, company.roce,
-    company.equityratio, company.ceo, company.cfo,
-    company.cto, company.rdhead, company.saleshead, company.productionhead,
-    company.keydecisionmarker
-  ]);
-
-  // Create the workbook
- XlsxPopulate.fromBlankAsync().then(workbook => {
-  const sheet = workbook.sheet(0);
-  sheet.name("Companies");
-
-  // Set the header row
-  sheet.row(1).style("bold", true);
-  header.forEach((title, index) => {
-    sheet.cell(1, index + 1).value(title);
-  });
-
-  // Add company data
-  rows.forEach((row, rowIndex) => {
-    row.forEach((value, colIndex) => {
-      sheet.cell(rowIndex + 2, colIndex + 1).value(value);
-    });
-  });
-
-  // Ensure `sheet.dataValidations` is available
-  if (sheet.dataValidations) {
-    // Add dropdown to "Products" column (F), assuming header row = 1
-    const productOptions = ['Assembly', 'Chokes', 'Injection'];
-    const productRange = `F2:F${rows.length + 1}`;
-    sheet.dataValidations.add(productRange, {
-      type: 'list',
-      allowBlank: true,
-      formula1: `"${productOptions.join(',')}"`
-    });
-
-    // Add dropdown to "Region" column (M)
-    const regionOptions = ['Europe', 'Africa', 'East Europe'];
-    const regionRange = `M2:M${rows.length + 1}`; 
-    sheet.dataValidations.add(regionRange, {
-      type: 'list',
-      allowBlank: true,
-      formula1: `"${regionOptions.join(',')}"`
-    });
-  } else {
-    console.error("Data validations are not supported on this sheet.");
-  }
-
-  // Export the file
-  return workbook.outputAsync().then(blob => {
-    const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/octet-stream' }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "Companies_Export.xlsx";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
-}).catch(err => {
-  console.error("Error generating workbook:", err);
-});
-
 };
     const findClosestCompany = async (selectedPlantname,selectedPlantCoordinates, companies, mapboxToken) => {
         let closestCompany = null;
