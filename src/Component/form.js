@@ -75,8 +75,8 @@ const Form = () => {
     const [loadingheadquarterSuggestions, setLoadingheadquarterSuggestions] = useState(false);
     const[currentStep,setCurrentStep]= useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [currentstepupdate,setCurrentStepUpdate]= useState(1)
-    const [isOpen, setIsOpen] = useState(false);
+    const [currentstepupdate,setCurrentStepUpdate]= useState(1);
+  
 
 
   
@@ -813,111 +813,6 @@ const Form = () => {
                 <input type="text" name="email" placeholder="Enter the details" className="input" />
                </div>
                )}           
-
-             <div style={{ marginBottom: '1.5rem' }}>
-  <label
-    style={{
-      fontSize: '16px',
-      fontWeight: '600',
-      marginBottom: '10px',
-      display: 'block',
-      color: '#111827',
-    }}
-  >
-    Key Management Positions
-  </label>
-
-  <div
-    style={{
-      position: 'relative',
-      backgroundColor: '#ffffff',
-      border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-    }}
-  >
-    <div
-      style={{
-        maxHeight: '200px',
-        overflowY: 'auto',
-        padding: '8px',
-      }}
-    >
-      {optionskey.map((option) => {
-        const isSelected = formData.keymanagement?.includes(option.value);
-
-        return (
-          <div
-            key={option.value}
-            onClick={() => {
-              const selected = formData.keymanagement || [];
-              const updated = isSelected
-                ? selected.filter((v) => v !== option.value)
-                : [...selected, option.value];
-              setFormData({ ...formData, keymanagement: updated });
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '10px 14px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              backgroundColor: isSelected ? '#dbeafe' : 'transparent',
-              color: isSelected ? '#1d4ed8' : '#374151',
-              fontWeight: isSelected ? '600' : '500',
-              transition: 'all 0.2s ease-in-out',
-              '&:hover': {
-                backgroundColor: '#f3f4f6',
-              },
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={isSelected}
-              readOnly
-              style={{
-                accentColor: '#3b82f6',
-                pointerEvents: 'none',
-              }}
-            />
-            <span style={{ fontSize: '14px' }}>{option.label}</span>
-          </div>
-        );
-      })}
-    </div>
-  </div>
-
-  {formData.keymanagement?.map((role) => (
-    <div className="input-group" key={role} style={{ marginTop: '1rem' }}>
-      <label htmlFor={role} className="label">
-        Name of {role.toUpperCase().replace(/([a-z])([A-Z])/g, '$1 $2')}
-      </label>
-      <input
-        type="text"
-        name={role}
-        value={formData[role] || ''}
-        onChange={(e) =>
-          setFormData({
-            ...formData,
-            [role]: e.target.value
-          })
-        }
-        style={{
-          width: '100%',
-          padding: '10px 14px',
-          borderRadius: '8px',
-          border: '1px solid #e5e7eb',
-          backgroundColor: '#ffffff',
-          fontSize: '14px',
-          color: '#374151',
-        }}
-        placeholder={`Enter name of ${role.toUpperCase()}`}
-      />
-    </div>
-  ))}
-</div>
-
             <div className='input-row'>
                 <div className="input-group">
                     <h3 className='text-bold'>Growth rate</h3>
@@ -1635,110 +1530,7 @@ const Form = () => {
                </div>
                )}           
 
-      <div style={{ marginBottom: '1.5rem' }}>
-  <label
-    style={{
-      fontSize: '16px',
-      fontWeight: '600',
-      marginBottom: '10px',
-      display: 'block',
-      color: '#111827',
-    }}
-  >
-    Key Management Positions
-  </label>
-
-  <div
-    style={{
-      position: 'relative',
-      backgroundColor: '#ffffff',
-      border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-    }}
-  >
-    <div
-      style={{
-        maxHeight: '200px',
-        overflowY: 'auto',
-        padding: '8px',
-      }}
-    >
-      {optionskey.map((option) => {
-        const isSelected = formData.keymanagement?.includes(option.value);
-
-        return (
-          <div
-            key={option.value}
-            onClick={() => {
-              const selected = formData.keymanagement || [];
-              const updated = isSelected
-                ? selected.filter((v) => v !== option.value)
-                : [...selected, option.value];
-              setFormData({ ...formData, keymanagement: updated });
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '10px 14px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              backgroundColor: isSelected ? '#dbeafe' : 'transparent',
-              color: isSelected ? '#1d4ed8' : '#374151',
-              fontWeight: isSelected ? '600' : '500',
-              transition: 'all 0.2s ease-in-out',
-              '&:hover': {
-                backgroundColor: '#f3f4f6',
-              },
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={isSelected}
-              readOnly
-              style={{
-                accentColor: '#3b82f6',
-                pointerEvents: 'none',
-              }}
-            />
-            <span style={{ fontSize: '14px' }}>{option.label}</span>
-          </div>
-        );
-      })}
-    </div>
-  </div>
-
-  {formData.keymanagement?.map((role) => (
-    <div className="input-group" key={role} style={{ marginTop: '1rem' }}>
-      <label htmlFor={role} className="label">
-        Name of {role.toUpperCase().replace(/([a-z])([A-Z])/g, '$1 $2')}
-      </label>
-      <input
-        type="text"
-        name={role}
-        value={formData[role] || ''}
-        onChange={(e) =>
-          setFormData({
-            ...formData,
-            [role]: e.target.value
-          })
-        }
-        style={{
-          width: '100%',
-          padding: '10px 14px',
-          borderRadius: '8px',
-          border: '1px solid #e5e7eb',
-          backgroundColor: '#ffffff',
-          fontSize: '14px',
-          color: '#374151',
-        }}
-        placeholder={`Enter name of ${role.toUpperCase()}`}
-      />
-    </div>
-  ))}
-</div>
-
+ 
             <div className='input-row'>
                 <div className="input-group">
                     <h3 className='text-bold'>Growth rate</h3>
@@ -1986,13 +1778,11 @@ const Form = () => {
 
             <div className="button-beside">
                          {selectedCompanyId && <button onClick={handleUpdate} className="button">Update</button>}
-                        <button type="button" className="button" onClick={handlebackupdate}>Back</button>
-                 
-            </div>    
-          </div>                    
-        </form>
-    </motion.div>
-)}
+                        <button type="button" className="button" onClick={handlebackupdate}>Back</button> 
+           </div>                    
+         </form>
+        </motion.div>
+    )}
             {/* Map Component */}
  {showMap && (
         <div style={{ position: 'absolute', top: '60px', right: '0', width: '20%', height: '80%' }}>
