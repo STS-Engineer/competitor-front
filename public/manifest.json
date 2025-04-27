@@ -3,7 +3,7 @@
   "name": "AVOCarbon Map Competitor",
   "icons": [
     {
-      "src": "/logo-512x512.png",
+      "src": "/logo-avocarbon.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
