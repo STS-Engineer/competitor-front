@@ -9,13 +9,7 @@
       "purpose": "any"
     },
     {
-      "src": "logo-192x192.png?v=1",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "logo-512x512.png?v=1",
+      "src": "logo-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
