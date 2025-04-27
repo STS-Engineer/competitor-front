@@ -75,8 +75,8 @@ const Form = () => {
     const [loadingheadquarterSuggestions, setLoadingheadquarterSuggestions] = useState(false);
     const[currentStep,setCurrentStep]= useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [currentstepupdate,setCurrentStepUpdate]= useState(1);
-  
+    const [currentstepupdate,setCurrentStepUpdate]= useState(1)
+    
 
 
   
@@ -124,7 +124,8 @@ const Form = () => {
 
 
     const handleModalClose = () => {
-        setIsModalVisible(false); // Hide the modalk
+        setIsModalVisible(false); // Hide the modal
+    };
 
     const handleSave = () => {
         // Update the main form data with the modal inputs
@@ -813,6 +814,99 @@ const Form = () => {
                 <input type="text" name="email" placeholder="Enter the details" className="input" />
                </div>
                )}           
+
+<div style={{ marginBottom: '1.5rem' }}>
+  <label
+    style={{
+      fontSize: '16px',
+      fontWeight: '600',
+      marginBottom: '10px',
+      display: 'block',
+      color: '#111827',
+    }}
+  >
+    Key Management Positions
+  </label>
+
+  <div
+    style={{
+      backgroundColor: '#ffffff',
+      border: '1px solid #e5e7eb',
+      borderRadius: '12px',
+      padding: '16px',
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+    }}
+  >
+    {optionskey.map((option) => {
+      const isSelected = formData.keymanagement?.includes(option.value);
+
+      return (
+        <div
+          key={option.value}
+          onClick={() => {
+            const selected = formData.keymanagement || [];
+            const updated = isSelected
+              ? selected.filter((v) => v !== option.value)
+              : [...selected, option.value];
+            setFormData({ ...formData, keymanagement: updated });
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            backgroundColor: isSelected ? '#dbeafe' : '#f9fafb',
+            border: isSelected ? '1px solid #3b82f6' : '1px solid #e5e7eb',
+            color: isSelected ? '#1d4ed8' : '#374151',
+            fontWeight: isSelected ? '600' : '500',
+            transition: 'all 0.2s ease-in-out',
+            minWidth: '150px',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={isSelected}
+            readOnly
+            style={{
+              accentColor: '#3b82f6',
+              pointerEvents: 'none',
+            }}
+          />
+          <span style={{ fontSize: '14px' }}>{option.label}</span>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+
+  {Array.isArray(formData.keymanagement) &&formData.keymanagement.map((role) => (
+  <div className="input-group" key={role}>
+    <label htmlFor={role} className="label">
+      Name of {role.toUpperCase().replace(/([a-z])([A-Z])/g, '$1 $2')}
+    </label>
+    <input
+      type="text"
+      name={role}
+      value={formData[role] || ''}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          [role]: e.target.value
+         })
+          }
+           className="input modern-input"
+           placeholder={`Enter name of ${role.toUpperCase()}`}
+           />
+          </div>
+          ))}
+       </div>  
+
             <div className='input-row'>
                 <div className="input-group">
                     <h3 className='text-bold'>Growth rate</h3>
@@ -1071,7 +1165,7 @@ const Form = () => {
                     </>
                 )}
             </div>
-          </div>      
+                    
         </form>
     </motion.div>
 )}
@@ -1444,7 +1538,7 @@ const Form = () => {
         <form className="form" onSubmit={handleSubmit}>
         <img src={phonehand} width={180} height={50} style={{ display:'block', margin:'20px auto' }} />
             <div className='input-row'>
-                  <div
+      <div
   className="input-group"
   style={{
     display: "flex",
@@ -1490,19 +1584,18 @@ const Form = () => {
         borderColor: "#ccc",
         boxShadow: "none",
       })
-      }
-       >
-     <option value="" disabled>
-       Select Year
-      </option>
-    {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-     <option key={year} value={year.toString()}>
+    }
+  >
+    <option value="" disabled>
+      Select Year
+    </option>
+  {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+  <option key={year} value={year.toString()}>
     {year}
-      </option>
-     ))}
-       </select>
-         </div>
-
+  </option>
+  ))}
+  </select>
+</div>
 
                 <div className="input-group">
                <label htmlFor="Businessstrategies" className="label">Strategic Business</label>
@@ -1530,7 +1623,98 @@ const Form = () => {
                </div>
                )}           
 
- 
+<div style={{ marginBottom: '1.5rem' }}>
+  <label
+    style={{
+      fontSize: '16px',
+      fontWeight: '600',
+      marginBottom: '10px',
+      display: 'block',
+      color: '#111827',
+    }}
+  >
+    Key Management Positions
+  </label>
+
+  <div
+    style={{
+      backgroundColor: '#ffffff',
+      border: '1px solid #e5e7eb',
+      borderRadius: '12px',
+      padding: '16px',
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+    }}
+  >
+    {optionskey.map((option) => {
+      const isSelected = formData.keymanagement?.includes(option.value);
+
+      return (
+        <div
+          key={option.value}
+          onClick={() => {
+            const selected = formData.keymanagement || [];
+            const updated = isSelected
+              ? selected.filter((v) => v !== option.value)
+              : [...selected, option.value];
+            setFormData({ ...formData, keymanagement: updated });
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            backgroundColor: isSelected ? '#dbeafe' : '#f9fafb',
+            border: isSelected ? '1px solid #3b82f6' : '1px solid #e5e7eb',
+            color: isSelected ? '#1d4ed8' : '#374151',
+            fontWeight: isSelected ? '600' : '500',
+            transition: 'all 0.2s ease-in-out',
+            minWidth: '150px',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={isSelected}
+            readOnly
+            style={{
+              accentColor: '#3b82f6',
+              pointerEvents: 'none',
+            }}
+          />
+          <span style={{ fontSize: '14px' }}>{option.label}</span>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+
+  {Array.isArray(formData.keymanagement) && formData.keymanagement.map((role) => (
+  <div className="input-group" key={role}>
+    <label htmlFor={role} className="label">
+      Name of {role.toUpperCase().replace(/([a-z])([A-Z])/g, '$1 $2')}
+    </label>
+    <input
+      type="text"
+      name={role}
+      value={formData[role] || ''}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          [role]: e.target.value
+         })
+          }
+           className="input modern-input"
+           placeholder={`Enter name of ${role.toUpperCase()}`}
+           />
+          </div>
+          ))}
+       </div>  
+
             <div className='input-row'>
                 <div className="input-group">
                     <h3 className='text-bold'>Growth rate</h3>
@@ -1778,12 +1962,13 @@ const Form = () => {
 
             <div className="button-beside">
                          {selectedCompanyId && <button onClick={handleUpdate} className="button">Update</button>}
-                        <button type="button" className="button" onClick={handlebackupdate}>Back</button> 
-           </div>     
-          </div>                      
-         </form>
-        </motion.div>
-    )}
+                        <button type="button" className="button" onClick={handlebackupdate}>Back</button>
+                 
+            </div>    
+                            
+        </form>
+    </motion.div>
+)}
             {/* Map Component */}
  {showMap && (
         <div style={{ position: 'absolute', top: '60px', right: '0', width: '20%', height: '80%' }}>
