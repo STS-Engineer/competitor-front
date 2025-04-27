@@ -1779,7 +1779,8 @@ const Form = () => {
             <div className="button-beside">
                          {selectedCompanyId && <button onClick={handleUpdate} className="button">Update</button>}
                         <button type="button" className="button" onClick={handlebackupdate}>Back</button> 
-           </div>                    
+           </div>     
+          </div>                      
          </form>
         </motion.div>
     )}
