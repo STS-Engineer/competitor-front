@@ -1176,7 +1176,7 @@ const Form = () => {
                     </>
                 )}
             </div>
-                    
+          </div>      
         </form>
     </motion.div>
 )}
