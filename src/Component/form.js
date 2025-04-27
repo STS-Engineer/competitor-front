@@ -1538,7 +1538,7 @@ const Form = () => {
         <form className="form" onSubmit={handleSubmit}>
         <img src={phonehand} width={180} height={50} style={{ display:'block', margin:'20px auto' }} />
             <div className='input-row'>
-      <div
+                  <div
   className="input-group"
   style={{
     display: "flex",
@@ -1584,18 +1584,19 @@ const Form = () => {
         borderColor: "#ccc",
         boxShadow: "none",
       })
-    }
-  >
-    <option value="" disabled>
-      Select Year
-    </option>
-  {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-  <option key={year} value={year.toString()}>
+      }
+       >
+     <option value="" disabled>
+       Select Year
+      </option>
+    {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+     <option key={year} value={year.toString()}>
     {year}
-  </option>
-  ))}
-  </select>
-</div>
+      </option>
+     ))}
+       </select>
+         </div>
+
 
                 <div className="input-group">
                <label htmlFor="Businessstrategies" className="label">Strategic Business</label>
@@ -1692,8 +1693,7 @@ const Form = () => {
   </div>
 </div>
 
-
-  {formData.keymanagement && formData.keymanagement.map((role) => (
+{Array.isArray(formData.keymanagement) && formData.keymanagement.map((role) => (
   <div className="input-group" key={role}>
     <label htmlFor={role} className="label">
       Name of {role.toUpperCase().replace(/([a-z])([A-Z])/g, '$1 $2')}
@@ -1705,14 +1705,15 @@ const Form = () => {
       onChange={(e) =>
         setFormData({
           ...formData,
-          [role]: e.target.value
-         })
-          }
-           className="input modern-input"
-           placeholder={`Enter name of ${role.toUpperCase()}`}
-           />
-          </div>
-          ))}
+          [role]: e.target.value,
+        })
+      }
+      className="input modern-input"
+      placeholder={`Enter name of ${role.toUpperCase()}`}
+    />
+  </div>
+))}
+
        </div>  
 
             <div className='input-row'>
@@ -1962,7 +1963,7 @@ const Form = () => {
 
             <div className="button-beside">
                          {selectedCompanyId && <button onClick={handleUpdate} className="button">Update</button>}
-                        <button type="button" className="button" onClick={()=>currentstepupdate(1)}>Back</button>
+                        <button type="button" className="button" onClick={handlebackupdate}>Back</button>
                  
             </div>    
                             
