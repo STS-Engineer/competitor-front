@@ -730,7 +730,7 @@ const Form = () => {
         <form className="form" onSubmit={handleSubmit}>
         <img src={phonehand} width={180} height={50} style={{ display:'block', margin:'20px auto' }} />
             <div className='input-row'>
-      <div
+         <div
   className="input-group"
   style={{
     display: "flex",
@@ -750,10 +750,15 @@ const Form = () => {
   >
     Year of Establishment
   </label>
-  <select
+
+  <input
+    type="date"
     name="foundingyear"
     value={formData.foundingyear}
-    onChange={(e) => setFormData({ ...formData, foundingyear: e.target.value.toString() })}
+    onChange={(e) => {
+      const year = new Date(e.target.value).getFullYear();
+      setFormData({ ...formData, foundingyear: year.toString() });
+    }}
     style={{
       padding: "10px 12px",
       fontSize: "14px",
@@ -762,32 +767,19 @@ const Form = () => {
       background: "#f9f9f9",
       color: "#333",
       transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+      cursor: "pointer",
     }}
-    onFocus={(e) =>
-      (e.target.style = {
-        ...e.target.style,
-        borderColor: "#007bff",
-        boxShadow: "0 0 0 3px rgba(0, 123, 255, 0.2)",
-      })
-    }
-    onBlur={(e) =>
-      (e.target.style = {
-        ...e.target.style,
-        borderColor: "#ccc",
-        boxShadow: "none",
-      })
-    }
-  >
-    <option value="" disabled>
-      Select Year
-    </option>
-  {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-  <option key={year} value={year.toString()}>
-    {year}
-  </option>
-  ))}
-  </select>
+    onFocus={(e) => {
+      e.target.style.borderColor = "#007bff";
+      e.target.style.boxShadow = "0 0 0 3px rgba(0, 123, 255, 0.2)";
+    }}
+    onBlur={(e) => {
+      e.target.style.borderColor = "#ccc";
+      e.target.style.boxShadow = "none";
+    }}
+  />
 </div>
+
 
                 <div className="input-group">
                <label htmlFor="Businessstrategies" className="label">Strategic Business</label>
@@ -1538,7 +1530,7 @@ const Form = () => {
         <form className="form" onSubmit={handleSubmit}>
         <img src={phonehand} width={180} height={50} style={{ display:'block', margin:'20px auto' }} />
             <div className='input-row'>
-      <div
+           <div
   className="input-group"
   style={{
     display: "flex",
@@ -1558,10 +1550,15 @@ const Form = () => {
   >
     Year of Establishment
   </label>
-  <select
+
+  <input
+    type="date"
     name="foundingyear"
     value={formData.foundingyear}
-    onChange={(e) => setFormData({ ...formData, foundingyear: e.target.value.toString() })}
+    onChange={(e) => {
+      const year = new Date(e.target.value).getFullYear();
+      setFormData({ ...formData, foundingyear: year.toString() });
+    }}
     style={{
       padding: "10px 12px",
       fontSize: "14px",
@@ -1570,32 +1567,19 @@ const Form = () => {
       background: "#f9f9f9",
       color: "#333",
       transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+      cursor: "pointer",
     }}
-    onFocus={(e) =>
-      (e.target.style = {
-        ...e.target.style,
-        borderColor: "#007bff",
-        boxShadow: "0 0 0 3px rgba(0, 123, 255, 0.2)",
-      })
-    }
-    onBlur={(e) =>
-      (e.target.style = {
-        ...e.target.style,
-        borderColor: "#ccc",
-        boxShadow: "none",
-      })
-    }
-  >
-    <option value="" disabled>
-      Select Year
-    </option>
-  {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-  <option key={year} value={year.toString()}>
-    {year}
-  </option>
-  ))}
-  </select>
+    onFocus={(e) => {
+      e.target.style.borderColor = "#007bff";
+      e.target.style.boxShadow = "0 0 0 3px rgba(0, 123, 255, 0.2)";
+    }}
+    onBlur={(e) => {
+      e.target.style.borderColor = "#ccc";
+      e.target.style.boxShadow = "none";
+    }}
+  />
 </div>
+
 
                 <div className="input-group">
                <label htmlFor="Businessstrategies" className="label">Strategic Business</label>
@@ -1636,60 +1620,57 @@ const Form = () => {
     Key Management Positions
   </label>
 
-  <div
+<div
+  style={{
+    backgroundColor: '#ffffff',
+    border: '1px solid #e5e7eb',
+    borderRadius: '12px',
+    padding: '16px',
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '12px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+  }}
+>
+  <label
     style={{
-      backgroundColor: '#ffffff',
-      border: '1px solid #e5e7eb',
-      borderRadius: '12px',
-      padding: '16px',
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+      fontSize: '16px',
+      fontWeight: '600',
+      color: '#111827',
+      marginBottom: '8px',
+      display: 'block',
     }}
   >
-    {optionskey.map((option) => {
-      const isSelected = formData.keymanagement?.includes(option.value);
+    Select Key Management Positions
+  </label>
 
-      return (
-        <div
-          key={option.value}
-          onClick={() => {
-            const selected = formData.keymanagement || [];
-            const updated = isSelected
-              ? selected.filter((v) => v !== option.value)
-              : [...selected, option.value];
-            setFormData({ ...formData, keymanagement: updated });
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '10px 14px',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            backgroundColor: isSelected ? '#dbeafe' : '#f9fafb',
-            border: isSelected ? '1px solid #3b82f6' : '1px solid #e5e7eb',
-            color: isSelected ? '#1d4ed8' : '#374151',
-            fontWeight: isSelected ? '600' : '500',
-            transition: 'all 0.2s ease-in-out',
-            minWidth: '150px',
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={isSelected}
-            readOnly
-            style={{
-              accentColor: '#3b82f6',
-              pointerEvents: 'none',
-            }}
-          />
-          <span style={{ fontSize: '14px' }}>{option.label}</span>
-        </div>
-      );
-    })}
-  </div>
+  <select
+    name="keymanagement"
+    value={formData.keymanagement}
+    onChange={(e) => {
+      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+      setFormData({ ...formData, keymanagement: selectedOptions });
+    }}
+    style={{
+      padding: '10px 12px',
+      fontSize: '14px',
+      border: '1px solid #ccc',
+      borderRadius: '6px',
+      background: '#f9f9f9',
+      color: '#333',
+      width: '100%',
+      transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+    }}
+    multiple
+  >
+    {optionskey.map((option) => (
+      <option key={option.value} value={option.value}>
+        {option.label}
+      </option>
+    ))}
+  </select>
+</div>
+
 </div>
 
 
