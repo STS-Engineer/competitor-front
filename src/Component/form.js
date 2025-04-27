@@ -76,7 +76,7 @@ const Form = () => {
     const[currentStep,setCurrentStep]= useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentstepupdate,setCurrentStepUpdate]= useState(1)
-    
+    const [isOpen, setIsOpen] = useState(false);
 
 
   
@@ -124,8 +124,7 @@ const Form = () => {
 
 
     const handleModalClose = () => {
-        setIsModalVisible(false); // Hide the modal
-    };
+        setIsModalVisible(false); // Hide the modalk
 
     const handleSave = () => {
         // Update the main form data with the modal inputs
@@ -840,47 +839,75 @@ const Form = () => {
       boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
     }}
   >
-    {optionskey.map((option) => {
-      const isSelected = formData.keymanagement?.includes(option.value);
-
-      return (
-        <div
-          key={option.value}
-          onClick={() => {
-            const selected = formData.keymanagement || [];
-            const updated = isSelected
-              ? selected.filter((v) => v !== option.value)
-              : [...selected, option.value];
-            setFormData({ ...formData, keymanagement: updated });
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '10px 14px',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            backgroundColor: isSelected ? '#dbeafe' : '#f9fafb',
-            border: isSelected ? '1px solid #3b82f6' : '1px solid #e5e7eb',
-            color: isSelected ? '#1d4ed8' : '#374151',
-            fontWeight: isSelected ? '600' : '500',
-            transition: 'all 0.2s ease-in-out',
-            minWidth: '150px',
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={isSelected}
-            readOnly
-            style={{
-              accentColor: '#3b82f6',
-              pointerEvents: 'none',
-            }}
-          />
-          <span style={{ fontSize: '14px' }}>{option.label}</span>
-        </div>
-      );
-    })}
+    <select
+  multiple
+  value={formData.keymanagement || []}
+  onChange={(e) => {
+    const selected = Array.from(e.target.selectedOptions).map(option => option.value);
+    setFormData({ ...formData, keymanagement: selected });
+  }}
+  style={{
+    width: '100%',
+    minHeight: '48px',
+    padding: '8px',
+    border: '2px solid #e5e7eb',
+    borderRadius: '10px',
+    backgroundColor: '#f8fafc',
+    color: '#1e293b',
+    fontSize: '14px',
+    lineHeight: '1.5',
+    cursor: 'pointer',
+    appearance: 'none',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    transition: 'all 0.2s ease',
+    backgroundImage: `
+      linear-gradient(45deg, transparent 50%, #94a3b8 50%),
+      linear-gradient(135deg, #94a3b8 50%, transparent 50%)
+    `,
+    backgroundPosition: `
+      calc(100% - 20px) 50%,
+      calc(100% - 15px) 50%
+    `,
+    backgroundSize: '5px 5px, 5px 5px',
+    backgroundRepeat: 'no-repeat',
+    ':hover': {
+      borderColor: '#93c5fd',
+      boxShadow: '0 2px 6px rgba(59, 130, 246, 0.1)'
+    },
+    ':focus': {
+      outline: 'none',
+      borderColor: '#3b82f6',
+      boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.2)'
+    }
+  }}
+>
+  {optionskey.map((option) => {
+    const isSelected = formData.keymanagement?.includes(option.value);
+    return (
+      <option
+        key={option.value}
+        value={option.value}
+        style={{
+          padding: '12px 16px',
+          margin: '4px',
+          borderRadius: '6px',
+          backgroundColor: isSelected ? '#dbeafe' : '#fff',
+          color: isSelected ? '#1d4ed8' : '#334155',
+          fontSize: '14px',
+          fontWeight: isSelected ? '600' : '500',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          ':hover': {
+            backgroundColor: '#bfdbfe',
+            transform: 'translateX(2px)'
+          }
+        }}
+      >
+        {option.label}
+      </option>
+    );
+  })}
+</select>
   </div>
 </div>
 
@@ -1649,47 +1676,75 @@ const Form = () => {
       boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
     }}
   >
-    {optionskey.map((option) => {
-      const isSelected = formData.keymanagement?.includes(option.value);
-
-      return (
-        <div
-          key={option.value}
-          onClick={() => {
-            const selected = formData.keymanagement || [];
-            const updated = isSelected
-              ? selected.filter((v) => v !== option.value)
-              : [...selected, option.value];
-            setFormData({ ...formData, keymanagement: updated });
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '10px 14px',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            backgroundColor: isSelected ? '#dbeafe' : '#f9fafb',
-            border: isSelected ? '1px solid #3b82f6' : '1px solid #e5e7eb',
-            color: isSelected ? '#1d4ed8' : '#374151',
-            fontWeight: isSelected ? '600' : '500',
-            transition: 'all 0.2s ease-in-out',
-            minWidth: '150px',
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={isSelected}
-            readOnly
-            style={{
-              accentColor: '#3b82f6',
-              pointerEvents: 'none',
-            }}
-          />
-          <span style={{ fontSize: '14px' }}>{option.label}</span>
-        </div>
-      );
-    })}
+   <select
+  multiple
+  value={formData.keymanagement || []}
+  onChange={(e) => {
+    const selected = Array.from(e.target.selectedOptions).map(option => option.value);
+    setFormData({ ...formData, keymanagement: selected });
+  }}
+  style={{
+    width: '100%',
+    minHeight: '48px',
+    padding: '8px',
+    border: '2px solid #e5e7eb',
+    borderRadius: '10px',
+    backgroundColor: '#f8fafc',
+    color: '#1e293b',
+    fontSize: '14px',
+    lineHeight: '1.5',
+    cursor: 'pointer',
+    appearance: 'none',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    transition: 'all 0.2s ease',
+    backgroundImage: `
+      linear-gradient(45deg, transparent 50%, #94a3b8 50%),
+      linear-gradient(135deg, #94a3b8 50%, transparent 50%)
+    `,
+    backgroundPosition: `
+      calc(100% - 20px) 50%,
+      calc(100% - 15px) 50%
+    `,
+    backgroundSize: '5px 5px, 5px 5px',
+    backgroundRepeat: 'no-repeat',
+    ':hover': {
+      borderColor: '#93c5fd',
+      boxShadow: '0 2px 6px rgba(59, 130, 246, 0.1)'
+    },
+    ':focus': {
+      outline: 'none',
+      borderColor: '#3b82f6',
+      boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.2)'
+    }
+  }}
+>
+  {optionskey.map((option) => {
+    const isSelected = formData.keymanagement?.includes(option.value);
+    return (
+      <option
+        key={option.value}
+        value={option.value}
+        style={{
+          padding: '12px 16px',
+          margin: '4px',
+          borderRadius: '6px',
+          backgroundColor: isSelected ? '#dbeafe' : '#fff',
+          color: isSelected ? '#1d4ed8' : '#334155',
+          fontSize: '14px',
+          fontWeight: isSelected ? '600' : '500',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          ':hover': {
+            backgroundColor: '#bfdbfe',
+            transform: 'translateX(2px)'
+          }
+        }}
+      >
+        {option.label}
+      </option>
+    );
+  })}
+</select>
   </div>
 </div>
 
