@@ -3,7 +3,7 @@ import axios from 'axios';
 import './form.css';
 import Notification from './Notification/Notification';
 import phonehand from "../assets/logo-avocarbon.png";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';    
 import MapComponent from '../Component/mapbox';
 import Navbar from '../Components/Navbar';
 import { MultiSelect } from 'react-multi-select-component';
