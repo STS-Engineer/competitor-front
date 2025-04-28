@@ -8,7 +8,7 @@ import MapComponent from '../Component/mapbox';
 import Navbar from '../Components/Navbar';
 import { MultiSelect } from 'react-multi-select-component';
 import { motion } from 'framer-motion';
-import { Button, Input, Modal, Progress, Slider } from 'antd';
+import { Button, Input, Modal, Progress, Slider } from 'antd';     
 
 const Form = () => {
     const [companies, setCompanies] = useState([]);    
