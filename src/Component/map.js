@@ -51,6 +51,7 @@ function Map() {
     const [showHeadquarterLocation, setShowHeadquarterLocation] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedCompany, setSelectedCompany] = useState(null);
+    const [showDetails, setShowDetails] = useState(false);
     const navigate=useNavigate();
     const handlenavigate = ()=>{
         navigate("/stats")
@@ -1070,62 +1071,103 @@ const addAvoPlantPopup = () => {
                 </div>
             </nav>
             <div ref={mapContainerRef} style={{ width: '100vw', height: 'calc(100vh - 50px)' }} />
-                 <Modal
-        title={selectedCompany?.name}
-        open={isModalVisible}
-        onCancel={handleCancel}
-        footer={null}
-      >
-        {selectedCompany && (
-          <div>
+ <Modal
+  title={selectedCompany?.name}
+  open={isModalVisible}
+  onCancel={handleCancel}
+  footer={null}
+>
+  {selectedCompany && (
+    <div>
+      {/* Centered Product Image */}
+      <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
+        <img
+          src={productImages[selectedCompany.product.toLowerCase()] || ""}
+          alt={selectedCompany.product}
+          style={{
+            width: "100px",
+            height: "auto",
+            borderRadius: "8px",
+            border: "2px solid #ddd",
+          }}
+        />
+      </div>
 
-          <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
-              <img
-                src={productImages[selectedCompany.product.toLowerCase()] || ""}
-                alt={selectedCompany.product}
-                style={{
-                  width: "100px",
-                  height: "auto",
-                  borderRadius: "8px",
-                  border: "2px solid #ddd",
-                }}
-              />
-            </div>
-            <p>
-              <strong>Product:</strong>{" "}
-                {selectedCompany.product}
+      {/* Always-visible basic info */}
+      {[
+        { label: "Product", key: "product" },
+        { label: "R&D Location", key: "r_and_d_location" },
+        { label: "Headquarters", key: "headquarters_location" },
+        { label: "Region", key: "region" },
+        { label: "Country", key: "country" },
+        { label: "Founding Year", key: "foundingyear" },
+      ].map(
+        (field) =>
+          selectedCompany[field.key] && (
+            <p key={field.key}>
+              <strong>{field.label}:</strong> {selectedCompany[field.key]}
             </p>
-            <p>
-              <strong>R&D Location:</strong> {selectedCompany.r_and_d_location}
-            </p>
-            <p>
-              <strong>Headquarters:</strong> {selectedCompany.headquarters_location}
-            </p>
+          )
+      )}
 
-            <p>
-              <strong>Region:</strong> {selectedCompany.region}
+      {/* Executive fields (optional) */}
+      {[
+        { label: "CEO", key: "ceo" },
+        { label: "CFO", key: "cfo" },
+        { label: "CTO", key: "cto" },
+        { label: "R&D Head", key: "rdhead" },
+        { label: "Sales Head", key: "saleshead" },
+        { label: "Production Head", key: "productionhead" },
+        { label: "Key Decision Marker", key: "keydecisionmarker" },
+      ].map(
+        (field) =>
+          selectedCompany[field.key] && (
+            <p key={field.key}>
+              <strong>{field.label}:</strong> {selectedCompany[field.key]}
             </p>
-            <p>
-              <strong>Country:</strong> {selectedCompany.country}
-            </p>
+          )
+      )}
 
-            <p>
-              <strong>Founding Year:</strong> {selectedCompany.foundingyear}
-            </p>
-                   
-           {/* Executive Information Section */}
-            {selectedCompany.ceo && <p><strong>CEO:</strong> {selectedCompany.ceo}</p>}
-            {selectedCompany.cfo && <p><strong>CFO:</strong> {selectedCompany.cfo}</p>}
-            {selectedCompany.cto && <p><strong>CTO:</strong> {selectedCompany.cto}</p>}
-            {selectedCompany.rdhead && <p><strong>R&D Head:</strong> {selectedCompany.rdhead}</p>}
-            {selectedCompany.saleshead && <p><strong>Sales Head:</strong> {selectedCompany.saleshead}</p>}
-            {selectedCompany.productionhead && <p><strong>Production Head:</strong> {selectedCompany.productionhead}</p>}
-            {selectedCompany.keydecisionmarker && <p><strong>Key Decision Marker:</strong> {selectedCompany.keydecisionmarker}</p>}
-          
-          </div>
-        )}
-      </Modal>
-        </div>
+      {/* View Details Link */}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}>
+        <span
+          onClick={() => setShowDetails(!showDetails)}
+          style={{
+            color: "#1890ff",
+            cursor: "pointer",
+            textDecoration: "underline",
+          }}
+        >
+          {showDetails ? "Hide Details" : "View Details"}
+        </span>
+      </div>
+
+      {/* Conditionally show extra fields */}
+      {showDetails && (
+        <>
+          {[
+            { label: "Offering Products", key: "offeringproducts" },
+            { label: "Customer Needs", key: "customerneeds" },
+            { label: "Technology Use", key: "technologyuse" },
+            { label: "Competitive Advantage", key: "competitiveadvantage" },
+            { label: "Challenges", key: "challenges" },
+            { label: "Strategic Partenrship", key: "strategicpartenrship" },
+            { label: "Business Strategies", key: "businessstrategies" },
+          ].map(
+            (field) =>
+              selectedCompany[field.key] && (
+                <p key={field.key}>
+                  <strong>{field.label}:</strong> {selectedCompany[field.key]}
+                </p>
+              )
+          )}
+        </>
+      )}
+    </div>
+  )}
+</Modal>
+
+ </div>
     );
 }
  
